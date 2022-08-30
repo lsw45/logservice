@@ -9,6 +9,7 @@ type TaskConfig struct {
 	Interval time.Duration
 	Type     string
 	Tag      []string
+	Status   int // 任务状态
 }
 
 type Input struct {
