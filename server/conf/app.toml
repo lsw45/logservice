@@ -1,0 +1,9 @@
+[Web]
+listen_addr = ":8000"
+service_name = "log-ext"
+repository_request_timeout = 5
+
+[Kafka]
+
+
+[Opensearch]

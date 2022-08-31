@@ -1,10 +1,10 @@
 package adapter
 
 import (
-	"../../domain/entity"
+	"log-ext/domain/entity"
 )
 
 type TaskDto struct {
-	Task   entity.TaskConfig
+	Task   entity.Job
 	Status int
 }

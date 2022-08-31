@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-type TaskConfig struct {
+type Job struct {
 	Id       string
 	Input    Input
 	Output   Output

@@ -1,17 +1,22 @@
 package controller
 
 import (
-	"log-ext/adapter/repository"
+	"log-ext/domain"
 )
 
-type SearchService struct {
+type SearchController struct {
+	srv *domain.SearchService
 }
 
-func (s *SearchService) Search() {
-	repo := repository.SearchService{}
-	repo.Search()
+func NewSearchController(srv *domain.SearchService) *SearchController {
+	return &SearchController{
+		srv: srv,
+	}
 }
 
-func (s *SearchService) Roll() {
+func (s *SearchController) Search() {
 
+}
+
+func (s *SearchController) List() {
 }
