@@ -1,18 +1,21 @@
 package controller
 
 import (
+	"log-ext/adapter/repository"
 	"log-ext/domain"
 
 	"github.com/gin-gonic/gin"
 )
 
 type SearchController struct {
-	srv *domain.SearchInterface
+	search domain.SearchService
 }
 
-func NewSearchController(srv domain.SearchInterface) *SearchController {
+func NewSearchController() *SearchController {
+	search := domain.NewSearchLogService(&repository.OpensearchRepo{})
+
 	return &SearchController{
-		srv: &srv,
+		search: search,
 	}
 }
 
@@ -21,4 +24,5 @@ func (s *SearchController) Search() {
 }
 
 func (s *SearchController) List(c *gin.Context) {
+	s.search.List()
 }

@@ -2,25 +2,65 @@ package main
 
 import (
 	"log-ext/adapter/controller"
-	"log-ext/domain"
+	"log-ext/common"
+	"log-ext/infra"
+	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	engine := gin.Default()
-	addRouter(engine)
+	common.Logger.Info("Service Starting")
+	conf := common.NewAppConfig()
 
-	engine.Run(":8080")
+	common.Logger.Info("Start Http")
+	logExternal := NewServer(conf)
+	logExternal.Start()
 }
 
-func addRouter(r *gin.Engine) {
-	search := r.Group("/search")
-	{
-		searchCtl := controller.NewSearchController(&domain.SearchService{})
+type LogExternalServer struct {
+	conf   *common.AppConfig
+	server *http.Server
+}
 
-		search.GET("/list", searchCtl.List)
+func NewServer(conf *common.AppConfig) *LogExternalServer {
+	engine := gin.New()
+	gin.SetMode(conf.Server.RunMode)
+
+	server := &LogExternalServer{
+		conf: conf,
+		server: &http.Server{
+			Addr:           ":" + strconv.Itoa(conf.Server.HTTPPort),
+			Handler:        engine,
+			TLSConfig:      nil,
+			ReadTimeout:    conf.Server.ReadTimeOut * time.Second,
+			WriteTimeout:   conf.Server.WriteTimeOut * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		},
 	}
-	job := r.Group("/job")
-	job.GET("/get", controller.JobController.Get)
+	server.InitClient()
+
+	// 创建控制器
+	ctr := controller.NewLogExtServer(conf)
+	// 注册路由
+	ctr.RegisterRouter(engine)
+
+	return server
+}
+
+// InitClient 初始化各客户端连接
+func (ls *LogExternalServer) InitClient() {
+	//MySQL
+	db, err := infra.NewMysqlDB(ls.conf.Mysql)
+	if err != nil {
+		common.Logger.Fatal(err.Error())
+	}
+	common.Logger.Infof("mysql setting %+v", db.Statement)
+	ls.conf.DB = db
+}
+
+func (ls *LogExternalServer) Start() {
+
 }

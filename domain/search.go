@@ -1,10 +1,26 @@
 package domain
 
-import "log-ext/adapter/repository"
+import (
+	"log-ext/domain/dependency"
+)
 
-type SearchInterface interface {
+type SearchService interface {
+	Search()
+	List()
 }
 
-type SearchService struct {
-	repo repository.SearchInterface
+func NewSearchLogService(repo dependency.OpensearchRepo) SearchService {
+	return &searchLogService{repo: repo}
+}
+
+type searchLogService struct {
+	repo dependency.OpensearchRepo
+}
+
+func (srv *searchLogService) Search() {
+
+}
+
+func (srv *searchLogService) List() {
+	//s.repo.List()
 }

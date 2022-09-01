@@ -1,17 +1,25 @@
 package repository
 
-type search interface {
-	Search()
-	List()
+import (
+	"fmt"
+	"log-ext/domain/dependency"
+	"log-ext/infra"
+)
+
+var _ dependency.OpensearchRepo = (*OpensearchRepo)(nil)
+
+type OpensearchRepo struct {
+	Infra infra.OpensearchInfra
 }
 
-type Opensearch struct {
-}
-
-func (o *Opensearch) Search() {
+func (o *OpensearchRepo) Filter() {
 
 }
 
-func (o *Opensearch) List() {
+func (o *OpensearchRepo) ListLog() {
+	fmt.Println("xxx")
+}
 
+func (o *OpensearchRepo) Count() {
+	fmt.Println("xxx")
 }

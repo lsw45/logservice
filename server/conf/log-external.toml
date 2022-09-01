@@ -1,0 +1,23 @@
+[Web]
+    run_mode = "release"
+    http_port = 8080
+    service_name = "log-ext"
+    language = "zh_CN"
+    read_timeOut = 120
+    write_timeOut = 120
+    connect_check_timeout = 10
+    repository_request_timeout = 5
+
+[Log]
+    log_file_path = "./"
+    log_level = "debug"
+    develop_mode = true
+    max_age = 100
+    max_backups = 20
+    max_size = 100
+
+[Kafka]
+
+[Mysql]
+
+[Opensearch]
