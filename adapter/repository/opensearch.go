@@ -3,13 +3,12 @@ package repository
 import (
 	"fmt"
 	"log-ext/domain/dependency"
-	"log-ext/infra"
 )
 
 var _ dependency.OpensearchRepo = (*OpensearchRepo)(nil)
 
 type OpensearchRepo struct {
-	Infra infra.OpensearchInfra
+	//Infra infra.OpensearchInfra
 }
 
 func (o *OpensearchRepo) Filter() {

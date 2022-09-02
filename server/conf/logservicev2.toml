@@ -1,7 +1,7 @@
 [Web]
     run_mode = "release"
     http_port = 8080
-    service_name = "log-ext"
+    service_name = "logservicev2"
     language = "zh_CN"
     read_timeOut = 120
     write_timeOut = 120
@@ -9,7 +9,7 @@
     repository_request_timeout = 5
 
 [Log]
-    log_file_path = "./"
+    log_file_path = "./logservicev2.log"
     log_level = "debug"
     develop_mode = true
     max_age = 100
@@ -19,5 +19,9 @@
 [Kafka]
 
 [Mysql]
-
+    database = "paas_logservicev2_dev"
+    host = "121.37.173.234"
+    port = 3306
+    username = "root"
+    password =  "Cocos@2021"
 [Opensearch]

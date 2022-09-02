@@ -12,7 +12,7 @@ import (
 
 var (
 	configPath = "./server/conf"
-	configName = "app"
+	configName = "logservicev2"
 	configExt  = "toml"
 
 	appConf     *AppConfig
@@ -20,44 +20,48 @@ var (
 )
 
 type AppConfig struct {
-	Logging    Logging    `toml:"Log"`
-	Server     Web        `toml:"Web"`
-	Kafka      Kafka      `toml:"Kafka"`
-	Mysql      Mysql      `toml:"Mysql"`
-	Opensearch Opensearch `toml:"Opensearch"`
+	Logging    Logging    `mapstructure:"Log"`
+	Server     Web        `mapstructure:"Web"`
+	Kafka      Kafka      `mapstructure:"Kafka"`
+	Mysql      Mysql      `mapstructure:"Mysql"`
+	Opensearch Opensearch `mapstructure:"Opensearch"`
 
 	DB *gorm.DB `json:"-"`
 }
+
 type Web struct {
-	RunMode                  string        `toml:"run_mode"`
-	HTTPPort                 int           `toml:"http_port"`
-	ServiceName              string        `toml:"service_name"`
-	Language                 string        `toml:"language"`
-	ReadTimeOut              time.Duration `toml:"read_timeOut"`
-	WriteTimeOut             time.Duration `toml:"write_timeOut"`
-	ConnectCheckTimeout      time.Duration `toml:"connect_check_timeout"`
-	RepositoryRequestTimeout time.Duration `toml:"repository_request_timeout"`
+	RunMode                  string        `mapstructure:"run_mode"`
+	HTTPPort                 int           `mapstructure:"http_port"`
+	ServiceName              string        `mapstructure:"service_name"`
+	Language                 string        `mapstructure:"language"`
+	ReadTimeOut              time.Duration `mapstructure:"read_timeOut"`
+	WriteTimeOut             time.Duration `mapstructure:"write_timeOut"`
+	ConnectCheckTimeout      time.Duration `mapstructure:"connect_check_timeout"`
+	RepositoryRequestTimeout time.Duration `mapstructure:"repository_request_timeout"`
 }
 
 type Logging struct {
-	LogFilePath string `toml:"logFilePath"`
-	LogLevel    string `toml:"log_level"`
-	DevelopMode bool   `toml:"develop_mode"`
-	MaxAge      int    `toml:"max_age"`
-	MaxBackups  int    `toml:"max_backups"`
-	MaxSize     int    `toml:"max_size"`
+	LogFilePath string `mapstructure:"log_file_path"`
+	LogLevel    string `mapstructure:"log_level"`
+	DevelopMode bool   `mapstructure:"develop_mode"`
+	MaxAge      int    `mapstructure:"max_age"`
+	MaxBackups  int    `mapstructure:"max_backups"`
+	MaxSize     int    `mapstructure:"max_size"`
 
 	atomicLevel zap.AtomicLevel
 }
+
 type Kafka struct {
 }
 
 type Mysql struct {
-	Host     string `toml:"host"`
-	Port     int    `toml:"port"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	DataBase     string    `mapstructure:"database"`
 	Username string
 	Password string `json:"-"`
 }
+
 type Opensearch struct {
 }
 
@@ -101,7 +105,6 @@ func loadSetting(vp *viper.Viper) {
 		Logger.Fatalf("err:%s\n", err)
 	}
 
-	appConf.SetMySQLSetting()
 	appConf.Logging.SetLogLevel()
 
 	s, _ := json.Marshal(appConf)
@@ -109,10 +112,10 @@ func loadSetting(vp *viper.Viper) {
 	Logger.Info(string(s))
 }
 
-// SetMySQLSetting 初始化mysql
+// SetMySQLSetting 初始化mysql：账号密码解密、格式校验等
 func (appConf *AppConfig) SetMySQLSetting() {
-	appConf.Mysql.Host = "10.4.106.129"
-	appConf.Mysql.Port = 30006
-	appConf.Mysql.Username = "root"
-	appConf.Mysql.Password = "root"
+	//appConf.Mysql.Host = "10.4.106.129"
+	//appConf.Mysql.Port = 30006
+	//appConf.Mysql.Username = "root"
+	//appConf.Mysql.Password = "root"
 }

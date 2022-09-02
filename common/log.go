@@ -62,7 +62,7 @@ func (logConf *Logging) initLogger() *Log {
 	)
 
 	// 设置初始化字段
-	filed := zap.Fields(zap.String("serviceName", "ingest_manager"))
+	filed := zap.Fields(zap.String("serviceName", "logservicev2"))
 	// 构造日志
 	var logger *zap.SugaredLogger
 	if logConf.DevelopMode {

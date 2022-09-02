@@ -6,6 +6,8 @@ import (
 	"log-ext/common"
 )
 
+var ExitChan = make(chan interface{}, 1)
+
 type AppServer interface {
 	RegisterRouter(e *gin.Engine)
 }

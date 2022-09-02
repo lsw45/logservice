@@ -4,3 +4,7 @@ type OpensearchInfra interface {
 	List()
 	Count()
 }
+
+type Opensearch struct {
+
+}

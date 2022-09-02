@@ -12,15 +12,15 @@ var (
 )
 
 type repoInfra struct {
-	infra.MysqlInfra
-	infra.OpensearchInfra
+	Mysql infra.MysqlInfra
+	Opensearch infra.OpensearchInfra
 }
 
 func SetRepoInfra(conf *common.AppConfig) {
 	once.Do(func() {
 		RepoInfra = &repoInfra{
-			MysqlInfra:      infra.MysqlInfra{conf.DB},
-			OpensearchInfra: nil,
+			Mysql:      &infra.Mysql{DB: conf.DB},
+			Opensearch: nil,
 		}
 	})
 }
