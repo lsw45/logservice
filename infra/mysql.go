@@ -20,9 +20,8 @@ type Mysql struct {
 }
 
 func NewMysqlDB(conf common.Mysql) (*gorm.DB, error) {
-
 	dbDSN := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=True&loc=Local",
-		conf.Username, conf.Password, conf.Host, conf.Port,conf.DataBase)
+		conf.Username, conf.Password, conf.Host, conf.Port, conf.DataBase)
 
 	gormDB, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: dbDSN,

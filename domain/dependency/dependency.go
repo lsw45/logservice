@@ -4,9 +4,8 @@ import "log-ext/domain/entity"
 
 //go:generate mockgen -source ../dependency/dependency.go -destination ../../mock/mock_dependency.go -package mock
 type OpensearchRepo interface {
-	Count()
-	ListLog()
-	Filter()
+	SearchRequest(content string) ([]byte, error)
+	IndicesDeleteRequest(indexNames []string) ([]byte, error)
 }
 
 type MysqlRepo interface {

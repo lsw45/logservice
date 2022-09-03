@@ -16,7 +16,10 @@
     max_backups = 20
     max_size = 100
 
-[Kafka]
+[Redis]
+    address = ""
+    username = "root"
+    password =  "Cocos@2021"
 
 [Mysql]
     database = "paas_logservicev2_dev"
@@ -24,4 +27,9 @@
     port = 3306
     username = "root"
     password =  "Cocos@2021"
+
 [Opensearch]
+    insecure_skip_verify = true
+    address = ["121.37.173.234:9200"]
+    username = "admin"
+    password = "admin"

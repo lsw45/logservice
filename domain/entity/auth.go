@@ -1,7 +1,5 @@
 package entity
 
-import "time"
-
 const UserTableName = "user_manager_User"
 
 type User struct {
@@ -18,13 +16,4 @@ type UserListQuery struct {
 	UserName string `form:"user_name"`
 	Sort     string `form:"sort" validate:"omitempty,oneof=id User_name"`
 	CommonListQuery
-}
-
-type Filter struct {
-	Username    string    `json:"username" binding:"required"`
-	Category    string    `json:"category" binding:"required"`
-	StartTime   int       `json:"starttime" binding:"gte=0"`
-	EndTime     int       `json:"endtime" binding:"gte=0"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"createdAt"`
 }

@@ -1,24 +1,41 @@
 package repository
 
 import (
-	"fmt"
+	"log-ext/common"
 	"log-ext/domain/dependency"
+	"log-ext/infra"
 )
 
 var _ dependency.OpensearchRepo = (*OpensearchRepo)(nil)
 
 type OpensearchRepo struct {
-	//Infra infra.OpensearchInfra
+	infra.OpensearchInfra
 }
 
-func (o *OpensearchRepo) Filter() {
-
+func NewOpensearchRepo() *OpensearchRepo {
+	return &OpensearchRepo{RepoInfra.Opensearch}
 }
 
-func (o *OpensearchRepo) ListLog() {
-	fmt.Println("xxx")
+func (open *OpensearchRepo) SearchRequest(content string) ([]byte, error) {
+	resp, err := open.OpensearchInfra.SearchRequest(content)
+	if err != nil {
+		common.Logger.Errorf("opensearch search error:%s", err.Error())
+		return nil, err
+	}
+	buff := make([]byte, 1024)
+	_, err = resp.Body.Read(buff)
+
+	return buff, err
 }
 
-func (o *OpensearchRepo) Count() {
-	fmt.Println("xxx")
+func (open *OpensearchRepo) IndicesDeleteRequest(indexNames []string) ([]byte, error) {
+	resp, err := open.OpensearchInfra.IndicesDeleteRequest(indexNames)
+	if err != nil {
+		common.Logger.Errorf("opensearch delete index error:%s", err.Error())
+		return nil, err
+	}
+	buff := make([]byte, 100)
+	_, err = resp.Body.Read(buff)
+
+	return buff, err
 }

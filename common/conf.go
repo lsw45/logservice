@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/json"
 	"github.com/fsnotify/fsnotify"
+	"github.com/opensearch-project/opensearch-go"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -22,11 +23,12 @@ var (
 type AppConfig struct {
 	Logging    Logging    `mapstructure:"Log"`
 	Server     Web        `mapstructure:"Web"`
-	Kafka      Kafka      `mapstructure:"Kafka"`
+	Redis      Redis      `mapstructure:"Kafka"`
 	Mysql      Mysql      `mapstructure:"Mysql"`
 	Opensearch Opensearch `mapstructure:"Opensearch"`
 
-	DB *gorm.DB `json:"-"`
+	DB     *gorm.DB           `json:"-"`
+	OpenDB *opensearch.Client `json:"-"`
 }
 
 type Web struct {
@@ -51,18 +53,25 @@ type Logging struct {
 	atomicLevel zap.AtomicLevel
 }
 
-type Kafka struct {
+type Redis struct {
+	Address  string `mapstructure:"address"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
 
 type Mysql struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
-	DataBase     string    `mapstructure:"database"`
+	DataBase string `mapstructure:"database"`
 	Username string
 	Password string `json:"-"`
 }
 
 type Opensearch struct {
+	InsecureSkipVerify bool     `mapstructure:"insecure_skip_verify"`
+	Address            []string `mapstructure:"address"`
+	Username           string   `mapstructure:"username"`
+	Password           string   `mapstructure:"password"`
 }
 
 // NewAppConfig 读取服务配置

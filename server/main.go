@@ -66,6 +66,13 @@ func (ls *LogExternalServer) InitClient() {
 	}
 	common.Logger.Infof("mysql setting %+v", db.Statement)
 	ls.conf.DB = db
+
+	opensearch, err := infra.NewOpensearch(ls.conf.Opensearch)
+	if err != nil {
+		common.Logger.Fatal(err.Error())
+	}
+	common.Logger.Info(opensearch.Info())
+	ls.conf.OpenDB = opensearch
 }
 
 func (ls *LogExternalServer) Start() {
