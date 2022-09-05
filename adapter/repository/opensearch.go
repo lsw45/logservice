@@ -13,7 +13,7 @@ type OpensearchRepo struct {
 }
 
 func NewOpensearchRepo() *OpensearchRepo {
-	return &OpensearchRepo{RepoInfra.Opensearch}
+	return &OpensearchRepo{defaultInfra.Opensearch}
 }
 
 func (open *OpensearchRepo) SearchRequest(content string) ([]byte, error) {

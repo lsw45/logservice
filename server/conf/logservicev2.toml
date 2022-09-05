@@ -17,9 +17,11 @@
     max_size = 100
 
 [Redis]
-    address = ""
-    username = "root"
+    db = 1
+    addr = "ip:port"
     password =  "Cocos@2021"
+    max_retries = 1
+    min_idle_conns = 1
 
 [Mysql]
     database = "paas_logservicev2_dev"

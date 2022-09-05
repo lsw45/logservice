@@ -59,20 +59,28 @@ func NewServer(conf *common.AppConfig) *LogExternalServer {
 
 // InitClient 初始化各客户端连接
 func (ls *LogExternalServer) InitClient() {
-	//MySQL
-	db, err := infra.NewMysqlDB(ls.conf.Mysql)
-	if err != nil {
-		common.Logger.Fatal(err.Error())
-	}
-	common.Logger.Infof("mysql setting %+v", db.Statement)
-	ls.conf.DB = db
+	var err error
 
-	opensearch, err := infra.NewOpensearch(ls.conf.Opensearch)
+	// mysql
+	ls.conf.DB, err = infra.NewMysqlDB(ls.conf.Mysql)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Info(opensearch.Info())
-	ls.conf.OpenDB = opensearch
+	common.Logger.Infof("mysql setting %+v", ls.conf.DB.Statement)
+
+	// opensearch
+	ls.conf.OpenDB, err = infra.NewOpensearch(ls.conf.Opensearch)
+	if err != nil {
+		common.Logger.Fatal(err.Error())
+	}
+	common.Logger.Info(ls.conf.OpenDB.Info())
+
+	// redis
+	ls.conf.RedisCli, err = infra.NewRedis(ls.conf.Redis)
+	if err != nil {
+		common.Logger.Fatal(err.Error())
+	}
+	common.Logger.Info(ls.conf.RedisCli.Options())
 }
 
 func (ls *LogExternalServer) Start() {

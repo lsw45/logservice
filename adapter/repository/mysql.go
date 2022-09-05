@@ -13,7 +13,7 @@ type MysqlRepo struct {
 }
 
 func NewMysqlRepo() *MysqlRepo {
-	return &MysqlRepo{RepoInfra.Mysql}
+	return &MysqlRepo{defaultInfra.Mysql}
 }
 
 func (m *MysqlRepo) GetUser(id int) (*entity.User, error) {

@@ -2,13 +2,15 @@ package common
 
 import (
 	"encoding/json"
+	"sync"
+	"time"
+
 	"github.com/fsnotify/fsnotify"
+	red "github.com/go-redis/redis/v8"
 	"github.com/opensearch-project/opensearch-go"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"sync"
-	"time"
 )
 
 var (
@@ -27,8 +29,9 @@ type AppConfig struct {
 	Mysql      Mysql      `mapstructure:"Mysql"`
 	Opensearch Opensearch `mapstructure:"Opensearch"`
 
-	DB     *gorm.DB           `json:"-"`
-	OpenDB *opensearch.Client `json:"-"`
+	DB       *gorm.DB           `json:"-"`
+	RedisCli *red.Client        `json:"-"`
+	OpenDB   *opensearch.Client `json:"-"`
 }
 
 type Web struct {
@@ -54,9 +57,11 @@ type Logging struct {
 }
 
 type Redis struct {
-	Address  string `mapstructure:"address"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
+	DB           int    `mapstructure:"db"`
+	Addr         string `mapstructure:"addr"`
+	Password     string `mapstructure:"password"`
+	MaxRetries   int    `mapstructure:"max_retries"`
+	MinIdleConns int    `mapstructure:"min_idle_conns"`
 }
 
 type Mysql struct {

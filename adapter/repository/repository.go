@@ -7,18 +7,20 @@ import (
 )
 
 var (
-	RepoInfra = &repoInfra{}
-	once      = sync.Once{}
+	defaultInfra = &RepoInfra{}
+	once         = sync.Once{}
 )
 
-type repoInfra struct {
+type RepoInfra struct {
+	Redis      infra.RedisInfra
 	Mysql      infra.MysqlInfra
 	Opensearch infra.OpensearchInfra
 }
 
 func SetRepoInfra(conf *common.AppConfig) {
 	once.Do(func() {
-		RepoInfra = &repoInfra{
+		defaultInfra = &RepoInfra{
+			Redis:      &infra.Redis{Client: conf.RedisCli},
 			Mysql:      &infra.Mysql{DB: conf.DB},
 			Opensearch: &infra.Opensearch{Client: conf.OpenDB},
 		}

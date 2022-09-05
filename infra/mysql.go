@@ -2,10 +2,11 @@ package infra
 
 import (
 	"fmt"
-	"gorm.io/driver/mysql"
 	"log-ext/common"
 	"log-ext/domain/entity"
 	"time"
+
+	"gorm.io/driver/mysql"
 
 	"gorm.io/gorm"
 )

@@ -1,23 +1,41 @@
 package infra
 
 import (
-	"github.com/go-redis/redis"
+	"context"
 	"log-ext/common"
+	"log-ext/common/errorx"
+
+	red "github.com/go-redis/redis/v8"
 )
 
 type RedisInfra interface {
-	Get()
+	Get(ctx context.Context, key string) (string, errorx.ErrInt)
 }
 
 type Redis struct {
-	redis.Client
+	Client *red.Client
 }
 
-func NewRedis(conf common.Redis) (*redis.Client, error) {
-
-	return nil, nil
+func NewRedis(conf common.Redis) (*red.Client, error) {
+	return red.NewClient(&red.Options{
+		DB:           conf.DB,
+		Addr:         conf.Addr,
+		Password:     conf.Password,
+		MaxRetries:   conf.MaxRetries,
+		MinIdleConns: conf.MinIdleConns,
+	}), nil
 }
 
-func (r *Redis) Get() {
+func (r *Redis) Get(ctx context.Context, key string) (string, errorx.ErrInt) {
+	val, err := r.Client.Get(ctx, key).Result()
 
+	if err == red.Nil {
+		return "", errorx.AUTH_ERROR
+	}
+
+	if err != nil {
+		return "", errorx.SERVER_COMMON_ERROR
+	}
+
+	return val, errorx.ErrNil
 }

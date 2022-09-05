@@ -17,3 +17,9 @@ type UserListQuery struct {
 	Sort     string `form:"sort" validate:"omitempty,oneof=id User_name"`
 	CommonListQuery
 }
+
+type UserInfo struct {
+	//Id int64 `json:"id"`
+	Company       int64  `json:"XXXXX"`
+	CorporationId string `json:"corporation_id"`
+}
