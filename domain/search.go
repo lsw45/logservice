@@ -1,26 +1,42 @@
 package domain
 
 import (
+	"encoding/json"
 	"log-ext/domain/dependency"
+	"log-ext/domain/entity"
 )
 
 type SearchService interface {
-	Search()
-	List()
+	Histogram()
+	SearchLogsByFilter(filter *entity.LogsFilter) ([]entity.LogsResult, error)
 }
 
 func NewSearchLogService(repo dependency.OpensearchRepo) SearchService {
-	return &searchLogService{repo: repo}
+	return &SearchLogService{repo: repo}
 }
 
-type searchLogService struct {
+type SearchLogService struct {
 	repo dependency.OpensearchRepo
 }
 
-func (srv *searchLogService) Search() {
+func (srv *SearchLogService) Histogram() {
 
 }
 
-func (srv *searchLogService) List() {
-	//s.repo.List()
+func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]entity.LogsResult, error) {
+	// struct to string
+	var content string = ""
+
+	data, err := srv.repo.SearchRequest(content)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []entity.LogsResult
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

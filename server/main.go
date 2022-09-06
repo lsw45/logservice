@@ -34,7 +34,9 @@ type LogExternalServer struct {
 
 func NewServer(conf *common.AppConfig) *LogExternalServer {
 	engine := gin.New()
+	engine.Use(gin.Recovery())
 	gin.SetMode(conf.Server.RunMode)
+
 
 	server := &LogExternalServer{
 		conf: conf,
