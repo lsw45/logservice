@@ -17,13 +17,14 @@ type Redis struct {
 }
 
 func NewRedis(conf common.Redis) (*red.Client, error) {
-	return red.NewClient(&red.Options{
+	rdb := red.NewClient(&red.Options{
 		DB:           conf.DB,
 		Addr:         conf.Addr,
 		Password:     conf.Password,
 		MaxRetries:   conf.MaxRetries,
 		MinIdleConns: conf.MinIdleConns,
-	}), nil
+	})
+	return rdb,nil
 }
 
 func (r *Redis) Get(ctx context.Context, key string) (string, errorx.ErrInt) {

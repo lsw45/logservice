@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	configPath = "./server/conf"
+	configPath = "./conf"
 	configName = "logservicev2"
 	configExt  = "toml"
 
@@ -92,7 +92,7 @@ func NewAppConfig() *AppConfig {
 
 // 初始化配置
 func initSetting(vp *viper.Viper) {
-	Logger.Infof("Init Setting From File %s%s.%s", configPath, configName, configExt)
+	Logger.Infof("Init Setting From File %s/%s.%s", configPath, configName, configExt)
 
 	vp.AddConfigPath(configPath)
 	vp.SetConfigName(configName)
@@ -109,7 +109,7 @@ func initSetting(vp *viper.Viper) {
 
 // 读取配置文件
 func loadSetting(vp *viper.Viper) {
-	Logger.Infof("Load Setting File %s%s.%s", configPath, configName, configExt)
+	Logger.Infof("Load Setting File %s/%s.%s", configPath, configName, configExt)
 
 	if err := vp.ReadInConfig(); err != nil {
 		Logger.Fatalf("err:%s\n", err)

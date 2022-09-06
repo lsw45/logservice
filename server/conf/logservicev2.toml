@@ -1,6 +1,6 @@
 [Web]
     run_mode = "release"
-    http_port = 8080
+    http_port = 38080
     service_name = "logservicev2"
     language = "zh_CN"
     read_timeOut = 120
@@ -32,6 +32,6 @@
 
 [Opensearch]
     insecure_skip_verify = true
-    address = ["121.37.173.234:9200"]
+    address = ["//121.37.173.234:9200"]
     username = "admin"
     password = "admin"

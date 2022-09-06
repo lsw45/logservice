@@ -19,77 +19,79 @@ func main() {
 	common.Logger.Info("Service Starting")
 	conf := common.NewAppConfig()
 
+	// 初始化基础设施
+	initClient(conf)
+
 	common.Logger.Info("Start Http")
-	server := NewServer(conf)
-	server.Start()
+	logServer := NewLogServer(conf)
 
 	common.Logger.Info("wait signal")
-	server.AwaitSignal()
+	logServer.AwaitSignal()
 }
 
-type LogExternalServer struct {
-	conf   *common.AppConfig
-	server *http.Server
+type LogServer struct {
+	conf *common.AppConfig
+	web  *http.Server
 }
 
-func NewServer(conf *common.AppConfig) *LogExternalServer {
+func NewLogServer(conf *common.AppConfig) *LogServer {
+	server := &LogServer{conf: conf}
+
 	engine := gin.New()
 	engine.Use(gin.Recovery())
 	gin.SetMode(conf.Server.RunMode)
 
-
-	server := &LogExternalServer{
-		conf: conf,
-		server: &http.Server{
-			Addr:           ":" + strconv.Itoa(conf.Server.HTTPPort),
-			Handler:        engine,
-			TLSConfig:      nil,
-			ReadTimeout:    conf.Server.ReadTimeOut * time.Second,
-			WriteTimeout:   conf.Server.WriteTimeOut * time.Second,
-			MaxHeaderBytes: 1 << 20,
-		},
-	}
-	server.InitClient()
-
 	// 创建控制器
-	ctr := controller.NewLogExtServer(conf)
-	// 注册路由
-	ctr.RegisterRouter(engine)
+	logctr := controller.NewLogExtServer(conf)
+	logctr.RegisterRouter(engine)
 
+	server.web = &http.Server{
+		Addr:           ":" + strconv.Itoa(conf.Server.HTTPPort),
+		Handler:        engine,
+		TLSConfig:      nil,
+		ReadTimeout:    conf.Server.ReadTimeOut * time.Second,
+		WriteTimeout:   conf.Server.WriteTimeOut * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	err := server.web.ListenAndServe()
+	if err != nil {
+		common.Logger.Fatal(err.Error())
+	}
 	return server
 }
 
 // InitClient 初始化各客户端连接
-func (ls *LogExternalServer) InitClient() {
+func initClient(conf *common.AppConfig) {
 	var err error
 
 	// mysql
-	ls.conf.DB, err = infra.NewMysqlDB(ls.conf.Mysql)
+	conf.DB, err = infra.NewMysqlDB(conf.Mysql)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Infof("mysql setting %+v", ls.conf.DB.Statement)
+	common.Logger.Infof("mysql setting %+v", conf.DB.Statement)
 
 	// opensearch
-	ls.conf.OpenDB, err = infra.NewOpensearch(ls.conf.Opensearch)
+	conf.OpenDB, err = infra.NewOpensearch(conf.Opensearch)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Info(ls.conf.OpenDB.Info())
+	common.Logger.Info(conf.OpenDB.Info())
 
 	// redis
-	ls.conf.RedisCli, err = infra.NewRedis(ls.conf.Redis)
+	conf.RedisCli, err = infra.NewRedis(conf.Redis)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Info(ls.conf.RedisCli.Options())
+	common.Logger.Infof("%+v", conf.RedisCli)
 }
 
-func (ls *LogExternalServer) Start() {
+func (ls *LogServer) Start() {
 
 }
 
-func (ls *LogExternalServer) AwaitSignal() {
+func (ls *LogServer) AwaitSignal() {
 	c := make(chan os.Signal, 1)
 	signal.Reset(syscall.SIGTERM, syscall.SIGINT)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGINT)
@@ -99,14 +101,14 @@ func (ls *LogExternalServer) AwaitSignal() {
 	close(c)
 }
 
-func (ls *LogExternalServer) GracefulShutDown() {
+func (ls *LogServer) GracefulShutDown() {
 	// 通知其他协程退出
 	controller.ExitChan <- nil
 	defer close(controller.ExitChan)
 	// 关闭服务
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-	if err := ls.server.Shutdown(ctx); err != nil {
+	if err := ls.web.Shutdown(ctx); err != nil {
 		common.Logger.Fatalf("Server Shutdown:%v", err)
 	}
 
