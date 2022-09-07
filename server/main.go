@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opensearch-project/opensearch-go/opensearchtransport"
 )
 
 func main() {
@@ -70,21 +71,21 @@ func initClient(conf *common.AppConfig) {
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Infof("mysql setting %+v", conf.DB.Statement)
+	common.Logger.Infof("mysql setting: %+v", conf.DB.Statement)
 
 	// opensearch
 	conf.OpenDB, err = infra.NewOpensearch(conf.Opensearch)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Info(conf.OpenDB.Info())
+	common.Logger.Infof("opensearch url: %+v", conf.OpenDB.Transport.(*opensearchtransport.Client).URLs())
 
 	// redis
 	conf.RedisCli, err = infra.NewRedis(conf.Redis)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Infof("%+v", conf.RedisCli)
+	common.Logger.Infof("redis client: %+v", conf.RedisCli)
 }
 
 func (ls *LogServer) Start() {

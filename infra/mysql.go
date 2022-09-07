@@ -11,6 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var _ MysqlInfra = &Mysql{}
+
 type MysqlInfra interface {
 	GetUser(id int) (*entity.User, error)
 	GetUserConfigName(ingestID, version string) (string, error)
@@ -33,16 +35,16 @@ func NewMysqlDB(conf common.Mysql) (*gorm.DB, error) {
 	})
 
 	if err != nil {
-		return gormDB, fmt.Errorf("数据源配置不正确: " + err.Error())
+		return gormDB, fmt.Errorf("数据源配置不正确: %v", err.Error())
 	}
 
 	db, err := gormDB.DB()
 	if err != nil {
-		return gormDB, fmt.Errorf("gorm 获取数据库失败: " + err.Error())
+		return gormDB, fmt.Errorf("gorm 获取数据库失败: %v", err.Error())
 	}
 
 	if err = db.Ping(); err != nil {
-		return gormDB, fmt.Errorf("数据库连接失败: " + err.Error())
+		return gormDB, fmt.Errorf("数据库连接失败: %v", err.Error())
 	}
 
 	// 最大连接数

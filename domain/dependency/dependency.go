@@ -8,7 +8,7 @@ import (
 
 //go:generate mockgen -source ../dependency/dependency.go -destination ../../mock/mock_dependency.go -package mock
 type OpensearchRepo interface {
-	SearchRequest(content string) ([]byte, error)
+	SearchRequest(indexNames []string, content string) (map[string]interface{}, error)
 	IndicesDeleteRequest(indexNames []string) ([]byte, error)
 }
 

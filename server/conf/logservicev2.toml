@@ -25,13 +25,13 @@
 
 [Mysql]
     database = "paas_logservicev2_dev"
-    host = "121.37.173.234"
+    host = "10.0.0.73"
     port = 3306
     username = "root"
     password =  "Cocos@2021"
 
 [Opensearch]
     insecure_skip_verify = true
-    address = ["//121.37.173.234:9200"]
+    address = ["https://10.0.0.73:9200"]
     username = "admin"
     password = "admin"

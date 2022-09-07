@@ -7,6 +7,7 @@ type CommonResp struct {
 	Code int    `json:"code"`
 }
 type LogsFilterReq struct {
+	Indexs          []string    `json:"indexs"`
 	Env             string      `json:"env"`
 	Project         int         `json:"project"`
 	Limit           int         `json:"limit"`
@@ -25,11 +26,41 @@ type LogsFilterReq struct {
 type LogsFilter struct {
 	LogsFilterReq
 }
+
+type OpenResp struct {
+	Took     int  `json:"took"`
+	TimedOut bool `json:"timed_out"`
+	Hits     Hits `json:"hits"`
+	Shards   struct {
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Skipped    int `json:"skipped"`
+		Failed     int `json:"failed"`
+	} `json:"_shards"`
+}
+
+type Hits struct {
+	MaxScore int     `json:"max_score"`
+	Hits     []Hits2 `json:"hits"`
+	Total    struct {
+		Value    int    `json:"value"`
+		Relation string `json:"relation"`
+	} `json:"total"`
+}
+
+type Hits2 struct {
+	Index  string                 `json:"_index"`
+	ID     string                 `json:"_id"`
+	Score  int                    `json:"_score"`
+	Source map[string]interface{} `json:"_source"`
+}
+
 type LogsResult struct {
 	Content string `json:"content"`
 	LineNum string `json:"line_num"`
 	Labels  Labels `json:"labels"`
 }
+
 type LogsFilterResp struct {
 	CommonResp
 	Data struct {
