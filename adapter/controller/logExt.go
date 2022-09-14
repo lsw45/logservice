@@ -30,13 +30,13 @@ func NewLogExtServer(conf *common.AppConfig) AppServer {
 
 	return &logExtServer{
 		searchCtl: *NewSearchController(repository.NewOpensearchRepo()),
-		notifyCtl: *NewNotifyController(repository.NewMysqlRepo(), repository.NewTunnelRepo()),
+		deployCtl: *NewNotifyController(repository.NewMysqlRepo(), repository.NewTunnelRepo()),
 	}
 }
 
 type logExtServer struct {
 	searchCtl SearchController
-	notifyCtl NotifyController
+	deployCtl DeployController
 }
 
 func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
@@ -46,7 +46,7 @@ func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
 	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
 
 	notify := logsrv.Use(timeoutMiddleware(2 * time.Second))
-	notify.POST("/notify", ctl.notifyCtl.Notify)
+	notify.POST("/notify", ctl.deployCtl.Notify)
 }
 
 func AuthCheck() gin.HandlerFunc {

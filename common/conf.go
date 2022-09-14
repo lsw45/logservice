@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"net/http"
 	"sync"
 	"time"
 
@@ -30,9 +31,10 @@ type AppConfig struct {
 	Opensearch Opensearch `mapstructure:"Opensearch"`
 	Tunnel     Tunnel     `mapstructure:"tunnel"`
 
-	DB       *gorm.DB           `json:"-"`
-	RedisCli *red.Client        `json:"-"`
-	OpenDB   *opensearch.Client `json:"-"`
+	DB        *gorm.DB           `json:"-"`
+	RedisCli  *red.Client        `json:"-"`
+	OpenDB    *opensearch.Client `json:"-"`
+	TunnelCli http.Client        `json:"-"`
 }
 
 type Web struct {
@@ -81,9 +83,10 @@ type Opensearch struct {
 }
 
 type Tunnel struct {
-	UploadFile []string `mapstructure:"upload_file"`
-	DeployTask []string `mapstructure:"shell_task"`
-	CheckTask  []string `mapstructure:"check_task"`
+	Timeout            int  `mapstructure:"timeout"`
+	IdleConnTimeout    int  `mapstructure:"idle_conn_timeout"`
+	DisableKeepAlives  bool  `mapstructure:"disable_keep_alives"`
+	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify"`
 }
 
 // NewAppConfig 读取服务配置

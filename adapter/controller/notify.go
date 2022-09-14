@@ -11,21 +11,21 @@ import (
 )
 
 // 接收通知的回调接口需要确保幂等性，耗时不能超过2秒，如果超时会任务回调失败，会进行重试，最多5次重试
-type NotifyController struct {
+type DeployController struct {
 	notifySrv domain.NotifyService
 	mysqlRepo *repository.MysqlRepo
 }
 
-func NewNotifyController(mysqlRepo *repository.MysqlRepo, tunnelRepo *repository.TunnelRepo) *NotifyController {
+func NewNotifyController(mysqlRepo *repository.MysqlRepo, tunnelRepo *repository.TunnelRepo) *DeployController {
 	srv := domain.NewDeployNotifyService(mysqlRepo, tunnelRepo)
 
-	return &NotifyController{
+	return &DeployController{
 		notifySrv: srv,
 		mysqlRepo: mysqlRepo,
 	}
 }
 
-func (nctl *NotifyController) Notify(c *gin.Context) {
+func (dctl *DeployController) Notify(c *gin.Context) {
 	var message *entity.NotifyDeployMessage
 	err := c.ShouldBindJSON(&message)
 	if err != nil {
@@ -37,7 +37,8 @@ func (nctl *NotifyController) Notify(c *gin.Context) {
 		return
 	}
 
-	err = nctl.notifySrv.DeployNotify(message)
+	// 处理回调消息
+	err = dctl.notifySrv.DeployNotify(message)
 	if err != nil {
 		common.Logger.Errorf("notify error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -49,7 +50,6 @@ func (nctl *NotifyController) Notify(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
-		"error":   "",
 	})
 	return
 }
