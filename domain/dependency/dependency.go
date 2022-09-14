@@ -13,8 +13,18 @@ type OpensearchRepo interface {
 }
 
 type MysqlRepo interface {
+	// 用户模块
 	GetUser(id int) (*entity.User, error)
 	GetUserConfigName(ingestID, version string) (string, error)
+
+	// 消息回调模块
+	ExitsNotifyByUUId(uuid string) (bool, error)
+	SaveNotifyMessage(*entity.NotifyDeployMessage) (id int, err error)
+	UpdateNotifyDeployed(status int) error
+}
+
+type TunnelRepo interface {
+	UploadFile(fileData []byte, ip string) error
 }
 
 type RedisRepo interface {

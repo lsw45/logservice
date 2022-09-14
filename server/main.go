@@ -43,8 +43,8 @@ func NewLogServer(conf *common.AppConfig) *LogServer {
 	gin.SetMode(conf.Server.RunMode)
 
 	// 创建控制器
-	logctr := controller.NewLogExtServer(conf)
-	logctr.RegisterRouter(engine)
+	logExt := controller.NewLogExtServer(conf)
+	logExt.RegisterRouter(engine)
 
 	server.web = &http.Server{
 		Addr:           ":" + strconv.Itoa(conf.Server.HTTPPort),

@@ -15,6 +15,7 @@ type RepoInfra struct {
 	Redis      infra.RedisInfra
 	Mysql      infra.MysqlInfra
 	Opensearch infra.OpensearchInfra
+	TunnelRepo infra.TunnelInfra
 }
 
 func SetRepoInfra(conf *common.AppConfig) {

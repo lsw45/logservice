@@ -12,14 +12,14 @@ type LogsFilterReq struct {
 	Project         int         `json:"project"`
 	Limit           int         `json:"limit"`
 	Page            int         `json:"page"`
-	PageSize        int         `json:"pageSize"`
+	PageSize        int         `json:"page_size"`
 	LineNum         interface{} `json:"line_num"`
 	Keywords        string      `json:"keywords"`
 	StartTime       int64       `json:"start_time"`
 	EndTime         int64       `json:"end_time"`
 	IsDesc          bool        `json:"is_desc"`
-	RegionVal       int         `json:"regionVal"`
-	RegionServerVal string      `json:"regionServerVal"`
+	RegionVal       int         `json:"region_val"`
+	RegionServerVal string      `json:"region_server_val"`
 	Date            []time.Time `json:"date"`
 }
 
@@ -64,8 +64,9 @@ type LogsResult struct {
 type LogsFilterResp struct {
 	CommonResp
 	Data struct {
-		Results []LogsResult `json:"results"`
-		Count   int          `json:"count"`
+		Results string `json:"results"`
+		Count   int    `json:"count"`
+		Total   int    `json:"total"`
 	} `json:"data"`
 }
 

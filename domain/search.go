@@ -1,15 +1,16 @@
 package domain
 
 import (
-	"fmt"
+	"encoding/json"
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
+	"strconv"
 )
 
 type SearchService interface {
 	Histogram()
-	SearchLogsByFilter(filter *entity.LogsFilter) ([]entity.LogsResult, error)
+	SearchLogsByFilter(filter *entity.LogsFilter) ([]interface{}, int, error)
 }
 
 func NewSearchLogService(depOpen dependency.OpensearchRepo) SearchService {
@@ -24,9 +25,7 @@ func (srv *SearchLogService) Histogram() {
 
 }
 
-func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]entity.LogsResult, error) {
-	// struct to string
-
+func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]interface{}, int, error) {
 	content := `{
 		"query": { "match_all":{} }
     }`
@@ -34,24 +33,65 @@ func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]en
 	data, err := srv.depOpen.SearchRequest(filter.Indexs, content)
 	if err != nil {
 		common.Logger.Errorf("domain log search error: %+v", err)
-		return nil, err
+		return nil, 0, err
 	}
 
-	hits := data["body"].(map[string]interface{})["hits"].(map[string]interface{})
-	fmt.Printf("%+v\n", hits)
+	var body map[string]interface{}
+	var hits map[string]interface{}
+	var result []interface{}
+	var total int
+	var ok bool
 
-	// for _, v := range data["body"].(map[string]interface{})["hits"].(map[string]interface{})["hits"].([]map[string]interface{}) {
-	// 	for k1, v1 := range v {
-	// 		fmt.Printf("%+v\n", k1)
-	// 		fmt.Printf("%+v\n", v1)
-	// 	}
-	// }
-	// var result []entity.LogsResult
-	// err = json.Unmarshal(data, &result)
-	// if err != nil {
-	// 	common.Logger.Errorf("domain error: %+v", err)
-	// 	return nil, err
-	// }
+	if _, ok = data["body"]; !ok {
+		common.Logger.Errorf("domain error: no body:%+v", err)
+		return nil, 0, err
+	}
 
-	return nil, nil
+	if body, ok = data["body"].(map[string]interface{}); !ok {
+		common.Logger.Errorf("domain error: body transform map:%+v", err)
+		return nil, 0, err
+	}
+
+	if _, ok = body["hits"]; !ok {
+		common.Logger.Errorf("domain error: no hits:%+v", err)
+		return nil, 0, err
+	}
+
+	if hits, ok = body["hits"].(map[string]interface{}); !ok {
+		common.Logger.Errorf("domain error: hits transform map:%+v", err)
+		return nil, 0, err
+	}
+
+	if _, ok = hits["hits"]; !ok {
+		common.Logger.Errorf("domain error: no hits:%+v", err)
+		return nil, 0, err
+	}
+
+	if result, ok = hits["hits"].([]interface{}); !ok {
+		common.Logger.Errorf("domain error: hits transform slice:%+v", err)
+		return nil, 0, err
+	}
+
+	if _, ok = hits["total"]; !ok {
+		common.Logger.Errorf("domain error: no hits:%+v", err)
+		return nil, 0, err
+	}
+
+	if num, ok := hits["total"].(map[string]interface{}); !ok {
+		common.Logger.Errorf("domain error: hits transform slice:%+v", err)
+		return nil, 0, err
+	} else if _, ok := num["value"]; ok {
+		var nums json.Number
+		if nums, ok = num["value"].(json.Number); !ok {
+			common.Logger.Errorf("domain error: hits transform slice:%+v", err)
+			return nil, 0, err
+		}
+		total, err = strconv.Atoi(string(nums))
+		if err != nil {
+			common.Logger.Errorf("domain error: %+v", err)
+			return nil, 0, err
+		}
+	}
+
+	return result, total, nil
 }

@@ -28,6 +28,7 @@ type AppConfig struct {
 	Redis      Redis      `mapstructure:"Kafka"`
 	Mysql      Mysql      `mapstructure:"Mysql"`
 	Opensearch Opensearch `mapstructure:"Opensearch"`
+	Tunnel     Tunnel     `mapstructure:"tunnel"`
 
 	DB       *gorm.DB           `json:"-"`
 	RedisCli *red.Client        `json:"-"`
@@ -77,6 +78,12 @@ type Opensearch struct {
 	Address            []string `mapstructure:"address"`
 	Username           string   `mapstructure:"username"`
 	Password           string   `mapstructure:"password"`
+}
+
+type Tunnel struct {
+	UploadFile []string `mapstructure:"upload_file"`
+	DeployTask []string `mapstructure:"shell_task"`
+	CheckTask  []string `mapstructure:"check_task"`
 }
 
 // NewAppConfig 读取服务配置

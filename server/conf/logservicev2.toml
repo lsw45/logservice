@@ -35,3 +35,11 @@
     address = ["https://10.0.0.73:9200"]
     username = "admin"
     password = "admin"
+
+[Tunnel]
+    upload_file = ["POST","http://ops-dev.cocos.org/paas/tunnel/task/"]
+    shell_task = ["GET","http://ops-dev.cocos.org/paas/tunnel/task/1/"]
+    check_task = ["POST","http://ops-dev.cocos.org/paas/tunnel/file/?x-token=8155214abb3206a0ef2e18d6bae586b0"]
+    server_ip = ""
+    remote_file_path = ""
+    local_file_path = ""

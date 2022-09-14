@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"log-ext/adapter/repository"
 	"log-ext/common"
@@ -9,6 +10,7 @@ import (
 	"log-ext/infra"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -28,11 +30,13 @@ func NewLogExtServer(conf *common.AppConfig) AppServer {
 
 	return &logExtServer{
 		searchCtl: *NewSearchController(repository.NewOpensearchRepo()),
+		notifyCtl: *NewNotifyController(repository.NewMysqlRepo(), repository.NewTunnelRepo()),
 	}
 }
 
 type logExtServer struct {
 	searchCtl SearchController
+	notifyCtl NotifyController
 }
 
 func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
@@ -40,6 +44,9 @@ func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
 	logsrv := e.Group("/logservice2")
 	logsrv.GET("/logs", ctl.searchCtl.SearchLogsByFilter)
 	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
+
+	notify := logsrv.Use(timeoutMiddleware(2 * time.Second))
+	notify.POST("/notify", ctl.notifyCtl.Notify)
 }
 
 func AuthCheck() gin.HandlerFunc {
@@ -79,6 +86,24 @@ func AuthCheck() gin.HandlerFunc {
 
 		userInfo.Company = int64(company)
 		c.Set(authKey, userInfo)
+		c.Next()
+	}
+}
+
+func timeoutMiddleware(timeout time.Duration) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
+
+		defer func() {
+			if ctx.Err() == context.DeadlineExceeded {
+				c.Writer.WriteHeader(http.StatusGatewayTimeout)
+				c.Abort()
+			}
+
+			cancel() // clean the resource
+		}()
+
+		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }

@@ -23,3 +23,15 @@ func (m *MysqlRepo) GetUser(id int) (*entity.User, error) {
 func (m *MysqlRepo) GetUserConfigName(ingestID, version string) (string, error) {
 	return "nil", nil
 }
+
+func (m *MysqlRepo) ExitsNotifyByUUId(uuid string) (bool, error) {
+	return false, nil
+}
+
+func (m *MysqlRepo) SaveNotifyMessage(*entity.NotifyDeployMessage) (id int, err error) {
+	return 0, nil
+}
+
+func (m *MysqlRepo) UpdateNotifyDeployed(status int) error {
+	return nil
+}
