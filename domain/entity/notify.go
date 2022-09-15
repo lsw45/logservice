@@ -3,7 +3,7 @@ package entity
 import "time"
 
 const (
-	NotifyMsgTableName    = "user_manager_User"
+	NotifyMsgTableName    = "notify_msg"
 	DeployIngestTableName = "deploy_ingest_task"
 )
 

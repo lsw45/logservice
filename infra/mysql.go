@@ -78,10 +78,11 @@ func (cli *Mysql) GetUserConfigName(ingestID, version string) (string, error) {
 }
 
 func (cli *Mysql) ExitsNotifyByUUId(uuid string) (bool, error) {
-	var tmp interface{}
+	tmp := &entity.NotifyMsgModel{}
 	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
-	if err == gorm.ErrRecordNotFound {
-		common.Logger.Errorf("infra mysql search error: %+v", err)
+
+	if err != nil {
+		common.Logger.Warnf("infra mysql search error: %+v", err)
 		return false, err
 	}
 	return true, nil
@@ -99,7 +100,7 @@ func (cli *Mysql) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[
 		return nil, err
 	}
 
-	var ids map[string]int
+	ids := make(map[string]int, 1)
 	for _, task := range tasks {
 		ids[task.Ip] = task.Id
 	}
