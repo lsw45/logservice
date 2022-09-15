@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/json"
+	"net/http"
 	"sync"
 	"time"
 
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	configPath = "./server/conf"
+	configPath = "./conf"
 	configName = "logservicev2"
 	configExt  = "toml"
 
@@ -28,10 +29,12 @@ type AppConfig struct {
 	Redis      Redis      `mapstructure:"Kafka"`
 	Mysql      Mysql      `mapstructure:"Mysql"`
 	Opensearch Opensearch `mapstructure:"Opensearch"`
+	Tunnel     Tunnel     `mapstructure:"tunnel"`
 
-	DB       *gorm.DB           `json:"-"`
-	RedisCli *red.Client        `json:"-"`
-	OpenDB   *opensearch.Client `json:"-"`
+	DB        *gorm.DB           `json:"-"`
+	RedisCli  *red.Client        `json:"-"`
+	OpenDB    *opensearch.Client `json:"-"`
+	TunnelCli http.Client        `json:"-"`
 }
 
 type Web struct {
@@ -79,6 +82,13 @@ type Opensearch struct {
 	Password           string   `mapstructure:"password"`
 }
 
+type Tunnel struct {
+	Timeout            int  `mapstructure:"timeout"`
+	IdleConnTimeout    int  `mapstructure:"idle_conn_timeout"`
+	DisableKeepAlives  bool  `mapstructure:"disable_keep_alives"`
+	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify"`
+}
+
 // NewAppConfig 读取服务配置
 func NewAppConfig() *AppConfig {
 	settingOnce.Do(func() {
@@ -92,7 +102,7 @@ func NewAppConfig() *AppConfig {
 
 // 初始化配置
 func initSetting(vp *viper.Viper) {
-	Logger.Infof("Init Setting From File %s%s.%s", configPath, configName, configExt)
+	Logger.Infof("Init Setting From File %s/%s.%s", configPath, configName, configExt)
 
 	vp.AddConfigPath(configPath)
 	vp.SetConfigName(configName)
@@ -109,7 +119,7 @@ func initSetting(vp *viper.Viper) {
 
 // 读取配置文件
 func loadSetting(vp *viper.Viper) {
-	Logger.Infof("Load Setting File %s%s.%s", configPath, configName, configExt)
+	Logger.Infof("Load Setting File %s/%s.%s", configPath, configName, configExt)
 
 	if err := vp.ReadInConfig(); err != nil {
 		Logger.Fatalf("err:%s\n", err)

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 	"log-ext/adapter/repository"
 	"log-ext/common"
@@ -9,6 +10,7 @@ import (
 	"log-ext/infra"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
@@ -28,21 +30,23 @@ func NewLogExtServer(conf *common.AppConfig) AppServer {
 
 	return &logExtServer{
 		searchCtl: *NewSearchController(repository.NewOpensearchRepo()),
+		deployCtl: *NewNotifyController(repository.NewMysqlRepo(), repository.NewTunnelRepo()),
 	}
 }
 
 type logExtServer struct {
 	searchCtl SearchController
+	deployCtl DeployController
 }
 
 func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
-	if authRedis == nil {
-		common.Logger.Fatal("auth server is nil")
-	}
-	e.Use(AuthCheck())
-	logsrv := e.Group("logservice2")
+	// logsrv := e.Group("/logservice2").Use(AuthCheck())
+	logsrv := e.Group("/logservice2")
 	logsrv.GET("/logs", ctl.searchCtl.SearchLogsByFilter)
 	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
+
+	notify := logsrv.Use(timeoutMiddleware(2 * time.Second))
+	notify.POST("/notify", ctl.deployCtl.Notify)
 }
 
 func AuthCheck() gin.HandlerFunc {
@@ -53,8 +57,14 @@ func AuthCheck() gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, common.ThrowErr(errorx.NewErrCode(errorx.AUTH_ERROR)))
 		}
 
+		if len(authInfo) == 0 {
+			c.Abort()
+			c.JSON(http.StatusUnauthorized, common.ThrowErr(errorx.NewErrMsg("Authorization is null")))
+		}
+
 		data, errs := authRedis.Get(c.Request.Context(), authInfo)
 		if errs != nil {
+			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(errs, "获取鉴权信息失败"))
 			c.JSON(http.StatusInternalServerError, common.ThrowErr(errs))
 		}
@@ -62,19 +72,38 @@ func AuthCheck() gin.HandlerFunc {
 		var userInfo entity.UserInfo
 		err := json.Unmarshal([]byte(data), &userInfo)
 		if err != nil {
-			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(errs, "解析用户鉴权信息失败"))
-			c.JSON(http.StatusInternalServerError, common.ThrowErr(errs))
+			c.Abort()
+			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(err, "解析用户鉴权信息失败"))
+			c.JSON(http.StatusInternalServerError, common.ThrowErr(errorx.NewErrMsg(err.Error())))
 		}
 
 		company, err := strconv.Atoi(userInfo.CorporationId)
 		if err != nil {
-			err = errors.Wrap(err, "解析用户鉴权信息失败")
+			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", err)
-			return
+			c.JSON(http.StatusInternalServerError, common.ThrowErr(errorx.NewErrMsg(err.Error())))
 		}
 
 		userInfo.Company = int64(company)
 		c.Set(authKey, userInfo)
+		c.Next()
+	}
+}
+
+func timeoutMiddleware(timeout time.Duration) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
+
+		defer func() {
+			if ctx.Err() == context.DeadlineExceeded {
+				c.Writer.WriteHeader(http.StatusGatewayTimeout)
+				c.Abort()
+			}
+
+			cancel() // clean the resource
+		}()
+
+		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }

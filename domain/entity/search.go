@@ -7,34 +7,66 @@ type CommonResp struct {
 	Code int    `json:"code"`
 }
 type LogsFilterReq struct {
+	Indexs          []string    `json:"indexs"`
 	Env             string      `json:"env"`
 	Project         int         `json:"project"`
 	Limit           int         `json:"limit"`
 	Page            int         `json:"page"`
-	PageSize        int         `json:"pageSize"`
+	PageSize        int         `json:"page_size"`
 	LineNum         interface{} `json:"line_num"`
 	Keywords        string      `json:"keywords"`
 	StartTime       int64       `json:"start_time"`
 	EndTime         int64       `json:"end_time"`
 	IsDesc          bool        `json:"is_desc"`
-	RegionVal       int         `json:"regionVal"`
-	RegionServerVal string      `json:"regionServerVal"`
+	RegionVal       int         `json:"region_val"`
+	RegionServerVal string      `json:"region_server_val"`
 	Date            []time.Time `json:"date"`
 }
 
 type LogsFilter struct {
 	LogsFilterReq
 }
+
+type OpenResp struct {
+	Took     int  `json:"took"`
+	TimedOut bool `json:"timed_out"`
+	Hits     Hits `json:"hits"`
+	Shards   struct {
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Skipped    int `json:"skipped"`
+		Failed     int `json:"failed"`
+	} `json:"_shards"`
+}
+
+type Hits struct {
+	MaxScore int     `json:"max_score"`
+	Hits     []Hits2 `json:"hits"`
+	Total    struct {
+		Value    int    `json:"value"`
+		Relation string `json:"relation"`
+	} `json:"total"`
+}
+
+type Hits2 struct {
+	Index  string                 `json:"_index"`
+	ID     string                 `json:"_id"`
+	Score  int                    `json:"_score"`
+	Source map[string]interface{} `json:"_source"`
+}
+
 type LogsResult struct {
 	Content string `json:"content"`
 	LineNum string `json:"line_num"`
 	Labels  Labels `json:"labels"`
 }
+
 type LogsFilterResp struct {
 	CommonResp
 	Data struct {
-		Results []LogsResult `json:"results"`
-		Count   int          `json:"count"`
+		Results string `json:"results"`
+		Count   int    `json:"count"`
+		Total   int    `json:"total"`
 	} `json:"data"`
 }
 

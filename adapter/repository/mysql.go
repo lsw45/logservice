@@ -23,3 +23,21 @@ func (m *MysqlRepo) GetUser(id int) (*entity.User, error) {
 func (m *MysqlRepo) GetUserConfigName(ingestID, version string) (string, error) {
 	return "nil", nil
 }
+
+func (m *MysqlRepo) ExitsNotifyByUUId(uuid string) (bool, error) {
+	exit, err := m.MysqlInfra.ExitsNotifyByUUId(uuid)
+	return exit, err
+}
+
+func (m *MysqlRepo) SaveNotifyMessage(msg *entity.NotifyDeployMessage) error {
+	return nil
+}
+
+func (m *MysqlRepo) UpdateDeployeIngestTask(id int, status int) error {
+	return nil
+}
+
+func (m *MysqlRepo) SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error {
+	err := m.MysqlInfra.SaveDeployeIngestTask(tasks)
+	return err
+}

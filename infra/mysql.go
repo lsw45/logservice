@@ -11,9 +11,15 @@ import (
 	"gorm.io/gorm"
 )
 
+var _ MysqlInfra = &Mysql{}
+
 type MysqlInfra interface {
 	GetUser(id int) (*entity.User, error)
 	GetUserConfigName(ingestID, version string) (string, error)
+	ExitsNotifyByUUId(uuid string) (bool, error)
+	SaveNotifyMessage(msg *entity.NotifyMsgTable) error
+	SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error
+	UpdateDeployeIngestTask(id int, status int) error
 }
 
 type Mysql struct {
@@ -33,16 +39,16 @@ func NewMysqlDB(conf common.Mysql) (*gorm.DB, error) {
 	})
 
 	if err != nil {
-		return gormDB, fmt.Errorf("数据源配置不正确: " + err.Error())
+		return gormDB, fmt.Errorf("数据源配置不正确: %v", err.Error())
 	}
 
 	db, err := gormDB.DB()
 	if err != nil {
-		return gormDB, fmt.Errorf("gorm 获取数据库失败: " + err.Error())
+		return gormDB, fmt.Errorf("gorm 获取数据库失败: %v", err.Error())
 	}
 
 	if err = db.Ping(); err != nil {
-		return gormDB, fmt.Errorf("数据库连接失败: " + err.Error())
+		return gormDB, fmt.Errorf("数据库连接失败: %v", err.Error())
 	}
 
 	// 最大连接数
@@ -69,4 +75,30 @@ func (cli *Mysql) GetUserConfigName(ingestID, version string) (string, error) {
 		Where("user_id = ? and version = ?", ingestID, version).
 		Find(&configName).Error
 	return configName, err
+}
+
+func (cli *Mysql) ExitsNotifyByUUId(uuid string) (bool, error) {
+	var tmp interface{}
+	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
+	if err == gorm.ErrRecordNotFound {
+		common.Logger.Errorf("infra mysql search error: %+v", err)
+		return false, err
+	}
+	return true, nil
+}
+
+func (cli *Mysql) SaveNotifyMessage(msg *entity.NotifyMsgTable) error {
+	err := cli.DB.Table(entity.NotifyMsgTableName).Create(msg).Error
+	return err
+}
+
+func (cli *Mysql) SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error {
+	err := cli.DB.Table(entity.DeployIngestTableName).Create(tasks).Error
+	return err
+}
+
+func (cli *Mysql) UpdateDeployeIngestTask(id int, status int) error {
+	err := cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", status).
+		Where("id=?", id).Error
+	return err
 }

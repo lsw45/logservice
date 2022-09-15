@@ -15,14 +15,16 @@ type RepoInfra struct {
 	Redis      infra.RedisInfra
 	Mysql      infra.MysqlInfra
 	Opensearch infra.OpensearchInfra
+	Tunnel     infra.TunnelInfra
 }
 
 func SetRepoInfra(conf *common.AppConfig) {
 	once.Do(func() {
 		defaultInfra = &RepoInfra{
-			Redis:      &infra.Redis{Client: conf.RedisCli},
 			Mysql:      &infra.Mysql{DB: conf.DB},
+			Redis:      &infra.Redis{Client: conf.RedisCli},
 			Opensearch: &infra.Opensearch{Client: conf.OpenDB},
+			Tunnel:     &infra.Tunnel{Client: conf.TunnelCli},
 		}
 	})
 }
