@@ -33,11 +33,11 @@ func (m *MysqlRepo) SaveNotifyMessage(msg *entity.NotifyDeployMessage) error {
 	return nil
 }
 
-func (m *MysqlRepo) UpdateDeployeIngestTask(id int, status int) error {
+func (m *MysqlRepo) UpdateDeployeIngestTask(id []int, status int) error {
 	return nil
 }
 
-func (m *MysqlRepo) SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error {
-	err := m.MysqlInfra.SaveDeployeIngestTask(tasks)
-	return err
+func (m *MysqlRepo) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
+	ids, err := m.MysqlInfra.SaveDeployeIngestTask(tasks)
+	return ids, err
 }

@@ -7,7 +7,7 @@ const (
 	DeployIngestTableName = "deploy_ingest_task"
 )
 
-type NotifyMsgTable struct {
+type NotifyMsgModel struct {
 	UUID      string `gorm:"primaryKey"`
 	Title     string
 	Msg       string
@@ -15,7 +15,7 @@ type NotifyMsgTable struct {
 	UpdatedAt time.Time
 }
 
-type DeployIngestTable struct {
+type DeployIngestModel struct {
 	Id             int
 	NotifyId       string
 	Status         int
@@ -24,8 +24,14 @@ type DeployIngestTable struct {
 	Index          string
 	Config         string
 	RemoteFilePath string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+
+	Env           int
+	Project       int
+	RegionID      int
+	CorporationId string
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type NotifyDeployMessage struct {

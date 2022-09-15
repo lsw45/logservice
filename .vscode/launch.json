@@ -11,7 +11,7 @@
             "mode": "debug",
             "program": "${workspaceRoot}/server",
             "env": {
-                "GOPATH": "/root/go"
+                "GOPATH": "D:/workspace/go"
             },
         }
     ]
