@@ -1,4 +1,4 @@
-FROM swr.cn-east-3.myhuaweicloud.com/cocos-paas/alpine:tzdata
+FROM swr.cn-east-3.myhuaweicloud.com/cocos-paas/golang:tzdata AS builder
 
 ARG UID=1000
 ARG GID=1000
