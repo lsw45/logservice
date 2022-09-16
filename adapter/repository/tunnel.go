@@ -37,18 +37,21 @@ func (t *TunnelRepo) UploadFile(file_path string, ip string) error {
 	writer.WriteField("remote", field.Remote)
 	writer.WriteField("preserve", strconv.FormatBool(field.Preserve))
 	writer.WriteField("server", field.Server)
-	boundary := writer.FormDataContentType()
 
 	common.Logger.Infof("上传文件开始: %s", field.Server)
 
 	file, err := os.Open(file_path)
-	defer file.Close()
 	if err != nil {
 		common.Logger.Errorf("domain error: open file: %s", err)
 		return err
 	}
+	defer file.Close()
 
-	upwriter, _ := writer.CreateFormFile("file", filepath.Base(file_path))
+	upwriter, err := writer.CreateFormFile("file", filepath.Base(file_path))
+	if err != nil {
+		common.Logger.Errorf("domain error: CreateFormFile: %s", err)
+		return err
+	}
 
 	_, err = io.Copy(upwriter, file)
 	if err != nil {
@@ -62,7 +65,7 @@ func (t *TunnelRepo) UploadFile(file_path string, ip string) error {
 		return err
 	}
 
-	res, err := t.TunnelInfra.UploadFile(buf, boundary)
+	res, err := t.TunnelInfra.UploadFile(buf, writer.FormDataContentType())
 	if err != nil {
 		common.Logger.Errorf("shell上传文件失败field: %s", field.Server)
 		return err
@@ -79,78 +82,18 @@ func (t *TunnelRepo) UploadFile(file_path string, ip string) error {
 	return nil
 }
 
-// func (t *TunnelRepo) UploadFile(fileData []byte, ip string) error {
-// 	data := &bytes.Buffer{}
-// 	writer := multipart.NewWriter(data)
-
-// 	field := &entity.UpdateFileReq{
-// 		Remote:   "/usr/local",
-// 		Server:   ip,
-// 		Preserve: true,
-// 		File:     fileData,
-// 	}
-// 	common.Logger.Infof("上传文件开始: %s", field.Server)
-
-// 	formFile, err := writer.CreateFormField("file")
-// 	if err != nil {
-// 		common.Logger.Errorf("创建form文件失败,field: %+v", field)
-// 		return err
-// 	}
-
-// 	_, err = io.Copy(formFile, bytes.NewReader(fileData))
-// 	if err != nil {
-// 		common.Logger.Errorf("复制文件字段失败,field: %+v", field.File)
-// 		return err
-// 	}
-
-// 	err = writer.WriteField("remote", field.Remote)
-// 	if err != nil {
-// 		common.Logger.Errorf("写入form字段失败,field: %+v", field.Remote)
-// 		return err
-// 	}
-
-// 	err = writer.WriteField("preserve", strconv.FormatBool(field.Preserve))
-// 	if err != nil {
-// 		common.Logger.Errorf("写入form字段失败,field: %+v", field.Preserve)
-// 		return err
-// 	}
-
-// 	err = writer.WriteField("server", field.Server)
-// 	if err != nil {
-// 		common.Logger.Errorf("写入form字段失败,field: %+v", field.Server)
-// 		return err
-// 	}
-
-// 	err = writer.Close()
-// 	if err != nil {
-// 		common.Logger.Errorf("关闭writer缓冲失败,field: %+v", field)
-// 		return err
-// 	}
-
-// 	res, err := t.TunnelInfra.UploadFile(data)
-// 	if err != nil {
-// 		common.Logger.Errorf("shell上传文件失败field: %+v", field)
-// 		return err
-// 	}
-
-// 	if res.Code != 0 {
-// 		common.Logger.Errorf("shell上传文件失败: %+v", field)
-// 		err = errors.Errorf("shell上传文件失败field: %+v", res)
-// 		return err
-// 	}
-
-// 	common.Logger.Infof("上传文件结束: %s", field.Server)
-
-// 	return nil
-// }
-
 func (t *TunnelRepo) ShellTask(env, project int, corporationId, server string, async bool) (bool, error) {
-	command := []string{}
+	command := []string{
+		"cd $dir",
+		"wget https://cocos-games-2022-prod.obs.cn-east-3.myhuaweicloud.com/loggie/" + "$start",
+		"source $start",
+		"mv $start $dir/$file",
+	}
 	params := entity.ShellParams{
 		Shell:            "/bin/bash",
 		Server:           server,
 		Command:          command,
-		ShellEnvironment: map[string]interface{}{"TUNNEL_TEST": "02"},
+		ShellEnvironment: map[string]interface{}{"file": "loggie", "dir": "/opt", "start": "start.sh"},
 	}
 	reqData := &entity.ShellTaskReq{
 		Env:           env,
@@ -162,7 +105,7 @@ func (t *TunnelRepo) ShellTask(env, project int, corporationId, server string, a
 
 	resp, err := t.TunnelInfra.ShellTask(reqData)
 	if err != nil {
-		common.Logger.Errorf("下发shell任务失败: %+v", err)
+		common.Logger.Error(err)
 		return false, err
 	}
 	if resp.Code != 0 {

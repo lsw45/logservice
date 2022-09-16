@@ -23,4 +23,4 @@ USER 1000
 EXPOSE 13020
 
 # 指定启动命令
-ENTRYPOINT [ "./logservice2"]
+ENTRYPOINT ["./logservice2"]

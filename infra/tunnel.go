@@ -24,9 +24,9 @@ type TunnelInfra interface {
 
 var (
 	token            = "14e58ac5e45f4fefa924a040c581698d"
-	upload_file      = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/?x-token=" + token}
+	shell_task       = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/?x-token=" + token}
 	check_task       = []string{"GET", "http://ops-dev.cocos.org/paas/tunnel/task/1/"}
-	shell_task       = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=" + token}
+	upload_file      = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=" + token}
 	remote_file_path = ""
 )
 

@@ -114,7 +114,7 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 func (dsvc *depolyService) TunnelDeployIngestTask(task *entity.DeployIngestModel) error {
 	var err error
 
-	sucess, err := dsvc.depTunnel.ShellTask(task.Env, task.Project, task.CorporationId, task.Ip, false)
+	sucess, err := dsvc.depTunnel.ShellTask(task.Env, task.Project, task.CorporationId, task.Ip, true)
 	if err != nil {
 		common.Logger.Errorf("domain error: shell task: %s", err)
 		return err
