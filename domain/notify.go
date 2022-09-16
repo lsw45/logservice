@@ -3,11 +3,9 @@ package domain
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
-	"os"
 )
 
 type NotifyService interface {
@@ -83,25 +81,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 
 // 上传采集器并启动采集器
 func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
-	// 上传采集器
-	file, err := os.Open("../doc/loggie.tar.gz")
-	if err != nil {
-		common.Logger.Errorf("domain error: open file: %s", err)
-		return
-	}
-	data, err := ioutil.ReadAll(file)
-	if err != nil {
-		common.Logger.Errorf("domain error: ioutil: %s", err)
-		return
-	}
-
-	err = file.Close()
-	if err != nil {
-		common.Logger.Errorf("domain error: file close: %s", err)
-		return
-	}
-
-	err = dsvc.depTunnel.UploadFile(data, task.Ip)
+	err := dsvc.depTunnel.UploadFile("../doc/loggie.tar.gz", task.Ip)
 	if err != nil {
 		common.Logger.Errorf("domain error: upload file: %s", err)
 

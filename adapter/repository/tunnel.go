@@ -7,6 +7,8 @@ import (
 	"log-ext/domain/entity"
 	"log-ext/infra"
 	"mime/multipart"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -20,15 +22,16 @@ func NewTunnelRepo() *TunnelRepo {
 	return &TunnelRepo{defaultInfra.Tunnel}
 }
 
-func (t *TunnelRepo) UploadFile(fileData []byte, ip string) error {
+func (t *TunnelRepo) UploadFile(file_path string, ip string) error {
+	// 上传采集器
+
 	buf := &bytes.Buffer{}
 	writer := multipart.NewWriter(buf)
 
 	field := &entity.UpdateFileReq{
-		Remote:   "/usr/local",
+		Remote:   "/opt",
 		Server:   ip,
 		Preserve: true,
-		File:     fileData,
 	}
 
 	writer.WriteField("remote", field.Remote)
@@ -37,15 +40,17 @@ func (t *TunnelRepo) UploadFile(fileData []byte, ip string) error {
 	boundary := writer.FormDataContentType()
 
 	common.Logger.Infof("上传文件开始: %s", field.Server)
-	upwriter, _ := writer.CreateFormFile("file", "loggie")
 
-	// formFile, err := writer.CreateFormField("file")
-	// if err != nil {
-	// 	common.Logger.Errorf("创建form文件失败,field: %+v", field)
-	// 	return err
-	// }
+	file, err := os.Open(file_path)
+	defer file.Close()
+	if err != nil {
+		common.Logger.Errorf("domain error: open file: %s", err)
+		return err
+	}
 
-	_, err := io.Copy(upwriter, bytes.NewReader(fileData))
+	upwriter, _ := writer.CreateFormFile("file", filepath.Base(file_path))
+
+	_, err = io.Copy(upwriter, file)
 	if err != nil {
 		common.Logger.Errorf("复制文件字段失败,field: %s", field.Server)
 		return err
