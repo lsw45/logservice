@@ -4,6 +4,7 @@ type UpdateFileReq struct {
 	Remote   string
 	Server   string
 	Preserve bool
+	File []byte
 }
 
 type TunnelUploadFileRes struct {

@@ -15,17 +15,18 @@ import (
 
 // 提交执行任务：POST http://ops-dev.cocos.org/paas/tunnel/task/
 // 获取任务详情信息：GET http://ops-dev.cocos.org/paas/tunnel/task/1/
-// 上传文件：POST http://ops-dev.cocos.org/paas/tunnel/file/?x-token=8155214abb3206a0ef2e18d6bae586b0
+// 上传文件：POST http://ops-dev.cocos.org/paas/tunnel/file/
 type TunnelInfra interface {
-	UploadFile(data *bytes.Buffer) (*entity.TunnelUploadFileRes, error)
+	UploadFile(data *bytes.Buffer, boundary string) (*entity.TunnelUploadFileRes, error)
 	ShellTask(data *entity.ShellTaskReq) (*entity.ShellTaskDeployResp, error)
 	CheckTask(id string) (*entity.ShellTaskStateResp, error)
 }
 
 var (
-	upload_file      = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/"}
+	token            = "14e58ac5e45f4fefa924a040c581698d"
+	upload_file      = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/?x-token=" + token}
 	check_task       = []string{"GET", "http://ops-dev.cocos.org/paas/tunnel/task/1/"}
-	shell_task       = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=8155214abb3206a0ef2e18d6bae586b0"}
+	shell_task       = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=" + token}
 	remote_file_path = ""
 )
 
@@ -46,12 +47,15 @@ func NewTunnelClient(conf common.Tunnel) TunnelInfra {
 }
 
 // 上传文件
-func (tu *Tunnel) UploadFile(data *bytes.Buffer) (*entity.TunnelUploadFileRes, error) {
+func (tu *Tunnel) UploadFile(data *bytes.Buffer, boundary string) (*entity.TunnelUploadFileRes, error) {
 	req, err := http.NewRequest(upload_file[0], upload_file[1], data)
 	if err != nil {
 		common.Logger.Errorf("request error: %s", err)
 		return nil, err
 	}
+
+	req.Header.Set("Content-Type", boundary)
+
 	resp, err := tu.Client.Do(req)
 	if resp != nil {
 		defer func() {
@@ -63,13 +67,19 @@ func (tu *Tunnel) UploadFile(data *bytes.Buffer) (*entity.TunnelUploadFileRes, e
 		}()
 	}
 	if err != nil {
-		common.Logger.Error("infra error: shell上传文件失败")
+		common.Logger.Errorf("infra error: shell上传文件失败", err)
 		return nil, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		common.Logger.Error("infra error: shell上传文件读取结果失败")
+		return nil, err
+	}
+
+	if resp.StatusCode > 300 {
+		common.Logger.Error("infra error: shell上传文件失败: StatusCode > 300")
+		err = errors.Errorf("shell上传文件失败: %s。%+v", string(body), resp)
 		return nil, err
 	}
 
@@ -113,6 +123,12 @@ func (tu *Tunnel) ShellTask(data *entity.ShellTaskReq) (*entity.ShellTaskDeployR
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		common.Logger.Error("infra error: 下发shell任务读取结果失败")
+		return nil, err
+	}
+
+	if resp.StatusCode > 300 {
+		common.Logger.Error("infra error: 下发shell任务失败: StatusCode > 300")
+		err = errors.Errorf("下发shell任务失败: %s。%+v", string(body), resp)
 		return nil, err
 	}
 

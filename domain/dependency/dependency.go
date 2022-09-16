@@ -20,12 +20,13 @@ type MysqlRepo interface {
 	// 消息回调模块
 	ExitsNotifyByUUId(uuid string) (bool, error)
 	SaveNotifyMessage(msg *entity.NotifyDeployMessage) error
-	SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error
-	UpdateDeployeIngestTask(id int, status int) error
+	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
+	UpdateDeployeIngestTask(id []int, status int) error
 }
 
 type TunnelRepo interface {
-	UploadFile(fileData []byte, ip []string) error
+	UploadFile(fileData []byte, ip string) error
+	ShellTask(env, project int, corporationId, server string, async bool) (bool, error)
 }
 
 type RedisRepo interface {

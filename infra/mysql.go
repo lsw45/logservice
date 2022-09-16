@@ -17,8 +17,8 @@ type MysqlInfra interface {
 	GetUser(id int) (*entity.User, error)
 	GetUserConfigName(ingestID, version string) (string, error)
 	ExitsNotifyByUUId(uuid string) (bool, error)
-	SaveNotifyMessage(msg *entity.NotifyMsgTable) error
-	SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error
+	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
+	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
 	UpdateDeployeIngestTask(id int, status int) error
 }
 
@@ -78,23 +78,34 @@ func (cli *Mysql) GetUserConfigName(ingestID, version string) (string, error) {
 }
 
 func (cli *Mysql) ExitsNotifyByUUId(uuid string) (bool, error) {
-	var tmp interface{}
+	tmp := &entity.NotifyMsgModel{}
 	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
-	if err == gorm.ErrRecordNotFound {
-		common.Logger.Errorf("infra mysql search error: %+v", err)
+
+	if err != nil {
+		common.Logger.Warnf("infra mysql search error: %+v", err)
 		return false, err
 	}
 	return true, nil
 }
 
-func (cli *Mysql) SaveNotifyMessage(msg *entity.NotifyMsgTable) error {
+func (cli *Mysql) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
 	err := cli.DB.Table(entity.NotifyMsgTableName).Create(msg).Error
 	return err
 }
 
-func (cli *Mysql) SaveDeployeIngestTask(tasks []*entity.DeployIngestTable) error {
+func (cli *Mysql) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
 	err := cli.DB.Table(entity.DeployIngestTableName).Create(tasks).Error
-	return err
+	if err != nil {
+		common.Logger.Errorf("infra error: DeployIngestTableName create:%s", err)
+		return nil, err
+	}
+
+	ids := make(map[string]int, 1)
+	for _, task := range tasks {
+		ids[task.Ip] = task.Id
+	}
+
+	return ids, nil
 }
 
 func (cli *Mysql) UpdateDeployeIngestTask(id int, status int) error {
