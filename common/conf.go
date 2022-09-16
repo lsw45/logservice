@@ -16,7 +16,7 @@ import (
 
 var (
 	configPath = "./conf"
-	configName = "logservicev2"
+	configName = "logservice2"
 	configExt  = "toml"
 
 	appConf     *AppConfig
