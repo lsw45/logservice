@@ -20,11 +20,10 @@ COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/S
 ENV TZ Asia/Shanghai
 
 WORKDIR /app
-COPY --from=builder /app/logservice2 /app/logservice2
-COPY --from=builder /app/conf /app/conf
+COPY --from=builder /app ./
 
 # Expose port
 EXPOSE 38080
 
 # 指定启动命令
-ENTRYPOINT ["/opt/logservice2"]
+ENTRYPOINT ["/app/logservice2"]
