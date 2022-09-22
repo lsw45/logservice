@@ -13,6 +13,10 @@ type Redis struct {
 	infra.RedisInfra
 }
 
+func NewRedis() *Redis {
+	return &Redis{defaultRepo.Redis}
+}
+
 func (r *Redis) Get(ctx context.Context, key string) (string, *errorx.CodeError) {
 	val, err := r.RedisInfra.Get(ctx, key)
 

@@ -16,7 +16,7 @@ type Redis struct {
 	Client *red.Client
 }
 
-func NewRedis(conf common.Redis) (*red.Client, error) {
+func NewRedis(conf common.Redis) (*Redis, error) {
 	rdb := red.NewClient(&red.Options{
 		DB:           conf.DB,
 		Addr:         conf.Addr,
@@ -24,7 +24,7 @@ func NewRedis(conf common.Redis) (*red.Client, error) {
 		MaxRetries:   conf.MaxRetries,
 		MinIdleConns: conf.MinIdleConns,
 	})
-	return rdb,nil
+	return &Redis{rdb}, nil
 }
 
 func (r *Redis) Get(ctx context.Context, key string) (string, errorx.ErrInt) {

@@ -10,7 +10,7 @@ import (
 
 type SearchService interface {
 	Histogram()
-	SearchLogsByFilter(filter *entity.LogsFilter) ([]interface{}, int, error)
+	SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error)
 }
 
 func NewSearchLogService(depOpen dependency.OpensearchRepo) SearchService {
@@ -25,7 +25,7 @@ func (srv *SearchLogService) Histogram() {
 
 }
 
-func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]interface{}, int, error) {
+func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
 	content := `{
 		"query": { "match_all":{} }
     }`
@@ -93,5 +93,6 @@ func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]in
 		}
 	}
 
-	return result, total, nil
+	re,_ := json.Marshal(result)
+	return re, total, nil
 }

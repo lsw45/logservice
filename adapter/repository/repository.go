@@ -1,14 +1,13 @@
 package repository
 
 import (
-	"log-ext/common"
 	"log-ext/infra"
 	"sync"
 )
 
 var (
-	defaultInfra = &RepoInfra{}
-	once         = sync.Once{}
+	defaultRepo = &RepoInfra{}
+	once        = sync.Once{}
 )
 
 type RepoInfra struct {
@@ -16,15 +15,20 @@ type RepoInfra struct {
 	Mysql      infra.MysqlInfra
 	Opensearch infra.OpensearchInfra
 	Tunnel     infra.TunnelInfra
+	Elastic    infra.ElasticsearchInfra
 }
 
-func SetRepoInfra(conf *common.AppConfig) {
+func SetRepoInfra(redis infra.RedisInfra, mysql infra.MysqlInfra, tunnel infra.TunnelInfra, elastic infra.ElasticsearchInfra) {
 	once.Do(func() {
-		defaultInfra = &RepoInfra{
-			Mysql:      &infra.Mysql{DB: conf.DB},
-			Redis:      &infra.Redis{Client: conf.RedisCli},
-			Opensearch: &infra.Opensearch{Client: conf.OpenDB},
-			Tunnel:     &infra.Tunnel{Client: conf.TunnelCli},
+		defaultRepo = &RepoInfra{
+			Mysql:   mysql,
+			Redis:   redis,
+			Tunnel:  tunnel,
+			Elastic: elastic,
 		}
 	})
+}
+
+func Close() {
+	defaultRepo.Mysql.Close()
 }

@@ -2,16 +2,12 @@ package common
 
 import (
 	"encoding/json"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	red "github.com/go-redis/redis/v8"
-	"github.com/opensearch-project/opensearch-go"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 var (
@@ -24,17 +20,13 @@ var (
 )
 
 type AppConfig struct {
-	Logging    Logging    `mapstructure:"Log"`
-	Server     Web        `mapstructure:"Web"`
-	Redis      Redis      `mapstructure:"Kafka"`
-	Mysql      Mysql      `mapstructure:"Mysql"`
-	Opensearch Opensearch `mapstructure:"Opensearch"`
-	Tunnel     Tunnel     `mapstructure:"tunnel"`
-
-	DB        *gorm.DB           `json:"-"`
-	RedisCli  *red.Client        `json:"-"`
-	OpenDB    *opensearch.Client `json:"-"`
-	TunnelCli http.Client        `json:"-"`
+	Logging       Logging       `mapstructure:"Log"`
+	Server        Web           `mapstructure:"Web"`
+	Redis         Redis         `mapstructure:"Kafka"`
+	Mysql         Mysql         `mapstructure:"Mysql"`
+	Opensearch    Opensearch    `mapstructure:"Opensearch"`
+	Elasticsearch Elasticsearch `mapstructure:"Elasticsearch"`
+	Tunnel        Tunnel        `mapstructure:"tunnel"`
 }
 
 type Web struct {
@@ -82,10 +74,16 @@ type Opensearch struct {
 	Password           string   `mapstructure:"password"`
 }
 
+type Elasticsearch struct {
+	Address  []string `mapstructure:"address"`
+	Username string   `mapstructure:"username"`
+	Password string   `mapstructure:"password"`
+}
+
 type Tunnel struct {
 	Timeout            int  `mapstructure:"timeout"`
 	IdleConnTimeout    int  `mapstructure:"idle_conn_timeout"`
-	DisableKeepAlives  bool  `mapstructure:"disable_keep_alives"`
+	DisableKeepAlives  bool `mapstructure:"disable_keep_alives"`
 	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify"`
 }
 

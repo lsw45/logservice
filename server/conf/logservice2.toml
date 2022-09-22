@@ -30,11 +30,10 @@
     username = "root"
     password = "Cocos@2021"
 
-[Opensearch]
-    insecure_skip_verify = true
-    address = ["https://10.0.0.73:9200"]
-    username = "admin"
-    password = "admin"
+[Elasticsearch]
+    address = ["http://10.0.3.116:9200"]
+    username = "elastic"
+    password = "123456"
 
 [Tunnel]
     timeout = 20

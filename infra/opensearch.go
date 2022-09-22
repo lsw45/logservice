@@ -14,18 +14,18 @@ import (
 	"github.com/opensearch-project/opensearch-go/opensearchapi"
 )
 
-var _ OpensearchInfra = &Opensearch{}
+var _ OpensearchInfra = &openDB{}
 
 type OpensearchInfra interface {
 	SearchRequest(indexNames []string, content string) (*opensearchapi.Response, error)
 	IndicesDeleteRequest(indexNames []string) (*opensearchapi.Response, error)
 }
 
-type Opensearch struct {
+type openDB struct {
 	Client *opensearch.Client
 }
 
-func NewOpensearch(conf common.Opensearch) (*opensearch.Client, error) {
+func NewOpensearch(conf common.Opensearch) (*openDB, error) {
 	client, err := opensearch.NewClient(opensearch.Config{
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost:   10,
@@ -47,10 +47,10 @@ func NewOpensearch(conf common.Opensearch) (*opensearch.Client, error) {
 	}
 	defer res.Body.Close()
 
-	return client, err
+	return &openDB{client}, err
 }
 
-func (open *Opensearch) SearchRequest(indexNames []string, content string) (*opensearchapi.Response, error) {
+func (open *openDB) SearchRequest(indexNames []string, content string) (*opensearchapi.Response, error) {
 	search := &opensearchapi.SearchRequest{
 		Index: indexNames,
 		Body:  strings.NewReader(content),
@@ -65,7 +65,7 @@ func (open *Opensearch) SearchRequest(indexNames []string, content string) (*ope
 	return resp, err
 }
 
-func (open *Opensearch) IndicesDeleteRequest(indexNames []string) (*opensearchapi.Response, error) {
+func (open *openDB) IndicesDeleteRequest(indexNames []string) (*opensearchapi.Response, error) {
 	del := &opensearchapi.IndicesDeleteRequest{
 		Index: indexNames,
 	}

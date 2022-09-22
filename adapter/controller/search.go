@@ -13,15 +13,13 @@ import (
 
 type SearchController struct {
 	searchSrv domain.SearchService
-	openRepo  *repository.OpensearchRepo
 }
 
-func NewSearchController(openRepo *repository.OpensearchRepo) *SearchController {
-	search := domain.NewSearchLogService(openRepo)
+func NewSearchController(esRepo *repository.ElasticsearchRepo) *SearchController {
+	search := domain.NewElasticsearchService(esRepo)
 
 	return &SearchController{
 		searchSrv: search,
-		openRepo:  openRepo,
 	}
 }
 

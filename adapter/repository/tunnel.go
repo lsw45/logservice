@@ -19,7 +19,7 @@ type TunnelRepo struct {
 }
 
 func NewTunnelRepo() *TunnelRepo {
-	return &TunnelRepo{defaultInfra.Tunnel}
+	return &TunnelRepo{defaultRepo.Tunnel}
 }
 
 func (t *TunnelRepo) UploadFile(file_path string, ip string) error {

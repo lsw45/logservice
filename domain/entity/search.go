@@ -1,26 +1,38 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/olivere/elastic/v7"
+)
+
+type QueryDocs struct {
+	From      int
+	Size      int
+	EnableDSL bool
+	Sort      []elastic.Sorter
+}
 
 type CommonResp struct {
 	Msg  string `json:"msg"`
 	Code int    `json:"code"`
 }
 type LogsFilterReq struct {
-	Indexs          []string    `json:"indexs"`
-	Env             string      `json:"env"`
-	Project         int         `json:"project"`
-	Limit           int         `json:"limit"`
-	Page            int         `json:"page"`
-	PageSize        int         `json:"page_size"`
-	LineNum         interface{} `json:"line_num"`
-	Keywords        string      `json:"keywords"`
-	StartTime       int64       `json:"start_time"`
-	EndTime         int64       `json:"end_time"`
-	IsDesc          bool        `json:"is_desc"`
-	RegionVal       int         `json:"region_val"`
-	RegionServerVal string      `json:"region_server_val"`
-	Date            []time.Time `json:"date"`
+	Indexs          []string        `json:"indexs"`
+	Env             string          `json:"env"`
+	Project         int             `json:"project"`
+	Limit           int             `json:"limit"`
+	Page            int             `json:"page"`
+	PageSize        int             `json:"page_size"`
+	LineNum         interface{}     `json:"line_num"`
+	Keywords        string          `json:"keywords"`
+	StartTime       int64           `json:"start_time"`
+	EndTime         int64           `json:"end_time"`
+	IsDesc          bool            `json:"is_desc"`
+	RegionVal       int             `json:"region_val"`
+	RegionServerVal string          `json:"region_server_val"`
+	Date            []time.Time     `json:"date"`
+	Sort            map[string]bool `json:"sort"`
 }
 
 type LogsFilter struct {

@@ -7,7 +7,6 @@ import (
 	"log-ext/common"
 	"log-ext/common/errorx"
 	"log-ext/domain/entity"
-	"log-ext/infra"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,7 +15,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var ExitChan = make(chan interface{}, 1)
 var authRedis *repository.Redis
 var authKey = "auth"
 
@@ -25,11 +23,10 @@ type AppServer interface {
 }
 
 func NewLogExtServer(conf *common.AppConfig) AppServer {
-	repository.SetRepoInfra(conf)
-	authRedis = &repository.Redis{RedisInfra: &infra.Redis{Client: conf.RedisCli}}
+	authRedis = repository.NewRedis()
 
 	return &logExtServer{
-		searchCtl: *NewSearchController(repository.NewOpensearchRepo()),
+		searchCtl: *NewSearchController(repository.NewElasticsearchRepo()),
 		deployCtl: *NewNotifyController(repository.NewMysqlRepo(), repository.NewTunnelRepo()),
 	}
 }

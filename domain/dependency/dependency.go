@@ -4,6 +4,8 @@ import (
 	"context"
 	"log-ext/common/errorx"
 	"log-ext/domain/entity"
+
+	"github.com/olivere/elastic/v7"
 )
 
 //go:generate mockgen -source ../dependency/dependency.go -destination ../../mock/mock_dependency.go -package mock
@@ -31,4 +33,9 @@ type TunnelRepo interface {
 
 type RedisRepo interface {
 	Get(ctx context.Context, key string) (string, *errorx.CodeError)
+}
+
+type ElasticsearchDependency interface {
+	SearchRequest(indexNames []string, query *entity.QueryDocs) ([]*elastic.SearchHit, error)
+	IndicesDeleteRequest(indexNames []string) ([]byte, error)
 }

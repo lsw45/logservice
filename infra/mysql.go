@@ -11,9 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
-var _ MysqlInfra = &Mysql{}
+var _ MysqlInfra = new(mysqlDB)
 
 type MysqlInfra interface {
+	CommonInfra
 	GetUser(id int) (*entity.User, error)
 	GetUserConfigName(ingestID, version string) (string, error)
 	ExitsNotifyByUUId(uuid string) (bool, error)
@@ -22,11 +23,11 @@ type MysqlInfra interface {
 	UpdateDeployeIngestTask(id int, status int) error
 }
 
-type Mysql struct {
+type mysqlDB struct {
 	DB *gorm.DB
 }
 
-func NewMysqlDB(conf common.Mysql) (*gorm.DB, error) {
+func NewMysql(conf common.Mysql) (*mysqlDB, error) {
 	dbDSN := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=True&loc=Local",
 		conf.Username, conf.Password, conf.Host, conf.Port, conf.DataBase)
 
@@ -39,16 +40,16 @@ func NewMysqlDB(conf common.Mysql) (*gorm.DB, error) {
 	})
 
 	if err != nil {
-		return gormDB, fmt.Errorf("数据源配置不正确: %v", err.Error())
+		return nil, fmt.Errorf("数据源配置不正确: %v", err.Error())
 	}
 
 	db, err := gormDB.DB()
 	if err != nil {
-		return gormDB, fmt.Errorf("gorm 获取数据库失败: %v", err.Error())
+		return nil, fmt.Errorf("gorm 获取数据库失败: %v", err.Error())
 	}
 
 	if err = db.Ping(); err != nil {
-		return gormDB, fmt.Errorf("数据库连接失败: %v", err.Error())
+		return nil, fmt.Errorf("数据库连接失败: %v", err.Error())
 	}
 
 	// 最大连接数
@@ -58,10 +59,10 @@ func NewMysqlDB(conf common.Mysql) (*gorm.DB, error) {
 	// 最大连接周期
 	db.SetConnMaxLifetime(100 * time.Second)
 
-	return gormDB, nil
+	return &mysqlDB{DB: gormDB}, nil
 }
 
-func (cli *Mysql) GetUser(id int) (*entity.User, error) {
+func (cli *mysqlDB) GetUser(id int) (*entity.User, error) {
 	var result entity.User
 
 	err := cli.DB.Table(entity.UserTableName).Where("id = ?", id).Find(&result).Error
@@ -69,7 +70,7 @@ func (cli *Mysql) GetUser(id int) (*entity.User, error) {
 	return &result, err
 }
 
-func (cli *Mysql) GetUserConfigName(ingestID, version string) (string, error) {
+func (cli *mysqlDB) GetUserConfigName(ingestID, version string) (string, error) {
 	var configName string
 	err := cli.DB.Table(entity.UserTableName).Select("config_name").
 		Where("user_id = ? and version = ?", ingestID, version).
@@ -77,7 +78,7 @@ func (cli *Mysql) GetUserConfigName(ingestID, version string) (string, error) {
 	return configName, err
 }
 
-func (cli *Mysql) ExitsNotifyByUUId(uuid string) (bool, error) {
+func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (bool, error) {
 	tmp := &entity.NotifyMsgModel{}
 	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
 
@@ -88,12 +89,12 @@ func (cli *Mysql) ExitsNotifyByUUId(uuid string) (bool, error) {
 	return true, nil
 }
 
-func (cli *Mysql) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
+func (cli *mysqlDB) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
 	err := cli.DB.Table(entity.NotifyMsgTableName).Create(msg).Error
 	return err
 }
 
-func (cli *Mysql) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
+func (cli *mysqlDB) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
 	err := cli.DB.Table(entity.DeployIngestTableName).Create(tasks).Error
 	if err != nil {
 		common.Logger.Errorf("infra error: DeployIngestTableName create:%s", err)
@@ -108,8 +109,16 @@ func (cli *Mysql) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[
 	return ids, nil
 }
 
-func (cli *Mysql) UpdateDeployeIngestTask(id int, status int) error {
+func (cli *mysqlDB) UpdateDeployeIngestTask(id int, status int) error {
 	err := cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", status).
 		Where("id=?", id).Error
 	return err
+}
+
+func (cli *mysqlDB) Close() {
+	db, _ := cli.DB.DB()
+	err := db.Close()
+	if err != nil {
+		common.Logger.Errorf("mysql close error: %v", err)
+	}
 }

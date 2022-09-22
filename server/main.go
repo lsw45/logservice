@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log-ext/adapter/controller"
+	"log-ext/adapter/repository"
 	"log-ext/common"
 	"log-ext/infra"
 	"net/http"
@@ -13,7 +14,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/opensearch-project/opensearch-go/opensearchtransport"
 )
 
 func main() {
@@ -64,28 +64,36 @@ func NewLogServer(conf *common.AppConfig) *LogServer {
 
 // InitClient 初始化各客户端连接
 func initClient(conf *common.AppConfig) {
-	var err error
+	elastic, err := infra.NewElasticsearch(conf.Elasticsearch)
+	if err != nil {
+		common.Logger.Fatalf("new elasticsearch infra: %v", err)
+	}
 
 	// mysql
-	conf.DB, err = infra.NewMysqlDB(conf.Mysql)
+	mysql, err := infra.NewMysql(conf.Mysql)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Infof("mysql setting: %+v", conf.DB.Statement)
+	common.Logger.Infof("mysql setting: %+v", mysql.DB.Statement)
 
-	// opensearch
-	conf.OpenDB, err = infra.NewOpensearch(conf.Opensearch)
-	if err != nil {
-		common.Logger.Fatal(err.Error())
-	}
-	common.Logger.Infof("opensearch url: %+v", conf.OpenDB.Transport.(*opensearchtransport.Client).URLs())
+	// // opensearch
+	// openDB, err := infra.NewOpensearch(conf.Opensearch)
+	// if err != nil {
+	// 	common.Logger.Fatal(err.Error())
+	// }
+	// common.Logger.Infof("opensearch url: %+v", openDB.Client.Transport.(*opensearchtransport.Client).URLs())
 
 	// redis
-	conf.RedisCli, err = infra.NewRedis(conf.Redis)
+	redis, err := infra.NewRedis(conf.Redis)
 	if err != nil {
 		common.Logger.Fatal(err.Error())
 	}
-	common.Logger.Infof("redis client: %+v", conf.RedisCli)
+	common.Logger.Infof("redis client: %+v", redis)
+
+	// tunnel
+	tunnel := infra.NewTunnelClient(conf.Tunnel)
+
+	repository.SetRepoInfra(redis, mysql, tunnel, elastic)
 }
 
 func (ls *LogServer) Start() {
@@ -103,9 +111,7 @@ func (ls *LogServer) AwaitSignal() {
 }
 
 func (ls *LogServer) GracefulShutDown() {
-	// 通知其他协程退出
-	controller.ExitChan <- nil
-	defer close(controller.ExitChan)
+
 	// 关闭服务
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -113,9 +119,7 @@ func (ls *LogServer) GracefulShutDown() {
 		common.Logger.Fatalf("Server Shutdown:%v", err)
 	}
 
-	// DB 关闭
-	db, _ := ls.conf.DB.DB()
-	defer db.Close()
+	// infra 关闭
 
 	common.Logger.Info("Server Exiting")
 }

@@ -16,7 +16,7 @@ type MysqlRepo struct {
 }
 
 func NewMysqlRepo() *MysqlRepo {
-	return &MysqlRepo{defaultInfra.Mysql}
+	return &MysqlRepo{defaultRepo.Mysql}
 }
 
 func (m *MysqlRepo) GetUser(id int) (*entity.User, error) {
@@ -29,7 +29,7 @@ func (m *MysqlRepo) GetUserConfigName(ingestID, version string) (string, error) 
 
 func (m *MysqlRepo) ExitsNotifyByUUId(uuid string) (bool, error) {
 	exit, err := m.MysqlInfra.ExitsNotifyByUUId(uuid)
-	
+
 	if err == gorm.ErrRecordNotFound {
 		common.Logger.Infof("ExitsNotifyByUUId search error: %+v", err)
 		return false, nil
