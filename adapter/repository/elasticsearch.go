@@ -2,11 +2,14 @@ package repository
 
 import (
 	"log-ext/common"
+	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
 	"log-ext/infra"
 
 	"github.com/olivere/elastic/v7"
 )
+
+var _ dependency.ElasticsearchDependency = new(ElasticsearchRepo)
 
 type ElasticsearchRepo struct {
 	infra.ElasticsearchInfra
@@ -16,7 +19,7 @@ func NewElasticsearchRepo() *ElasticsearchRepo {
 	return &ElasticsearchRepo{defaultRepo.Elastic}
 }
 
-func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *entity.QueryDocs) ([]*elastic.SearchHit, error) {
+func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *entity.QueryDocs) (*elastic.SearchHits, error) {
 	res, err := elastic.ElasticsearchInfra.SearchRequest(indexNames, query)
 	if err != nil {
 		return nil, err
@@ -30,7 +33,7 @@ func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *enti
 		common.Logger.Warn("got len(SearchResult.Hits.Hits) = 0")
 	}
 
-	return res.Hits.Hits, nil
+	return res.Hits, nil
 }
 
 func (elastic *ElasticsearchRepo) IndicesDeleteRequest(indexNames []string) ([]byte, error) {

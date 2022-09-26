@@ -20,6 +20,6 @@ type UserListQuery struct {
 
 type UserInfo struct {
 	//Id int64 `json:"id"`
-	Company       int64  `json:"XXXXX"`
+	Company       int64  `json:"XXXX"`
 	CorporationId string `json:"corporation_id"`
 }

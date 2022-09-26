@@ -23,13 +23,13 @@ func NewTunnelRepo() *TunnelRepo {
 }
 
 func (t *TunnelRepo) UploadFile(file_path string, ip string) error {
-	// 上传采集器
+	// 上传pipeline
 
 	buf := &bytes.Buffer{}
 	writer := multipart.NewWriter(buf)
 
 	field := &entity.UpdateFileReq{
-		Remote:   "/opt",
+		Remote:   infra.RemoteFilepath,
 		Server:   ip,
 		Preserve: true,
 	}
@@ -84,16 +84,18 @@ func (t *TunnelRepo) UploadFile(file_path string, ip string) error {
 
 func (t *TunnelRepo) ShellTask(env, project int, corporationId, server string, async bool) (bool, error) {
 	command := []string{
-		"cd $dir",
-		"wget https://cocos-games-2022-prod.obs.cn-east-3.myhuaweicloud.com/loggie/" + "$start",
+		"cd $workspace",
+		"wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/loggie",
+		"wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/start.sh",
+		"wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/loggie.yml",
+		"chmod +x start.sh",
 		"source $start",
-		"mv $start $dir/$file",
 	}
 	params := entity.ShellParams{
 		Shell:            "/bin/bash",
 		Server:           server,
 		Command:          command,
-		ShellEnvironment: map[string]interface{}{"file": "loggie", "dir": "/opt", "start": "start.sh"},
+		ShellEnvironment: map[string]interface{}{"workspace": infra.RemoteFilepath},
 	}
 	reqData := &entity.ShellTaskReq{
 		Env:           env,

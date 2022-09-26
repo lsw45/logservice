@@ -35,6 +35,7 @@ func (r *Redis) Get(ctx context.Context, key string) (string, errorx.ErrInt) {
 	}
 
 	if err != nil {
+		common.Logger.Errorf("redis get error: %v", err)
 		return "", errorx.SERVER_COMMON_ERROR
 	}
 

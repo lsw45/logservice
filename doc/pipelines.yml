@@ -1,0 +1,22 @@
+pipelines:
+  - name: demo
+    sources:
+      - type: file
+        name: mylog
+        addonMeta: true
+        paths:
+          - "/var/log/kdump.log"
+    interceptors:
+    - type: transformer
+      actions:
+        - if: hasPrefix(body, {)
+          then:
+            - action: jsonDecode(body)
+            - action: del(stream)
+            - action: add(topic, json)
+          else:
+            - action: add(topic, plain)
+            
+    sink:
+      type: dev
+      printEvents: false

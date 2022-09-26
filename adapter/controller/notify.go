@@ -51,5 +51,4 @@ func (dctl *DeployController) Notify(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success",
 	})
-	return
 }

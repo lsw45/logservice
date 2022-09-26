@@ -23,11 +23,11 @@ type TunnelInfra interface {
 }
 
 var (
-	token            = "14e58ac5e45f4fefa924a040c581698d"
-	shell_task       = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/?x-token=" + token}
-	check_task       = []string{"GET", "http://ops-dev.cocos.org/paas/tunnel/task/1/"}
-	upload_file      = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=" + token}
-	remote_file_path = ""
+	token          = "14e58ac5e45f4fefa924a040c581698d"
+	shell_task     = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/?x-token=" + token}
+	check_task     = []string{"GET", "http://ops-dev.cocos.org/paas/tunnel/task/1/"}
+	upload_file    = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=" + token}
+	RemoteFilepath = "/opt/loggie"
 )
 
 type Tunnel struct {

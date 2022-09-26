@@ -46,7 +46,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		for _, server := range content.Servers {
 			// 新建任务——上传文件
 			tasks = append(tasks, &entity.DeployIngestModel{
-				Ip:            server.IP,
+				GameIp:        server.IP,
 				Index:         fmt.Sprintf("%v-%v-%v", content.RegionID, server.Project, server.EnvID),
 				Status:        1,
 				NotifyId:      message.UUID,
@@ -71,7 +71,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		return err
 	}
 
-	// 异步上传采集器文件
+	// 异步上传pipeline文件
 	for _, task := range tasks {
 		go dsvc.TunnelUploadIngest(task)
 	}
@@ -79,9 +79,13 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 	return nil
 }
 
-// 上传采集器并启动采集器
+// 上传pipeline并启动采集器
 func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
-	err := dsvc.depTunnel.UploadFile("../doc/loggie.tar.gz", task.Ip)
+	err := common.WriteLoggiePipeline(task.Index, task.GameIp, "../doc/piplines.yml")
+	if err != nil {
+		return
+	}
+	err = dsvc.depTunnel.UploadFile("../doc/piplines.yml", task.GameIp)
 	if err != nil {
 		common.Logger.Errorf("domain error: upload file: %s", err)
 
@@ -94,7 +98,7 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 		return
 	}
 
-	// 更像任务状态为上传文件成功
+	// 更新任务状态为上传文件成功
 	err = dsvc.depRepo.UpdateDeployeIngestTask([]int{task.Id}, 2)
 	if err != nil {
 		common.Logger.Errorf("domain error: UpdateDeployeIngestTask 2: %s", err)
@@ -114,13 +118,13 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 func (dsvc *depolyService) TunnelDeployIngestTask(task *entity.DeployIngestModel) error {
 	var err error
 
-	sucess, err := dsvc.depTunnel.ShellTask(task.Env, task.Project, task.CorporationId, task.Ip, true)
+	sucess, err := dsvc.depTunnel.ShellTask(task.Env, task.Project, task.CorporationId, task.GameIp, true)
 	if err != nil {
 		common.Logger.Errorf("domain error: shell task: %s", err)
 		return err
 	}
 	if !sucess {
-		common.Logger.Errorf("domain error: shell task failed: " + task.Ip)
+		common.Logger.Errorf("domain error: shell task failed: " + task.GameIp)
 		return err
 	}
 

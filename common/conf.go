@@ -22,7 +22,7 @@ var (
 type AppConfig struct {
 	Logging       Logging       `mapstructure:"Log"`
 	Server        Web           `mapstructure:"Web"`
-	Redis         Redis         `mapstructure:"Kafka"`
+	Redis         Redis         `mapstructure:"Redis"`
 	Mysql         Mysql         `mapstructure:"Mysql"`
 	Opensearch    Opensearch    `mapstructure:"Opensearch"`
 	Elasticsearch Elasticsearch `mapstructure:"Elasticsearch"`

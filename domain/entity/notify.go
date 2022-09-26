@@ -19,7 +19,7 @@ type DeployIngestModel struct {
 	Id             int
 	NotifyId       string
 	Status         int
-	Ip             string
+	GameIp         string
 	FailedMsg      string
 	Index          string
 	Config         string

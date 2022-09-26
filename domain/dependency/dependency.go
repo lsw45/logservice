@@ -36,6 +36,6 @@ type RedisRepo interface {
 }
 
 type ElasticsearchDependency interface {
-	SearchRequest(indexNames []string, query *entity.QueryDocs) ([]*elastic.SearchHit, error)
+	SearchRequest(indexNames []string, query *entity.QueryDocs) (*elastic.SearchHits, error)
 	IndicesDeleteRequest(indexNames []string) ([]byte, error)
 }

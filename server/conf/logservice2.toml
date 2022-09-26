@@ -17,9 +17,9 @@
     max_size = 100
 
 [Redis]
-    db = 1
-    addr = "ip:port"
-    password =  "Cocos@2021"
+    db = 0
+    addr = "127.0.0.1:6379"
+    password =  ""
     max_retries = 1
     min_idle_conns = 1
 

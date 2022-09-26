@@ -17,13 +17,13 @@ func NewElasticsearchService(dep dependency.ElasticsearchDependency) SearchServi
 	return &ealsticsearchService{elasticDep: dep}
 }
 
-func (this *ealsticsearchService) Histogram() {
+func (svc *ealsticsearchService) Histogram() {
 
 }
 
-func (this *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
+func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
 	query := &entity.QueryDocs{
-		From: filter.Page * filter.PageSize,
+		From: (filter.Page - 1) * filter.PageSize,
 		Size: filter.PageSize,
 	}
 
@@ -36,13 +36,13 @@ func (this *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) 
 		}
 	}
 
-	hits, err := this.elasticDep.SearchRequest(filter.Indexs, query)
+	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
 	if err != nil {
 		common.Logger.Errorf("search log error: %v", err)
 		return nil, 0, err
 	}
 
-	re,_ := json.Marshal(hits)
+	re, _ := json.Marshal(hits.Hits)
 
-	return re, len(hits), nil
+	return re, int(hits.TotalHits.Value), nil
 }

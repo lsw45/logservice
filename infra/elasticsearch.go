@@ -62,19 +62,18 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 	return &elasticsearch{client}, nil
 }
 
-func (es *elasticsearch) SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error) {
-	query := elastic.NewMatchAllQuery()
-	res, err := es.Client.Search().Index(indexNames...).From(quer.From).Size(quer.Size).SortBy(quer.Sort...).Query(query).Do(context.Background())
+func (es *elasticsearch) SearchRequest(indexNames []string, query *entity.QueryDocs) (*elastic.SearchResult, error) {
+	res, err := es.Client.Search().Index(indexNames...).From(query.From).Size(query.Size).SortBy(query.Sort...).Do(context.Background())
 
 	if err != nil {
 		return nil, err
 	}
 	if res == nil {
-		err = errors.New("got results = nil")
+		err = errors.New("got results is nil")
 		return nil, err
 	}
 	if res.Hits == nil {
-		err = errors.New("got SearchResult.Hits = nil")
+		err = errors.New("got SearchResult.Hits is nil")
 		return nil, err
 	}
 

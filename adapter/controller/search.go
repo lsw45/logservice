@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"log-ext/adapter/repository"
 	"log-ext/common"
 	"log-ext/domain"
@@ -49,21 +48,21 @@ func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {
 		return
 	}
 
-	result, err := json.Marshal(list)
-	if err != nil {
-		common.Logger.Errorf("json marshal error: %s", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "system error",
-			"error":   err.Error(),
-		})
-		return
-	}
+	// result, err := json.Marshal(list)
+	// if err != nil {
+	// 	common.Logger.Errorf("json marshal error: %s", err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"message": "system error",
+	// 		"error":   err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	var resp entity.LogsFilterResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data.Results = string(result)
-	resp.Data.Count = len(list)
+	resp.Data.Results = string(list)
+	resp.Data.Count = total
 	resp.Data.Total = total
 
 	c.JSON(http.StatusOK, resp)

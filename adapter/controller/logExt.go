@@ -37,8 +37,8 @@ type logExtServer struct {
 }
 
 func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
-	// logsrv := e.Group("/logservice2").Use(AuthCheck())
-	logsrv := e.Group("/logservice2")
+	logsrv := e.Group("/logservice2").Use(AuthCheck())
+	// logsrv := e.Group("/logservice2")
 	logsrv.GET("/logs", ctl.searchCtl.SearchLogsByFilter)
 	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
 
@@ -51,19 +51,22 @@ func AuthCheck() gin.HandlerFunc {
 		authInfo, ok := common.ParseBasicAuth(c.GetHeader("Authorization"))
 		if !ok {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, common.ThrowErr(errorx.NewErrCode(errorx.AUTH_ERROR)))
+			c.JSON(http.StatusUnauthorized, string(common.ThrowErr(errorx.NewErrCode(errorx.AUTH_ERROR))))
+			return
 		}
 
 		if len(authInfo) == 0 {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, common.ThrowErr(errorx.NewErrMsg("Authorization is null")))
+			c.JSON(http.StatusUnauthorized, string(common.ThrowErr(errorx.NewErrMsg("Authorization is null"))))
+			return
 		}
 
 		data, errs := authRedis.Get(c.Request.Context(), authInfo)
 		if errs != nil {
 			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(errs, "获取鉴权信息失败"))
-			c.JSON(http.StatusInternalServerError, common.ThrowErr(errs))
+			c.JSON(http.StatusInternalServerError, string(common.ThrowErr(errs)))
+			return
 		}
 
 		var userInfo entity.UserInfo
@@ -71,14 +74,16 @@ func AuthCheck() gin.HandlerFunc {
 		if err != nil {
 			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(err, "解析用户鉴权信息失败"))
-			c.JSON(http.StatusInternalServerError, common.ThrowErr(errorx.NewErrMsg(err.Error())))
+			c.JSON(http.StatusInternalServerError, string(common.ThrowErr(errorx.NewErrMsg(err.Error()))))
+			return
 		}
 
 		company, err := strconv.Atoi(userInfo.CorporationId)
 		if err != nil {
 			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", err)
-			c.JSON(http.StatusInternalServerError, common.ThrowErr(errorx.NewErrMsg(err.Error())))
+			c.JSON(http.StatusInternalServerError, string(common.ThrowErr(errorx.NewErrMsg(err.Error()))))
+			return
 		}
 
 		userInfo.Company = int64(company)

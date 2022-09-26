@@ -1,0 +1,30 @@
+pipelines:
+- name: demo
+  interceptors:
+  - type: transformer
+    actions:
+    - else:
+      - action: add(topic, plain)
+      if: hasPrefix(body, {)
+      then:
+      - action: jsonDecode(body)
+      - action: del(stream)
+      - action: add(topic, json)
+  sources:
+  - name: mylog
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/kdump.log
+    fieldsUnderRoot: true
+    fields:
+      index: x
+      ip: x
+  sink:
+    type: kafka
+    balance: roundRobin
+    brokers:
+    - 10.0.3.116:9093
+    compression: gzip
+    topic: test
+    codec: {}

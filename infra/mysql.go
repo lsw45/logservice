@@ -103,7 +103,7 @@ func (cli *mysqlDB) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (ma
 
 	ids := make(map[string]int, 1)
 	for _, task := range tasks {
-		ids[task.Ip] = task.Id
+		ids[task.GameIp] = task.Id
 	}
 
 	return ids, nil
