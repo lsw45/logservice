@@ -27,6 +27,7 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		Size: filter.PageSize,
 	}
 
+	query.Query = filter.Keywords
 	// elastic:true为升序序，false为降序
 	for key, sor := range filter.Sort {
 		if sor {

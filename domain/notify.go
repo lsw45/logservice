@@ -50,7 +50,8 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 				Index:         fmt.Sprintf("%v-%v-%v", content.RegionID, server.Project, server.EnvID),
 				Status:        1,
 				NotifyId:      message.UUID,
-				Env:           server.EnvID,
+				Env:           server.Env,
+				EnvId:         server.EnvID,
 				Project:       server.Project,
 				CorporationId: server.CorporationID,
 				RegionID:      content.RegionID,
@@ -81,11 +82,12 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 
 // 上传pipeline并启动采集器
 func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
-	err := common.WriteLoggiePipeline(task.Index, task.GameIp, "../doc/piplines.yml")
+	err := common.WriteLoggiePipeline(task.Index, task.GameIp, "../doc/pipelines.yml")
 	if err != nil {
 		return
 	}
-	err = dsvc.depTunnel.UploadFile("../doc/piplines.yml", task.GameIp)
+
+	err = dsvc.depTunnel.UploadFile("../doc/pipelines.yml", task.GameIp,task.Env)
 	if err != nil {
 		common.Logger.Errorf("domain error: upload file: %s", err)
 
@@ -118,7 +120,7 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 func (dsvc *depolyService) TunnelDeployIngestTask(task *entity.DeployIngestModel) error {
 	var err error
 
-	sucess, err := dsvc.depTunnel.ShellTask(task.Env, task.Project, task.CorporationId, task.GameIp, true)
+	sucess, err := dsvc.depTunnel.ShellTask(task.EnvId, task.Project, task.CorporationId, task.GameIp, true)
 	if err != nil {
 		common.Logger.Errorf("domain error: shell task: %s", err)
 		return err

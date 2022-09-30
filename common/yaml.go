@@ -7,34 +7,30 @@ import (
 	"github.com/goccy/go-yaml"
 
 	"github.com/loggie-io/loggie/pkg/control"
+	// "github.com/loggie-io/loggie/pkg/core/interceptor"
 )
 
 var piplineTemplate = `
 pipelines:
-  - name: demo
-    sources:
-      - type: file
-        name: mylog
-        addonMeta: true
-        paths:
-          - "/var/log/kdump.log"
-    interceptors:
-    - type: transformer
-      actions:
-        - if: hasPrefix(body, {)
-          then:
-            - action: jsonDecode(body)
-            - action: del(stream)
-            - action: add(topic, json)
-          else:
-            - action: add(topic, plain)
-            
-    sink:
-      type: kafka
-      brokers: ["10.0.3.116:9093"]
-      topic: "test"
-      balance: "roundRobin"
-      compression: "gzip"
+- name: demo
+  sources:
+  - name: mylog
+    type: file
+    addonMeta: true
+    paths:
+    - /home/logservice2/log/GameStatistic.log
+    fieldsUnderRoot: true
+    fields:
+      index: x
+      ip: x
+  sink:
+    type: kafka
+    balance: roundRobin
+    brokers:
+    - 10.0.3.116:9093
+    compression: gzip
+    topic: test
+    codec: {}
 `
 
 func WriteLoggiePipeline(index, ip, filePath string) error {
@@ -52,6 +48,10 @@ func WriteLoggiePipeline(index, ip, filePath string) error {
 	}
 	conf.Pipelines[0].Sources[0].FieldsUnderRoot = true
 	conf.Pipelines[0].Sources[0].Fields = map[string]interface{}{"index": index, "ip": ip}
+
+	// conf.Pipelines[0].Interceptors
+	// interceptors := make([]interceptor.Config,3)
+	// interceptor := interceptor.Config{type:"transform"}
 
 	pipe, err := yaml.Marshal(conf)
 	if err != nil {

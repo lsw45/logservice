@@ -11,30 +11,47 @@ import (
 
 /*
 {
-    "total":{
-        "value":28,
-        "relation":"eq"
+    "_index" : "game_static-2022.09.29",
+    "_id" : "-f5FiIMBP53dBzVBjHbr",
+    "_score" : null,
+    "_ignored" : [
+      "event.original.keyword"
+    ],
+	"_source" : {
+      "@version" : "1",
+      "uuid" : "YzE+3wPadjA7QohW",
+      "role_id" : 12334,
+      "IMEI" : "xxxx",
+      "role_name" : "cocos",
+      "time" : 1664269483,
+      "mac_address" : "00-15-5D-0C-55-55",
+      "@timestamp" : "2022-09-29T08:03:22.822548117Z",
+      "os_name" : "ios 16",
+      "ip" : "127.0.0.1",
+      "game_id" : "cc88",
+      "os_ver" : "1.1.1",
+      "type" : "game_static",
+      "operation" : "LogoutRole",
+      "server_id" : "10001",
+      "app_channel" : "AppStore",
+      "logout_time" : 1664269483,
+      "account_id" : "cocos",
+      "network" : "WIFI",
+      "service" : "/usr/local/go",
+      "index" : "55-1-3",
+      "country_code" : "",
+      "state" : {
+        "filename" : "/opt/carey/modify_es_index/source_loggie/test.log",
+        "hostname" : "paas-dev",
+        "bytes" : 431,
+        "source" : "kdump",
+        "timestamp" : "2022-09-29T16:03:19.790Z",
+        "offset" : 0,
+        "pipeline" : "demo"
+      }
     },
-    "max_score":1,
-    "hits":[
-        {
-            "_index":"test_index",
-            "_id":"gNbqY4MB5bsVxw97I68H",
-            "_score":1,
-            "_ignored":[
-                "message.keyword",
-                "event.original.keyword"
-            ],
-            "_source":{
-                "message":"{\"state\":{\"hostname\":\"paas-dev\",\"pipeline\":\"demo\",\"source\":\"kdump\",\"filename\":\"/var/log/kdump.log\",\"timestamp\":\"2022-09-22T14:37:08.689Z\",\"offset\":0,\"bytes\":559},\"fields\":{\"service\":\"/usr/local/go\"},\"body\":\"+ 2022-06-27 16:54:57 /usr/bin/kdumpctl@708: /sbin/kexec -s -d -p '--command-line=BOOT_IMAGE=(hd0,msdos1)/boot/vmlinuz-4.18.0-348.7.1.el8_5.x86_64 ro net.ifnames=0 consoleblank=600 console=tty0 console=ttyS0,115200n8 spectre_v2=off nopti irqpoll nr_cpus=1 reset_devices cgroup_disable=memory mce=off numa=off udev.children-max=2 panic=10 rootflags=nofail acpi_no_memhotplug transparent_hugepage=never nokaslr novmcoredd hest_disable disable_cpu_apicid=0' --initrd=/boot/initramfs-4.18.0-348.7.1.el8_5.x86_64kdump.img /boot/vmlinuz-4.18.0-348.7.1.el8_5.x86_64\"}",
-                "@timestamp":"2022-09-22T06:37:11.724606454Z",
-                "event":{
-                    "original":"{\"state\":{\"hostname\":\"paas-dev\",\"pipeline\":\"demo\",\"source\":\"kdump\",\"filename\":\"/var/log/kdump.log\",\"timestamp\":\"2022-09-22T14:37:08.689Z\",\"offset\":0,\"bytes\":559},\"fields\":{\"service\":\"/usr/local/go\"},\"body\":\"+ 2022-06-27 16:54:57 /usr/bin/kdumpctl@708: /sbin/kexec -s -d -p '--command-line=BOOT_IMAGE=(hd0,msdos1)/boot/vmlinuz-4.18.0-348.7.1.el8_5.x86_64 ro net.ifnames=0 consoleblank=600 console=tty0 console=ttyS0,115200n8 spectre_v2=off nopti irqpoll nr_cpus=1 reset_devices cgroup_disable=memory mce=off numa=off udev.children-max=2 panic=10 rootflags=nofail acpi_no_memhotplug transparent_hugepage=never nokaslr novmcoredd hest_disable disable_cpu_apicid=0' --initrd=/boot/initramfs-4.18.0-348.7.1.el8_5.x86_64kdump.img /boot/vmlinuz-4.18.0-348.7.1.el8_5.x86_64\"}"
-                },
-                "@version":"1",
-                "type":"carey1"
-            }
-        }
+    "sort" : [
+      1664438602822
     ]
 }
 */
@@ -59,11 +76,19 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	_, _, err = client.Ping(conf.Address[0]).Do(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
 	return &elasticsearch{client}, nil
 }
 
-func (es *elasticsearch) SearchRequest(indexNames []string, query *entity.QueryDocs) (*elastic.SearchResult, error) {
-	res, err := es.Client.Search().Index(indexNames...).From(query.From).Size(query.Size).SortBy(query.Sort...).Do(context.Background())
+func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
+	query := elastic.RawStringQuery(`{"match_all":{}}`)
+
+	res, err := es.Client.Search().Index(indexNames...).Query(query).From(search.From).Size(search.Size).SortBy(search.Sort...).Do(context.Background())
 
 	if err != nil {
 		return nil, err

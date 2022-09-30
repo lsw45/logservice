@@ -24,10 +24,13 @@ type TunnelInfra interface {
 
 var (
 	token          = "14e58ac5e45f4fefa924a040c581698d"
-	shell_task     = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/task/?x-token=" + token}
-	check_task     = []string{"GET", "http://ops-dev.cocos.org/paas/tunnel/task/1/"}
-	upload_file    = []string{"POST", "http://ops-dev.cocos.org/paas/tunnel/file/?x-token=" + token}
-	RemoteFilepath = "/opt/loggie"
+	urlQA          = "https://ops-qa.cocos.org/paas/tunnel/"
+	urlDev         = "http://ops-dev.cocos.org/paas/tunnel/"
+	shell_task     = []string{"POST", urlDev + "task/?x-token=" + token}
+	check_task     = []string{"GET", urlDev + "task/{}?x-token=" + token}
+	upload_file    = []string{"POST", urlDev + "file/?x-token=" + token}
+	RemoteFilepath = "/home/logservice2/"
+	MsgTitle       = "broadcast.region.update"
 )
 
 type Tunnel struct {
@@ -105,6 +108,8 @@ func (tu *Tunnel) ShellTask(data *entity.ShellTaskReq) (*entity.ShellTaskDeployR
 		common.Logger.Errorf("request error: %s", err)
 		return nil, err
 	}
+	req.Header.Set("Content-Type", "application/json")
+
 	resp, err := tu.Client.Do(req)
 	if resp != nil {
 		defer func() {

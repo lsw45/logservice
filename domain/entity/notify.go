@@ -24,8 +24,9 @@ type DeployIngestModel struct {
 	Index          string
 	Config         string
 	RemoteFilePath string
+	Env            string
 
-	Env           int
+	EnvId         int
 	Project       int
 	RegionID      int
 	CorporationId string

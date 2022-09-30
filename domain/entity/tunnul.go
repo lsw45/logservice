@@ -4,7 +4,7 @@ type UpdateFileReq struct {
 	Remote   string
 	Server   string
 	Preserve bool
-	File []byte
+	File     []byte
 }
 
 type TunnelUploadFileRes struct {
@@ -29,7 +29,8 @@ type ShellTaskDeployResp struct {
 }
 
 type ShellData struct {
-	Env           int64         `json:"env"`
+	ID            int           `json:"id"`
+	Env           string        `json:"env"`
 	Params        []ShellParams `json:"params"`
 	Project       int64         `json:"project"`
 	Asynchronous  bool          `json:"asynchronous"`

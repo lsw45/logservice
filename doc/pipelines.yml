@@ -1,22 +1,20 @@
 pipelines:
-  - name: demo
-    sources:
-      - type: file
-        name: mylog
-        addonMeta: true
-        paths:
-          - "/var/log/kdump.log"
-    interceptors:
-    - type: transformer
-      actions:
-        - if: hasPrefix(body, {)
-          then:
-            - action: jsonDecode(body)
-            - action: del(stream)
-            - action: add(topic, json)
-          else:
-            - action: add(topic, plain)
-            
-    sink:
-      type: dev
-      printEvents: false
+- name: demo
+  sources:
+  - name: mylog
+    type: file
+    addonMeta: true
+    paths:
+    - /home/logservice2/log/GameStatistic.log
+    fieldsUnderRoot: true
+    fields:
+      index: 55-1-3
+      ip: 10.0.140.23
+  sink:
+    type: kafka
+    balance: roundRobin
+    brokers:
+    - 10.0.3.116:9093
+    compression: gzip
+    topic: test
+    codec: {}

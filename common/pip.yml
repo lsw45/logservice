@@ -15,7 +15,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - /var/log/kdump.log
+    - /home/logservice2/log/GameStatistic.log
     fieldsUnderRoot: true
     fields:
       index: x

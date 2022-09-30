@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"log-ext/adapter/repository"
 	"log-ext/common"
 	"log-ext/domain"
@@ -33,6 +34,14 @@ func (dctl *DeployController) Notify(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "validation failed!",
 			"error":   err.Error(),
+		})
+		return
+	}
+
+	if c.Request.URL.Query().Get("x-token") != "f68192e66ddc4d2a9fd4300bdd4a8f7e" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "validation failed!",
+			"error":   errors.New("token invalid"),
 		})
 		return
 	}

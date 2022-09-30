@@ -10,6 +10,7 @@ type QueryDocs struct {
 	From      int
 	Size      int
 	EnableDSL bool
+	Query     string
 	Sort      []elastic.Sorter
 }
 

@@ -37,7 +37,7 @@ type logExtServer struct {
 }
 
 func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
-	logsrv := e.Group("/logservice2").Use(AuthCheck())
+	logsrv := e.Group("/paas/logservice2").Use(AuthCheck())
 	// logsrv := e.Group("/logservice2")
 	logsrv.GET("/logs", ctl.searchCtl.SearchLogsByFilter)
 	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
