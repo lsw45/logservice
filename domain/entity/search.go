@@ -29,8 +29,8 @@ type LogsFilterReq struct {
 	PageSize        int             `json:"page_size"`
 	LineNum         interface{}     `json:"line_num"`
 	Keywords        string          `json:"keywords"`
-	StartTime       int64           `json:"start_time"`
-	EndTime         int64           `json:"end_time"`
+	LogStartTime    int64           `json:"log_start_time"`
+	LogEndTime      int64           `json:"log_end_time"`
 	IsDesc          bool            `json:"is_desc"`
 	RegionVal       int             `json:"region_val"`
 	RegionServerVal string          `json:"region_server_val"`

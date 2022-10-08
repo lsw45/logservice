@@ -44,6 +44,11 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		return nil, 0, err
 	}
 	query.Query = filter.Keywords
+	
+	if len(filter.Date) > 0 {
+		query.StartTime = filter.Date[0]
+		query.EndTime = filter.Date[1]
+	}
 
 	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
 	if err != nil {

@@ -47,7 +47,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 			// 新建任务——上传文件
 			tasks = append(tasks, &entity.DeployIngestModel{
 				GameIp:        server.IP,
-				Index:         fmt.Sprintf("%v-%v-%v", content.RegionID, server.Project, server.EnvID),
+				Index:         fmt.Sprintf("%v-%v-%v", content.RegionID, server.Project, server.EnvID), // 拼接规则：区服ID-项目ID-环境ID
 				Status:        1,
 				NotifyId:      message.UUID,
 				Env:           server.Env,

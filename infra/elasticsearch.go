@@ -86,6 +86,7 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 }
 
 func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
+	// timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
 
 	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).
 		From(search.From).Size(search.Size).SortBy(search.Sort...).
