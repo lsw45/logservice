@@ -22,7 +22,34 @@ func NewSearchController(esRepo *repository.ElasticsearchRepo) *SearchController
 	}
 }
 
+func (sctl *SearchController) NearbyDoc(c *gin.Context) {
+	docid := c.Query("docid")
+	if len(docid) == 0 {
+		common.Logger.Errorf("docid empty")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "validation failed!",
+			"error":   "docid empty",
+		})
+		return
+	}
+
+	sctl.searchSrv.NearbyDoc()
+
+}
+
 func (sctl *SearchController) Histogram(c *gin.Context) {
+	var filter *entity.LogsFilterReq
+	err := c.ShouldBindJSON(&filter)
+	if err != nil {
+		common.Logger.Errorf("params error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "validation failed!",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	sctl.searchSrv.Histogram(&entity.LogsFilter{LogsFilterReq: *filter})
 
 }
 
@@ -63,7 +90,6 @@ func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {
 	resp.Msg = "success"
 	resp.Data.Results = string(list)
 	resp.Data.Count = total
-	resp.Data.Total = total
 
 	c.JSON(http.StatusOK, resp)
 }

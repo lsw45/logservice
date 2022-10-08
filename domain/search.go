@@ -9,7 +9,8 @@ import (
 )
 
 type SearchService interface {
-	Histogram()
+	NearbyDoc()
+	Histogram(filter *entity.LogsFilter) ([]entity.HistogramResult, int, error)
 	SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error)
 }
 
@@ -21,8 +22,13 @@ type SearchLogService struct {
 	depOpen dependency.OpensearchRepo
 }
 
-func (srv *SearchLogService) Histogram() {
+func (srv *SearchLogService) NearbyDoc() {
 
+}
+
+func (srv *SearchLogService) Histogram(filter *entity.LogsFilter) ([]entity.HistogramResult, int, error) {
+
+	return nil, 0, nil
 }
 
 func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
@@ -93,6 +99,6 @@ func (srv *SearchLogService) SearchLogsByFilter(filter *entity.LogsFilter) ([]by
 		}
 	}
 
-	re,_ := json.Marshal(result)
+	re, _ := json.Marshal(result)
 	return re, total, nil
 }

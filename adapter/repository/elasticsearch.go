@@ -39,3 +39,19 @@ func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *enti
 func (elastic *ElasticsearchRepo) IndicesDeleteRequest(indexNames []string) ([]byte, error) {
 	return nil, nil
 }
+
+func (elastic *ElasticsearchRepo) Histogram(indexNames []string, query *entity.QueryDocs) ([]entity.HistogramResult, int, error) {
+	// res, total, err := elastic.ElasticsearchInfra.Histogram(indexNames, query)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// if res.TotalHits() == 0 {
+	// 	common.Logger.Warn("got SearchResult.TotalHits() = 0")
+	// }
+
+	// if len(res.Hits.Hits) == 0 {
+	// 	common.Logger.Warn("got len(SearchResult.Hits.Hits) = 0")
+	// }
+	return nil, 0, nil
+}

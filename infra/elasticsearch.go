@@ -57,6 +57,7 @@ import (
 */
 type ElasticsearchInfra interface {
 	SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error)
+	Histogram(indexNames []string, quer *entity.QueryDocs) ([]entity.HistogramResult, int, error)
 	IndicesDeleteRequest(indexNames []string) (*elastic.Response, error)
 }
 
@@ -109,4 +110,9 @@ func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.Query
 
 func (es *elasticsearch) IndicesDeleteRequest(indexNames []string) (*elastic.Response, error) {
 	return nil, nil
+}
+
+func (es *elasticsearch) Histogram(indexNames []string, query *entity.QueryDocs) ([]entity.HistogramResult, int, error) {
+	
+	return nil, 0, nil
 }

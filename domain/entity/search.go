@@ -20,6 +20,7 @@ type CommonResp struct {
 	Msg  string `json:"msg"`
 	Code int    `json:"code"`
 }
+
 type LogsFilterReq struct {
 	Indexs          []string        `json:"indexs"`
 	Env             string          `json:"env"`
@@ -81,7 +82,6 @@ type LogsFilterResp struct {
 	Data struct {
 		Results string `json:"results"`
 		Count   int    `json:"count"`
-		Total   int    `json:"total"`
 	} `json:"data"`
 }
 
@@ -105,6 +105,7 @@ type HistogramResult struct {
 	StartTime int64 `json:"startTime"`
 	EndTime   int64 `json:"endTime"`
 }
+
 type HistogramResp struct {
 	CommonResp
 	Data struct {

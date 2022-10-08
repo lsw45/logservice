@@ -17,11 +17,42 @@ func NewElasticsearchService(dep dependency.ElasticsearchDependency) SearchServi
 	return &ealsticsearchService{elasticDep: dep}
 }
 
-func (svc *ealsticsearchService) Histogram() {
+func (svc *ealsticsearchService) NearbyDoc() {
 
 }
 
+func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.HistogramResult, int, error) {
+	query, err := transform(filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	histogram, total, err := svc.elasticDep.Histogram(filter.Indexs, query)
+	if err != nil {
+		common.Logger.Errorf("histogram error: %v", err)
+		return nil, 0, err
+	}
+	return histogram, total, nil
+}
+
 func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
+	query, err := transform(filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
+	if err != nil {
+		common.Logger.Errorf("search log error: %v", err)
+		return nil, 0, err
+	}
+
+	re, _ := json.Marshal(hits.Hits)
+
+	return re, int(hits.TotalHits.Value), nil
+}
+
+func transform(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	query := &entity.QueryDocs{
 		From: (filter.Page - 1) * filter.PageSize,
 		Size: filter.PageSize,
@@ -41,22 +72,13 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 	err := json.Unmarshal([]byte(filter.Keywords), &f)
 	if err != nil {
 		common.Logger.Errorf("unmarshal json error: %v", err)
-		return nil, 0, err
+		return nil, err
 	}
 	query.Query = filter.Keywords
-	
-	if len(filter.Date) > 0 {
+
+	if len(filter.Date) > 1 {
 		query.StartTime = filter.Date[0]
 		query.EndTime = filter.Date[1]
 	}
-
-	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
-	if err != nil {
-		common.Logger.Errorf("search log error: %v", err)
-		return nil, 0, err
-	}
-
-	re, _ := json.Marshal(hits.Hits)
-
-	return re, int(hits.TotalHits.Value), nil
+	return query, nil
 }
