@@ -86,9 +86,10 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 }
 
 func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
-	query := elastic.RawStringQuery(`{"match_all":{}}`)
 
-	res, err := es.Client.Search().Index(indexNames...).Query(query).From(search.From).Size(search.Size).SortBy(search.Sort...).Do(context.Background())
+	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).
+		From(search.From).Size(search.Size).SortBy(search.Sort...).
+		Do(context.Background())
 
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package common
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/goccy/go-yaml"
@@ -18,7 +19,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - /home/logservice2/log/GameStatistic.log
+    - %s/log/GameOperate.log
     fieldsUnderRoot: true
     fields:
       index: x
@@ -35,6 +36,7 @@ pipelines:
 
 func WriteLoggiePipeline(index, ip, filePath string) error {
 	conf := &control.PipelineConfig{}
+	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath)
 	err := yaml.Unmarshal([]byte(piplineTemplate), conf)
 	if err != nil {
 		Logger.Errorf("unmarshal yaml failed: %+v", err)

@@ -1,21 +1,11 @@
 pipelines:
 - name: demo
-  interceptors:
-  - type: transformer
-    actions:
-    - else:
-      - action: add(topic, plain)
-      if: hasPrefix(body, {)
-      then:
-      - action: jsonDecode(body)
-      - action: del(stream)
-      - action: add(topic, json)
   sources:
   - name: mylog
     type: file
     addonMeta: true
     paths:
-    - /home/logservice2/log/GameStatistic.log
+    - /home/logservice2//log/GameOperate.log
     fieldsUnderRoot: true
     fields:
       index: x

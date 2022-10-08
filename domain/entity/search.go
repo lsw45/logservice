@@ -12,6 +12,8 @@ type QueryDocs struct {
 	EnableDSL bool
 	Query     string
 	Sort      []elastic.Sorter
+	StartTime time.Time
+	EndTime   time.Time
 }
 
 type CommonResp struct {

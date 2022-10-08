@@ -87,7 +87,7 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 		return
 	}
 
-	err = dsvc.depTunnel.UploadFile("../doc/pipelines.yml", task.GameIp,task.Env)
+	err = dsvc.depTunnel.UploadFile("../doc/pipelines.yml", task.GameIp, task.Env)
 	if err != nil {
 		common.Logger.Errorf("domain error: upload file: %s", err)
 
@@ -107,7 +107,7 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 		return
 	}
 
-	// 启动采集器
+	// 启动采集器：开启rsyslog，日志滚动等
 	err = dsvc.TunnelDeployIngestTask(task)
 	if err != nil {
 		common.Logger.Errorf("domain error: deploy ingest: %s", err)

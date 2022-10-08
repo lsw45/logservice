@@ -27,7 +27,6 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		Size: filter.PageSize,
 	}
 
-	query.Query = filter.Keywords
 	// elastic:true为升序序，false为降序
 	for key, sor := range filter.Sort {
 		if sor {
@@ -36,6 +35,15 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 			query.Sort = append(query.Sort, elastic.NewFieldSort(key).Desc())
 		}
 	}
+
+	// 检验查询语句的json格式是否正确
+	var f interface{}
+	err := json.Unmarshal([]byte(filter.Keywords), &f)
+	if err != nil {
+		common.Logger.Errorf("unmarshal json error: %v", err)
+		return nil, 0, err
+	}
+	query.Query = filter.Keywords
 
 	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
 	if err != nil {
