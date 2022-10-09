@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log-ext/adapter/repository"
 	"log-ext/common"
 	"log-ext/domain"
@@ -38,8 +39,8 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 }
 
 func (sctl *SearchController) Histogram(c *gin.Context) {
-	var filter *entity.LogsFilterReq
-	err := c.ShouldBindJSON(&filter)
+	var req *entity.DateHistogramReq
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		common.Logger.Errorf("params error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -49,8 +50,35 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	sctl.searchSrv.Histogram(&entity.LogsFilter{LogsFilterReq: *filter})
+	diff := req.EndTime - req.StartTime
 
+	if diff <= 60 {
+		req.Interval = fmt.Sprintf("%vs", diff)
+	} else if diff > 60 && diff < 3600 {
+		req.Interval = fmt.Sprintf("%vm", diff/60)
+	} else if diff > 3600 && diff < 24*3600 {
+		req.Interval = fmt.Sprintf("%vh", diff/3600)
+	} else if diff > 24*3600 {
+		req.Interval = fmt.Sprintf("%vd", diff/(24*3600))
+	}
+
+	list, total, err := sctl.searchSrv.Histogram(req)
+	if err != nil {
+		common.Logger.Errorf("params error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "histograme failed",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	var resp entity.HistogramResp
+	resp.CommonResp.Code = 0
+	resp.CommonResp.Msg = "success"
+	resp.Data = list
+	resp.Count = total
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {

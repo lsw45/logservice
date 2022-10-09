@@ -29,8 +29,8 @@ service rsyslog restart
 if [ -d '/etc/logrotate.d' ];then
 	cat>/etc/logrotate.d/logservice2<<EOF
 /home/logservice2/log/GameOperate.log{
-	weekly
-	rotate 7
+	daily
+	rotate 15
 	nocompress
 	copytruncate
 	dateext

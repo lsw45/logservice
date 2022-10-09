@@ -1,10 +1,15 @@
 package infra
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"log-ext/common"
 	"log-ext/domain/entity"
+	"time"
 
 	"github.com/olivere/elastic/v7"
 )
@@ -57,7 +62,7 @@ import (
 */
 type ElasticsearchInfra interface {
 	SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error)
-	Histogram(indexNames []string, quer *entity.QueryDocs) ([]entity.HistogramResult, int, error)
+	Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	IndicesDeleteRequest(indexNames []string) (*elastic.Response, error)
 }
 
@@ -67,11 +72,15 @@ type elasticsearch struct {
 	Client *elastic.Client
 }
 
+var eslog bytes.Buffer
+
 func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
+	tout := log.New(&eslog, "TRACER ", log.LstdFlags)
 	client, err := elastic.NewClient(
 		elastic.SetSniff(false),
 		elastic.SetURL(conf.Address...),
 		elastic.SetBasicAuth(conf.Username, conf.Password),
+		elastic.SetTraceLog(tout),
 	)
 
 	if err != nil {
@@ -112,7 +121,62 @@ func (es *elasticsearch) IndicesDeleteRequest(indexNames []string) (*elastic.Res
 	return nil, nil
 }
 
-func (es *elasticsearch) Histogram(indexNames []string, query *entity.QueryDocs) ([]entity.HistogramResult, int, error) {
-	
-	return nil, 0, nil
+func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
+	if len(search.GroupName) == 0 {
+		search.GroupName = "dateGroup"
+	}
+
+	// 如果interval大于所有日志的时间，则查询到
+	// "buckets" : [
+	// {
+	//   "key" : 0,
+	//   "doc_count" : 10832
+	// }
+	// 第一个doc作为起始时间
+	sort := []elastic.Sorter{elastic.NewFieldSort(search.Field).Asc()}
+
+	h := elastic.NewDateHistogramAggregation().Field(search.Field).FixedInterval(search.Interval)
+
+	timeRange := elastic.NewRangeQuery(search.Field).Gte(search.StartTime).Lte(search.EndTime)
+	builder := es.Client.Search().Index(search.Indexs...).Query(timeRange).
+		Size(1).SortBy(sort...). // 拿到第一个doc
+		Pretty(true)
+
+	res, err := builder.Aggregation(search.GroupName, h).Do(context.TODO())
+
+	fmt.Println(eslog.String())
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	aggs := res.Aggregations
+	if aggs == nil {
+		err = errors.New("got Aggregations is nil")
+		return nil, 0, err
+	}
+	if len(aggs[search.GroupName]) == 0 {
+		return nil, 0, nil
+	}
+
+	histogra := &entity.DateHistAggre{}
+	err = json.Unmarshal(aggs[search.GroupName], histogra)
+	if err != nil {
+		common.Logger.Error(err.Error())
+		return nil, 0, err
+	}
+
+	if len(histogra.Buckets) == 1 && histogra.Buckets[0].Key == 0 && histogra.Buckets[0].DocCount > 0 {
+		hit := make(map[string]interface{})
+		if res.Hits.TotalHits.Value > 0 {
+			xx, _ := res.Hits.Hits[0].Source.MarshalJSON()
+			_ = json.Unmarshal(xx, &hit)
+		}
+		histogra.Buckets[0].Key = int64(hit["time"].(float64))
+
+		tm := time.Unix(histogra.Buckets[0].Key, 0)
+		histogra.Buckets[0].KeyAsString = tm.Format("2006-01-02 15:04:05")
+	}
+
+	return histogra.Buckets, res.Hits.TotalHits.Value, nil
 }

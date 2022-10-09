@@ -6,6 +6,14 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
+type DateHistogram struct {
+	Field     string
+	Interval  string
+	GroupName string
+	StartTime time.Time
+	EndTime   time.Time
+}
+
 type QueryDocs struct {
 	From      int
 	Size      int
@@ -37,6 +45,15 @@ type LogsFilterReq struct {
 	RegionServerVal string          `json:"region_server_val"`
 	Date            []time.Time     `json:"date"`
 	Sort            map[string]bool `json:"sort"`
+}
+
+type DateHistogramReq struct {
+	Indexs    []string `json:"indexs"`
+	Field     string   `json:"field"`
+	Interval  string   `json:"interval"`
+	GroupName string   `json:"group_name"`
+	StartTime int64    `json:"start_time"`
+	EndTime   int64    `json:"end_time"` //second
 }
 
 type LogsFilter struct {
@@ -108,8 +125,16 @@ type HistogramResult struct {
 
 type HistogramResp struct {
 	CommonResp
-	Data struct {
-		Results []HistogramResult `json:"results"`
-		Count   int               `json:"count"`
-	} `json:"data"`
+	Data  []Buckets `json:"data"`
+	Count int64     `json:"count"`
+}
+
+type Buckets struct {
+	Key         int64  `json:"key"` //ms
+	DocCount    int    `json:"doc_count"`
+	KeyAsString string `json:"key_as_string"`
+}
+
+type DateHistAggre struct {
+	Buckets []Buckets `json:"buckets"`
 }

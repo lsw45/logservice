@@ -21,13 +21,8 @@ func (svc *ealsticsearchService) NearbyDoc() {
 
 }
 
-func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.HistogramResult, int, error) {
-	query, err := transform(filter)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	histogram, total, err := svc.elasticDep.Histogram(filter.Indexs, query)
+func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
+	histogram, total, err := svc.elasticDep.Histogram(query)
 	if err != nil {
 		common.Logger.Errorf("histogram error: %v", err)
 		return nil, 0, err
@@ -36,7 +31,7 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 }
 
 func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
-	query, err := transform(filter)
+	query, err := transQuerydoc(filter)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -52,13 +47,13 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 	return re, int(hits.TotalHits.Value), nil
 }
 
-func transform(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
+func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	query := &entity.QueryDocs{
 		From: (filter.Page - 1) * filter.PageSize,
 		Size: filter.PageSize,
 	}
 
-	// elastic:true为升序序，false为降序
+	// elastic:true为升序，false为降序
 	for key, sor := range filter.Sort {
 		if sor {
 			query.Sort = append(query.Sort, elastic.NewFieldSort(key).Asc())

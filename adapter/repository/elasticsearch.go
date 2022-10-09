@@ -40,18 +40,11 @@ func (elastic *ElasticsearchRepo) IndicesDeleteRequest(indexNames []string) ([]b
 	return nil, nil
 }
 
-func (elastic *ElasticsearchRepo) Histogram(indexNames []string, query *entity.QueryDocs) ([]entity.HistogramResult, int, error) {
-	// res, total, err := elastic.ElasticsearchInfra.Histogram(indexNames, query)
-	// if err != nil {
-	// 	return nil, err
-	// }
+func (elastic *ElasticsearchRepo) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
+	res, total, err := elastic.ElasticsearchInfra.Histogram(query)
+	if err != nil {
+		return nil, 0, err
+	}
 
-	// if res.TotalHits() == 0 {
-	// 	common.Logger.Warn("got SearchResult.TotalHits() = 0")
-	// }
-
-	// if len(res.Hits.Hits) == 0 {
-	// 	common.Logger.Warn("got len(SearchResult.Hits.Hits) = 0")
-	// }
-	return nil, 0, nil
+	return res, total, nil
 }

@@ -10,7 +10,7 @@ import (
 
 type SearchService interface {
 	NearbyDoc()
-	Histogram(filter *entity.LogsFilter) ([]entity.HistogramResult, int, error)
+	Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error)
 }
 
@@ -26,7 +26,7 @@ func (srv *SearchLogService) NearbyDoc() {
 
 }
 
-func (srv *SearchLogService) Histogram(filter *entity.LogsFilter) ([]entity.HistogramResult, int, error) {
+func (srv *SearchLogService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
 
 	return nil, 0, nil
 }
