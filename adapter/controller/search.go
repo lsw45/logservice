@@ -7,6 +7,7 @@ import (
 	"log-ext/domain"
 	"log-ext/domain/entity"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +26,9 @@ func NewSearchController(esRepo *repository.ElasticsearchRepo) *SearchController
 
 func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 	docid := c.Query("docid")
-	if len(docid) == 0 {
+	num := c.Query("num")
+
+	if len(docid) == 0 || len(num) == 0 {
 		common.Logger.Errorf("docid empty")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "validation failed!",
@@ -33,8 +36,32 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 		})
 		return
 	}
+	nums, err := strconv.Atoi(num)
+	if err != nil {
+		common.Logger.Errorf("controller search error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "search log failed!",
+			"error":   err.Error(),
+		})
+		return
+	}
 
-	sctl.searchSrv.NearbyDoc()
+	list, err := sctl.searchSrv.NearbyDoc(docid, nums)
+	if err != nil {
+		common.Logger.Errorf("controller search error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "search log failed!",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	var resp entity.LogsFilterResp
+	resp.Code = 0
+	resp.Msg = "success"
+	resp.Data.Results = string(list)
+
+	c.JSON(http.StatusOK, resp)
 
 }
 
@@ -50,16 +77,16 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	diff := req.EndTime - req.StartTime
+	interval := (req.EndTime - req.StartTime) / 60
 
-	if diff <= 60 {
-		req.Interval = fmt.Sprintf("%vs", diff)
-	} else if diff > 60 && diff < 3600 {
-		req.Interval = fmt.Sprintf("%vm", diff/60)
-	} else if diff > 3600 && diff < 24*3600 {
-		req.Interval = fmt.Sprintf("%vh", diff/3600)
-	} else if diff > 24*3600 {
-		req.Interval = fmt.Sprintf("%vd", diff/(24*3600))
+	if interval <= 60 {
+		req.Interval = fmt.Sprintf("%vs", interval)
+	} else if interval > 60 && interval < 3600 {
+		req.Interval = fmt.Sprintf("%vm", interval/60)
+	} else if interval > 3600 && interval < 24*3600 {
+		req.Interval = fmt.Sprintf("%vh", interval/3600)
+	} else if interval > 24*3600 {
+		req.Interval = fmt.Sprintf("%vd", interval/(24*3600))
 	}
 
 	list, total, err := sctl.searchSrv.Histogram(req)

@@ -166,16 +166,23 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 		return nil, 0, err
 	}
 
-	if len(histogra.Buckets) == 1 && histogra.Buckets[0].Key == 0 && histogra.Buckets[0].DocCount > 0 {
-		hit := make(map[string]interface{})
-		if res.Hits.TotalHits.Value > 0 {
-			xx, _ := res.Hits.Hits[0].Source.MarshalJSON()
-			_ = json.Unmarshal(xx, &hit)
-		}
-		histogra.Buckets[0].Key = int64(hit["time"].(float64))
+	if len(histogra.Buckets) == 1 {
+		b := histogra.Buckets[0]
 
-		tm := time.Unix(histogra.Buckets[0].Key, 0)
-		histogra.Buckets[0].KeyAsString = tm.Format("2006-01-02 15:04:05")
+		if (b.Key == 0 || len(b.KeyAsString) == 0) && b.DocCount > 0 {
+			hit := make(map[string]interface{})
+
+			if res.Hits.TotalHits.Value > 0 {
+				xx, _ := res.Hits.Hits[0].Source.MarshalJSON()
+				_ = json.Unmarshal(xx, &hit)
+			}
+
+			b.Key = int64(hit["time"].(float64))
+
+			tm := time.Unix(b.Key, 0)
+			b.KeyAsString = tm.Format("2006-01-02 15:04:05")
+		}
+		histogra.Buckets[0] = b
 	}
 
 	return histogra.Buckets, res.Hits.TotalHits.Value, nil

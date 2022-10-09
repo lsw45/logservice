@@ -48,3 +48,7 @@ func (elastic *ElasticsearchRepo) Histogram(query *entity.DateHistogramReq) ([]e
 
 	return res, total, nil
 }
+
+func (elastic *ElasticsearchRepo) NearbyDoc(docid string, num int) ([]byte, error) {
+	return nil, nil
+}

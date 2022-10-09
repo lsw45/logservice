@@ -9,7 +9,7 @@ import (
 )
 
 type SearchService interface {
-	NearbyDoc()
+	NearbyDoc(docid string, num int) ([]byte, error)
 	Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error)
 }
@@ -22,8 +22,9 @@ type SearchLogService struct {
 	depOpen dependency.OpensearchRepo
 }
 
-func (srv *SearchLogService) NearbyDoc() {
+func (srv *SearchLogService) NearbyDoc(docid string, num int) ([]byte, error) {
 
+	return nil, nil
 }
 
 func (srv *SearchLogService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {

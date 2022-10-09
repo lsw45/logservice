@@ -41,7 +41,7 @@ func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
 	// logsrv := e.Group("/logservice2")
 	logsrv.GET("/logs", ctl.searchCtl.SearchLogsByFilter)
 	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
-	logsrv.GET("/nearbyDoc/:docid", ctl.searchCtl.NearbyDoc)
+	logsrv.GET("/nearbyDoc/:docid/:num", ctl.searchCtl.NearbyDoc)
 
 	notify := logsrv.Use(timeoutMiddleware(2 * time.Second))
 	notify.POST("/notify", ctl.deployCtl.Notify)

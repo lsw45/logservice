@@ -17,8 +17,8 @@ func NewElasticsearchService(dep dependency.ElasticsearchDependency) SearchServi
 	return &ealsticsearchService{elasticDep: dep}
 }
 
-func (svc *ealsticsearchService) NearbyDoc() {
-
+func (svc *ealsticsearchService) NearbyDoc(docid string, num int) ([]byte, error) {
+	return nil,nil
 }
 
 func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
