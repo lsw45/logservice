@@ -17,8 +17,12 @@ func NewElasticsearchService(dep dependency.ElasticsearchDependency) SearchServi
 	return &ealsticsearchService{elasticDep: dep}
 }
 
+func (svc *ealsticsearchService) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {
+	return svc.elasticDep.Aggregation(indexNames, aggs, aggsName)
+}
+
 func (svc *ealsticsearchService) NearbyDoc(docid string, num int) ([]byte, error) {
-	return nil,nil
+	return svc.elasticDep.NearbyDoc(docid, num)
 }
 
 func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {

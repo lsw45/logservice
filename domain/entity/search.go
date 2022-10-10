@@ -47,6 +47,12 @@ type LogsFilterReq struct {
 	Sort            map[string]bool `json:"sort"`
 }
 
+type AggregationReq struct {
+	Indexs   []string `json:"indexs"`
+	Aggs     string   `json:"aggs"`
+	AggsName string   `json:"aggs_name"`
+}
+
 type DateHistogramReq struct {
 	Indexs    []string `json:"indexs"`
 	Field     string   `json:"field"`
@@ -98,7 +104,7 @@ type LogsFilterResp struct {
 	CommonResp
 	Data struct {
 		Results string `json:"results"`
-		Count   int    `json:"count"`
+		Count   int64  `json:"count"`
 	} `json:"data"`
 }
 

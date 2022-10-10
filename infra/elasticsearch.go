@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"log-ext/common"
 	"log-ext/domain/entity"
@@ -61,9 +60,11 @@ import (
 }
 */
 type ElasticsearchInfra interface {
+	Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error)
 	SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error)
 	Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	IndicesDeleteRequest(indexNames []string) (*elastic.Response, error)
+	NearbyDoc(docid string, num int) ([]byte, error)
 }
 
 var _ ElasticsearchInfra = new(elasticsearch)
@@ -144,7 +145,7 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 
 	res, err := builder.Aggregation(search.GroupName, h).Do(context.TODO())
 
-	fmt.Println(eslog.String())
+	common.Logger.Infof(eslog.String())
 
 	if err != nil {
 		return nil, 0, err
@@ -186,4 +187,31 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 	}
 
 	return histogra.Buckets, res.Hits.TotalHits.Value, nil
+}
+
+func (es *elasticsearch) NearbyDoc(docid string, num int) ([]byte, error) {
+
+	return nil, nil
+}
+
+func (es *elasticsearch) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {
+	res, err := es.Client.Search().Index(indexNames...).Source(aggs).Size(0).Do(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		err = errors.New("aggregation results is nil")
+		return nil, err
+	}
+	if res.Hits == nil {
+		err = errors.New("got aggregation.Hits is nil")
+		return nil, err
+	}
+	if len(res.Aggregations[aggsName]) == 0 {
+		err = errors.New("got aggregation.Buckets is nil")
+		return nil, err
+	}
+
+	return []byte(res.Aggregations[aggsName]), nil
 }

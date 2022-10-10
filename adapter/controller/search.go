@@ -23,6 +23,35 @@ func NewSearchController(esRepo *repository.ElasticsearchRepo) *SearchController
 		searchSrv: search,
 	}
 }
+func (sctl *SearchController) Aggregation(c *gin.Context) {
+	var req *entity.AggregationReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		common.Logger.Errorf("param empty")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "validation failed!",
+			"error":   "param empty",
+		})
+		return
+	}
+
+	buckets, err := sctl.searchSrv.Aggregation(req.Indexs, req.Aggs, req.AggsName)
+	if err != nil {
+		common.Logger.Errorf("controller search error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "search log failed!",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	var resp entity.LogsFilterResp
+	resp.Code = 0
+	resp.Msg = "success"
+	resp.Data.Results = string(buckets)
+
+	c.JSON(http.StatusOK, resp)
+}
 
 func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 	docid := c.Query("docid")
@@ -62,7 +91,6 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 	resp.Data.Results = string(list)
 
 	c.JSON(http.StatusOK, resp)
-
 }
 
 func (sctl *SearchController) Histogram(c *gin.Context) {
@@ -144,7 +172,7 @@ func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {
 	resp.Code = 0
 	resp.Msg = "success"
 	resp.Data.Results = string(list)
-	resp.Data.Count = total
+	resp.Data.Count = int64(total)
 
 	c.JSON(http.StatusOK, resp)
 }
