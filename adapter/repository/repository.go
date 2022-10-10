@@ -11,11 +11,10 @@ var (
 )
 
 type RepoInfra struct {
-	Redis      infra.RedisInfra
-	Mysql      infra.MysqlInfra
-	Opensearch infra.OpensearchInfra
-	Tunnel     infra.TunnelInfra
-	Elastic    infra.ElasticsearchInfra
+	Redis   infra.RedisInfra
+	Mysql   infra.MysqlInfra
+	Tunnel  infra.TunnelInfra
+	Elastic infra.ElasticsearchInfra
 }
 
 func SetRepoInfra(redis infra.RedisInfra, mysql infra.MysqlInfra, tunnel infra.TunnelInfra, elastic infra.ElasticsearchInfra) {
