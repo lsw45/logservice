@@ -21,8 +21,15 @@ func (svc *ealsticsearchService) Aggregation(indexNames []string, aggs, aggsName
 	return svc.elasticDep.Aggregation(indexNames, aggs, aggsName)
 }
 
-func (svc *ealsticsearchService) NearbyDoc(docid string, num int) ([]byte, error) {
-	return svc.elasticDep.NearbyDoc(docid, num)
+func (svc *ealsticsearchService) NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) {
+	return svc.elasticDep.NearbyDoc(indexName, times, num)
+	// if err != nil {
+
+	// }
+
+	// for _,hit := range hits {
+	// 	hit.Source
+	// }
 }
 
 func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {

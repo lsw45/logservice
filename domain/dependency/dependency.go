@@ -35,5 +35,5 @@ type ElasticsearchDependency interface {
 	SearchRequest(indexNames []string, query *entity.QueryDocs) (*elastic.SearchHits, error)
 	IndicesDeleteRequest(indexNames []string) ([]byte, error)
 	Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
-	NearbyDoc(docid string, num int) ([]byte, error)
+	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error)
 }

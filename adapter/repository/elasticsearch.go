@@ -49,8 +49,8 @@ func (elastic *ElasticsearchRepo) Histogram(query *entity.DateHistogramReq) ([]e
 	return res, total, nil
 }
 
-func (elastic *ElasticsearchRepo) NearbyDoc(docid string, num int) ([]byte, error) {
-	return elastic.ElasticsearchInfra.NearbyDoc(docid, num)
+func (elastic *ElasticsearchRepo) NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) {
+	return elastic.ElasticsearchInfra.NearbyDoc(indexName, times, num)
 }
 
 func (elastic *ElasticsearchRepo) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {

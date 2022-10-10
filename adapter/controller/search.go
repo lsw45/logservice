@@ -54,20 +54,32 @@ func (sctl *SearchController) Aggregation(c *gin.Context) {
 }
 
 func (sctl *SearchController) NearbyDoc(c *gin.Context) {
-	docid := c.Query("docid")
-	num := c.Query("num")
+	index := c.Param("index")
+	time := c.Param("time")
+	num := c.Param("num")
 
-	if len(docid) == 0 || len(num) == 0 {
-		common.Logger.Errorf("docid empty")
+	if len(index) == 0 || len(num) == 0 {
+		common.Logger.Errorf("params empty")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "validation failed!",
-			"error":   "docid empty",
+			"error":   "params empty",
 		})
 		return
 	}
+
+	times, err := strconv.ParseInt(time, 10, 0)
+	if err != nil {
+		common.Logger.Errorf("system error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "search log failed!",
+			"error":   err.Error(),
+		})
+		return
+	}
+
 	nums, err := strconv.Atoi(num)
 	if err != nil {
-		common.Logger.Errorf("controller search error: %s", err)
+		common.Logger.Errorf("system error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "search log failed!",
 			"error":   err.Error(),
@@ -75,7 +87,7 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 		return
 	}
 
-	list, err := sctl.searchSrv.NearbyDoc(docid, nums)
+	list, err := sctl.searchSrv.NearbyDoc(index, times, nums)
 	if err != nil {
 		common.Logger.Errorf("controller search error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -85,10 +97,10 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 		return
 	}
 
-	var resp entity.LogsFilterResp
+	var resp entity.NearbyDocResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data.Results = string(list)
+	resp.Data.Results = list
 
 	c.JSON(http.StatusOK, resp)
 }

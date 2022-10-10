@@ -108,6 +108,13 @@ type LogsFilterResp struct {
 	} `json:"data"`
 }
 
+type NearbyDocResp struct {
+	CommonResp
+	Data struct {
+		Results []*elastic.SearchHit `json:"results"`
+	} `json:"data"`
+}
+
 type Labels struct {
 	HostName      string `json:"hostName"`
 	HostIP        string `json:"hostIP"`

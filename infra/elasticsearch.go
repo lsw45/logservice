@@ -64,7 +64,7 @@ type ElasticsearchInfra interface {
 	SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error)
 	Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	IndicesDeleteRequest(indexNames []string) (*elastic.Response, error)
-	NearbyDoc(docid string, num int) ([]byte, error)
+	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error)
 }
 
 var _ ElasticsearchInfra = new(elasticsearch)
@@ -99,7 +99,7 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
 	// timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
 
-	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).
+	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).TrackTotalHits(true).
 		From(search.From).Size(search.Size).SortBy(search.Sort...).
 		Do(context.Background())
 
@@ -189,9 +189,44 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 	return histogra.Buckets, res.Hits.TotalHits.Value, nil
 }
 
-func (es *elasticsearch) NearbyDoc(docid string, num int) ([]byte, error) {
+func (es *elasticsearch) NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) {
+	sortField := "time"
 
-	return nil, nil
+	timeRange := elastic.NewRangeQuery(sortField).Gte(times)
+	afterRes, err := es.Client.Search().Index(indexName).Query(timeRange).Sort(sortField, true).Size(num).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	if afterRes == nil {
+		err = errors.New("search results is nil")
+		return nil, err
+	}
+	if afterRes.Hits == nil {
+		err = errors.New("got aggregation.Hits is nil")
+		return nil, err
+	}
+
+	timeRange = elastic.NewRangeQuery(sortField).Lt(times)
+	preRes, err := es.Client.Search().Index(indexName).Query(timeRange).Sort(sortField, true).Size(num).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	if afterRes == nil && preRes == nil {
+		err = errors.New("aggregation results is nil")
+		return nil, err
+	}
+
+	if afterRes.Hits == nil && preRes.Hits == nil {
+		err = errors.New("got aggregation.Hits is nil")
+		return nil, err
+	}
+
+	searchHit := make([]*elastic.SearchHit, 0)
+	searchHit = append(searchHit, preRes.Hits.Hits...)
+	searchHit = append(searchHit, afterRes.Hits.Hits...)
+
+	return searchHit, nil
 }
 
 func (es *elasticsearch) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {
