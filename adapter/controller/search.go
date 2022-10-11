@@ -8,6 +8,7 @@ import (
 	"log-ext/domain/entity"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -106,8 +107,8 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 }
 
 func (sctl *SearchController) Histogram(c *gin.Context) {
-	var req *entity.DateHistogramReq
-	err := c.ShouldBindJSON(&req)
+	var filter *entity.LogsFilterReq
+	err := c.ShouldBindJSON(&filter)
 	if err != nil {
 		common.Logger.Errorf("params error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -117,19 +118,44 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	interval := (req.EndTime - req.StartTime) / 60
-
-	if interval <= 60 {
-		req.Interval = fmt.Sprintf("%vs", interval)
-	} else if interval > 60 && interval < 3600 {
-		req.Interval = fmt.Sprintf("%vm", interval/60)
-	} else if interval > 3600 && interval < 24*3600 {
-		req.Interval = fmt.Sprintf("%vh", interval/3600)
-	} else if interval > 24*3600 {
-		req.Interval = fmt.Sprintf("%vd", interval/(24*3600))
+	s, err := time.Parse("2006-01-02 15:04:05", filter.Date[0])
+	if err != nil {
+		common.Logger.Errorf("time parse error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "wrong start date format",
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	list, total, err := sctl.searchSrv.Histogram(req)
+	e, err := time.Parse("2006-01-02 15:04:05", filter.Date[1])
+	if err != nil {
+		common.Logger.Errorf("time parse error: %s", err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "wrong end date format",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	histoReq := &entity.DateHistogramReq{
+		StartTime: s.Unix(),
+		EndTime:   e.Unix(),
+	}
+
+	interval := (histoReq.EndTime - histoReq.StartTime) / 60
+
+	if interval <= 60 {
+		histoReq.Interval = fmt.Sprintf("%vs", interval)
+	} else if interval > 60 && interval < 3600 {
+		histoReq.Interval = fmt.Sprintf("%vm", interval/60)
+	} else if interval > 3600 && interval < 24*3600 {
+		histoReq.Interval = fmt.Sprintf("%vh", interval/3600)
+	} else if interval > 24*3600 {
+		histoReq.Interval = fmt.Sprintf("%vd", interval/(24*3600))
+	}
+
+	list, total, err := sctl.searchSrv.Histogram(histoReq)
 	if err != nil {
 		common.Logger.Errorf("params error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{

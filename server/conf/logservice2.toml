@@ -17,7 +17,7 @@
     max_size = 100
 
 [Redis]
-    db = 0
+    db = 2
     addr = "127.0.0.1:6379"
     password =  ""
     max_retries = 1

@@ -111,6 +111,7 @@ func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.Query
 		return nil, err
 	}
 	if res.Hits == nil {
+		common.Logger.Info(eslog.String())
 		err = errors.New("got SearchResult.Hits is nil")
 		return nil, err
 	}
@@ -123,9 +124,7 @@ func (es *elasticsearch) IndicesDeleteRequest(indexNames []string) (*elastic.Res
 }
 
 func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
-	if len(search.GroupName) == 0 {
-		search.GroupName = "dateGroup"
-	}
+	search.GroupName = "dateGroup"
 
 	// 如果interval大于所有日志的时间，则查询到
 	// "buckets" : [
@@ -134,12 +133,12 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 	//   "doc_count" : 10832
 	// }
 	// 第一个doc作为起始时间
-	sort := []elastic.Sorter{elastic.NewFieldSort(search.Field).Asc()}
+	sort := []elastic.Sorter{elastic.NewFieldSort("time").Asc()}
 
-	h := elastic.NewDateHistogramAggregation().Field(search.Field).FixedInterval(search.Interval)
+	h := elastic.NewDateHistogramAggregation().Field("time").FixedInterval(search.Interval)
 
-	timeRange := elastic.NewRangeQuery(search.Field).Gte(search.StartTime).Lte(search.EndTime)
-	builder := es.Client.Search().Index(search.Indexs...).Query(timeRange).
+	timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
+	builder := es.Client.Search().Index(search.Indexs...).Query(timeRange).TrackTotalHits(true).
 		Size(1).SortBy(sort...). // 拿到第一个doc
 		Pretty(true)
 

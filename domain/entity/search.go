@@ -30,21 +30,13 @@ type CommonResp struct {
 }
 
 type LogsFilterReq struct {
-	Indexs          []string        `json:"indexs"`
-	Env             string          `json:"env"`
-	Project         int             `json:"project"`
-	Limit           int             `json:"limit"`
-	Page            int             `json:"page"`
-	PageSize        int             `json:"page_size"`
-	LineNum         interface{}     `json:"line_num"`
-	Keywords        string          `json:"keywords"`
-	LogStartTime    int64           `json:"log_start_time"`
-	LogEndTime      int64           `json:"log_end_time"`
-	IsDesc          bool            `json:"is_desc"`
-	RegionVal       int             `json:"region_val"`
-	RegionServerVal string          `json:"region_server_val"`
-	Date            []time.Time     `json:"date"`
-	Sort            map[string]bool `json:"sort"`
+	Page     int             `json:"page"`
+	Limit    int             `json:"limit"`
+	PageSize int             `json:"page_size"`
+	Keywords string          `json:"keywords"`
+	Indexs   []string        `json:"indexs"`
+	Date     []string        `json:"date"`
+	Sort     map[string]bool `json:"sort"`
 }
 
 type AggregationReq struct {
@@ -55,7 +47,6 @@ type AggregationReq struct {
 
 type DateHistogramReq struct {
 	Indexs    []string `json:"indexs"`
-	Field     string   `json:"field"`
 	Interval  string   `json:"interval"`
 	GroupName string   `json:"group_name"`
 	StartTime int64    `json:"start_time"`
@@ -110,7 +101,7 @@ type LogsFilterResp struct {
 
 type NearbyDocResp struct {
 	CommonResp
-	Data []*elastic.SearchHit`json:"data"`
+	Data []*elastic.SearchHit `json:"data"`
 }
 
 type Labels struct {

@@ -26,11 +26,12 @@ func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *enti
 	}
 
 	if res.TotalHits() == 0 {
-		common.Logger.Warn("got SearchResult.TotalHits() = 0")
+		common.Logger.Warn("got SearchResult.Hits = 0")
+		return res.Hits, nil
 	}
 
 	if len(res.Hits.Hits) == 0 {
-		common.Logger.Warn("got len(SearchResult.Hits.Hits) = 0")
+		common.Logger.Warn("got SearchResult.Hits.Hits = 0")
 	}
 
 	return res.Hits, nil
