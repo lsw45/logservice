@@ -53,13 +53,13 @@ func AuthCheck() gin.HandlerFunc {
 		authInfo, ok := common.ParseBasicAuth(c.GetHeader("Authorization"))
 		if !ok {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, string(common.ThrowErr(errorx.NewErrCode(errorx.AUTH_ERROR))))
+			c.JSON(http.StatusUnauthorized, common.ThrowErr(errorx.NewErrCode(errorx.AUTH_ERROR)))
 			return
 		}
 
 		if len(authInfo) == 0 {
 			c.Abort()
-			c.JSON(http.StatusUnauthorized, string(common.ThrowErr(errorx.NewErrMsg("Authorization is null"))))
+			c.JSON(http.StatusUnauthorized, common.ThrowErr(errorx.NewErrMsg("Authorization is null")))
 			return
 		}
 
@@ -67,7 +67,7 @@ func AuthCheck() gin.HandlerFunc {
 		if errs != nil {
 			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(errs, "获取鉴权信息失败"))
-			c.JSON(http.StatusInternalServerError, string(common.ThrowErr(errs)))
+			c.JSON(http.StatusUnauthorized, common.ThrowErr(errs))
 			return
 		}
 
@@ -76,7 +76,7 @@ func AuthCheck() gin.HandlerFunc {
 		if err != nil {
 			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", errors.Wrap(err, "解析用户鉴权信息失败"))
-			c.JSON(http.StatusInternalServerError, string(common.ThrowErr(errorx.NewErrMsg(err.Error()))))
+			c.JSON(http.StatusInternalServerError, common.ThrowErr(errorx.NewErrMsg(err.Error())))
 			return
 		}
 
@@ -84,7 +84,7 @@ func AuthCheck() gin.HandlerFunc {
 		if err != nil {
 			c.Abort()
 			common.Logger.Errorf("【API-SRV-ERR】 %+v", err)
-			c.JSON(http.StatusInternalServerError, string(common.ThrowErr(errorx.NewErrMsg(err.Error()))))
+			c.JSON(http.StatusInternalServerError, common.ThrowErr(errorx.NewErrMsg(err.Error())))
 			return
 		}
 

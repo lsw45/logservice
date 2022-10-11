@@ -25,6 +25,7 @@ type DeployIngestModel struct {
 	Config         string
 	RemoteFilePath string
 	Env            string
+	KafkaBroker    []string
 
 	EnvId         int
 	Project       int

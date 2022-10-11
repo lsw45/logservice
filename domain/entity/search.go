@@ -110,9 +110,7 @@ type LogsFilterResp struct {
 
 type NearbyDocResp struct {
 	CommonResp
-	Data struct {
-		Results []*elastic.SearchHit `json:"results"`
-	} `json:"data"`
+	Data []*elastic.SearchHit`json:"data"`
 }
 
 type Labels struct {

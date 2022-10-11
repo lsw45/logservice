@@ -10,7 +10,6 @@ import (
 	"log-ext/common/response"
 	"reflect"
 	"strconv"
-
 )
 
 func ParseBasicAuth(auth string) (key string, ok bool) {
@@ -36,14 +35,12 @@ func EqualFold(s, t string) bool {
 	return true
 }
 
-func ThrowErr(err *errorx.CodeError) []byte {
-	res := response.HttpResponse{
+func ThrowErr(err *errorx.CodeError) response.HttpResponse {
+	return response.HttpResponse{
 		Code: uint32(err.GetErrCode()),
 		Msg:  err.GetErrMsg(),
 		Data: struct{}{},
 	}
-	ErrBytes, _ := json.Marshal(res)
-	return ErrBytes
 }
 
 func StringValue(a *string) string {

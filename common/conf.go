@@ -28,6 +28,7 @@ type AppConfig struct {
 	Opensearch    Opensearch    `mapstructure:"Opensearch"`
 	Elasticsearch Elasticsearch `mapstructure:"Elasticsearch"`
 	Tunnel        Tunnel        `mapstructure:"tunnel"`
+	Kafka         Kafka         `mapstructure:"kafka"`
 }
 
 type Web struct {
@@ -88,6 +89,10 @@ type Tunnel struct {
 	InsecureSkipVerify bool `mapstructure:"insecure_skip_verify"`
 }
 
+type Kafka struct {
+	Broker []string `mapstructure:"broker"`
+}
+
 // NewAppConfig 读取服务配置
 func NewAppConfig() *AppConfig {
 	settingOnce.Do(func() {
@@ -97,6 +102,10 @@ func NewAppConfig() *AppConfig {
 	})
 
 	return appConf
+}
+
+func GetKafka() Kafka {
+	return appConf.Kafka
 }
 
 // 初始化配置

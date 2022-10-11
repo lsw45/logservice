@@ -5,7 +5,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - /home/logservice2//log/GameOperate.log
+    - /home/logservice2/log/GameOperate.log
     fieldsUnderRoot: true
     fields:
       index: x
@@ -14,7 +14,8 @@ pipelines:
     type: kafka
     balance: roundRobin
     brokers:
-    - 10.0.3.116:9093
+    - 10.0.3.116:9092
+    - ssss
     compression: gzip
     topic: test
     codec: {}

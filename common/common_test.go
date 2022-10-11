@@ -38,5 +38,5 @@ pipelines:
 `
 
 func TestWriteYaml(t *testing.T) {
-	WriteLoggiePipeline("x", "x", "./pip.yml")
+	LoggieOperatorPipeline("x", "x", "./pip.yml", []string{"10.0.3.116:9092", "ssss"})
 }

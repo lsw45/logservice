@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -27,16 +28,22 @@ pipelines:
   sink:
     type: kafka
     balance: roundRobin
-    brokers:
-    - 10.0.3.116:9093
+    brokers: %s
     compression: gzip
     topic: test
     codec: {}
 `
 
-func WriteLoggiePipeline(index, ip, filePath string) error {
+func LoggieOperatorPipeline(index, ip, filePath string, kafkaBroker []string) error {
+	if len(kafkaBroker) < 0 {
+		Logger.Error("kafka broker is nil")
+		return errors.New("kafka broker is nil")
+	}
+
+	broker, _ := json.Marshal(kafkaBroker)
+	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath, string(broker))
+
 	conf := &control.PipelineConfig{}
-	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath)
 	err := yaml.Unmarshal([]byte(piplineTemplate), conf)
 	if err != nil {
 		Logger.Errorf("unmarshal yaml failed: %+v", err)
@@ -50,6 +57,7 @@ func WriteLoggiePipeline(index, ip, filePath string) error {
 	}
 	conf.Pipelines[0].Sources[0].FieldsUnderRoot = true
 	conf.Pipelines[0].Sources[0].Fields = map[string]interface{}{"index": index, "ip": ip}
+	// conf.Pipelines[0].Sink
 
 	// conf.Pipelines[0].Interceptors
 	// interceptors := make([]interceptor.Config,3)
