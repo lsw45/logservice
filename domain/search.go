@@ -7,8 +7,8 @@ import (
 )
 
 type SearchService interface {
-	Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error)
-	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) 
+	Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error)
+	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error)
 	Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error)
 }

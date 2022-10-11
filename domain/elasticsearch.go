@@ -18,8 +18,8 @@ func NewElasticsearchService(dep dependency.ElasticsearchDependency) SearchServi
 	return &ealsticsearchService{elasticDep: dep}
 }
 
-func (svc *ealsticsearchService) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {
-	return svc.elasticDep.Aggregation(indexNames, aggs, aggsName)
+func (svc *ealsticsearchService) Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error) {
+	return svc.elasticDep.Aggregation(req)
 }
 
 func (svc *ealsticsearchService) NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) {

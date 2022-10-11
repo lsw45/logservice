@@ -54,6 +54,6 @@ func (elastic *ElasticsearchRepo) NearbyDoc(indexName string, times int64, num i
 	return elastic.ElasticsearchInfra.NearbyDoc(indexName, times, num)
 }
 
-func (elastic *ElasticsearchRepo) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {
-	return elastic.ElasticsearchInfra.Aggregation(indexNames, aggs, aggsName)
+func (elastic *ElasticsearchRepo) Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error) {
+	return elastic.ElasticsearchInfra.Aggregation(req)
 }

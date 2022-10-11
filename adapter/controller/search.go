@@ -36,7 +36,7 @@ func (sctl *SearchController) Aggregation(c *gin.Context) {
 		return
 	}
 
-	buckets, err := sctl.searchSrv.Aggregation(req.Indexs, req.Aggs, req.AggsName)
+	buckets, err := sctl.searchSrv.Aggregation(*req)
 	if err != nil {
 		common.Logger.Errorf("controller search error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -46,11 +46,10 @@ func (sctl *SearchController) Aggregation(c *gin.Context) {
 		return
 	}
 
-	var resp entity.LogsFilterResp
+	var resp entity.AggregationResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data.Results = string(buckets)
-
+	resp.Data.Results = buckets
 	c.JSON(http.StatusOK, resp)
 }
 

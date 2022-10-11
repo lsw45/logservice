@@ -40,9 +40,8 @@ type LogsFilterReq struct {
 }
 
 type AggregationReq struct {
-	Indexs   []string `json:"indexs"`
-	Aggs     string   `json:"aggs"`
-	AggsName string   `json:"aggs_name"`
+	Indexs []string `json:"indexs"`
+	Aggs   string   `json:"aggs"`
 }
 
 type DateHistogramReq struct {
@@ -89,6 +88,14 @@ type LogsResult struct {
 	Content string `json:"content"`
 	LineNum string `json:"line_num"`
 	Labels  Labels `json:"labels"`
+}
+
+type AggregationResp struct {
+	CommonResp
+	Data struct {
+		Results *elastic.SearchResult `json:"results"`
+		Count   int64                 `json:"count"`
+	} `json:"data"`
 }
 
 type LogsFilterResp struct {

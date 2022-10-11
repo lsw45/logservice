@@ -60,7 +60,7 @@ import (
 }
 */
 type ElasticsearchInfra interface {
-	Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error)
+	Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error)
 	SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error)
 	Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	IndicesDeleteRequest(indexNames []string) (*elastic.Response, error)
@@ -144,9 +144,8 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 
 	res, err := builder.Aggregation(search.GroupName, h).Do(context.TODO())
 
-	common.Logger.Infof(eslog.String())
-
 	if err != nil {
+		common.Logger.Infof(eslog.String())
 		return nil, 0, err
 	}
 
@@ -228,8 +227,8 @@ func (es *elasticsearch) NearbyDoc(indexName string, times int64, num int) ([]*e
 	return searchHit, nil
 }
 
-func (es *elasticsearch) Aggregation(indexNames []string, aggs, aggsName string) ([]byte, error) {
-	res, err := es.Client.Search().Index(indexNames...).Source(aggs).Size(0).Do(context.Background())
+func (es *elasticsearch) Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error) {
+	res, err := es.Client.Search().Index(req.Indexs...).Source(req.Aggs).Size(0).Do(context.Background())
 
 	if err != nil {
 		return nil, err
@@ -242,10 +241,6 @@ func (es *elasticsearch) Aggregation(indexNames []string, aggs, aggsName string)
 		err = errors.New("got aggregation.Hits is nil")
 		return nil, err
 	}
-	if len(res.Aggregations[aggsName]) == 0 {
-		err = errors.New("got aggregation.Buckets is nil")
-		return nil, err
-	}
 
-	return []byte(res.Aggregations[aggsName]), nil
+	return res, nil
 }
