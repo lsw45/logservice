@@ -24,6 +24,7 @@ func NewSearchController(esRepo *repository.ElasticsearchRepo) *SearchController
 		searchSrv: search,
 	}
 }
+
 func (sctl *SearchController) Aggregation(c *gin.Context) {
 	var req *entity.AggregationReq
 	err := c.ShouldBindJSON(&req)
@@ -36,7 +37,7 @@ func (sctl *SearchController) Aggregation(c *gin.Context) {
 		return
 	}
 
-	buckets, err := sctl.searchSrv.Aggregation(*req)
+	result, err := sctl.searchSrv.Aggregation(*req)
 	if err != nil {
 		common.Logger.Errorf("controller search error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -49,7 +50,7 @@ func (sctl *SearchController) Aggregation(c *gin.Context) {
 	var resp entity.AggregationResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data.Results = buckets
+	resp.Data = result
 	c.JSON(http.StatusOK, resp)
 }
 
@@ -141,8 +142,9 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		StartTime: s.Unix(),
 		EndTime:   e.Unix(),
 	}
+	histoReq.Indexs = filter.Indexs
 
-	interval := (histoReq.EndTime - histoReq.StartTime) / 60
+	interval := (histoReq.EndTime - histoReq.StartTime) / 60 // es存储的time字段是时间戳，计算时，按照
 
 	if interval <= 60 {
 		histoReq.Interval = fmt.Sprintf("%vs", interval)

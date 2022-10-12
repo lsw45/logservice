@@ -39,9 +39,9 @@ type logExtServer struct {
 func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
 	logsrv := e.Group("/paas/logservice2").Use(AuthCheck())
 	// logsrv := e.Group("/logservice2")
-	logsrv.GET("/logs", ctl.searchCtl.SearchLogsByFilter)
-	logsrv.GET("/histogram", ctl.searchCtl.Histogram)
-	logsrv.GET("/aggregation", ctl.searchCtl.Aggregation)
+	logsrv.POST("/logs", ctl.searchCtl.SearchLogsByFilter)
+	logsrv.POST("/histogram", ctl.searchCtl.Histogram)
+	logsrv.POST("/aggregation", ctl.searchCtl.Aggregation)
 	logsrv.GET("/nearbyDoc/:index/:time/:num", ctl.searchCtl.NearbyDoc)
 
 	notify := logsrv.Use(timeoutMiddleware(2 * time.Second))

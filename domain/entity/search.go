@@ -92,10 +92,7 @@ type LogsResult struct {
 
 type AggregationResp struct {
 	CommonResp
-	Data struct {
-		Results *elastic.SearchResult `json:"results"`
-		Count   int64                 `json:"count"`
-	} `json:"data"`
+	Data *elastic.SearchResult `json:"data"`
 }
 
 type LogsFilterResp struct {

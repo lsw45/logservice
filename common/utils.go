@@ -10,6 +10,7 @@ import (
 	"log-ext/common/response"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 func ParseBasicAuth(auth string) (key string, ok bool) {
@@ -110,4 +111,71 @@ func ReadAsString(body io.Reader) (*string, error) {
 		r.Close()
 	}
 	return String(string(byt)), nil
+}
+
+// 索引拼接
+func StructIndexs(typ string, t1, t2 time.Time) (indexs []string) {
+	type IndexStruc struct {
+		Env     int `json:"env",required:"true"`
+		Region  int `json:"region",required:"true"`
+		Project int `json:"project",required:"true"`
+	}
+
+	ids := []IndexStruc{{Env: 1, Project: 1, Region: 1}, {Env: 2, Project: 2, Region: 2}}
+
+	y1 := t1.Year()
+	y2 := t2.Year()
+	m1 := int(t1.Month())
+	m2 := int(t2.Month())
+
+	y, m := 0, 0
+	done := false
+
+	for y = y1; y <= y2; y++ {
+		if done {
+			break
+		}
+		item := typ + "-%v-%v-%v-%v-%v"
+
+		if y == y1 && y1 < y2 {
+			for m = m1; m <= 12; m++ {
+				for _, v := range ids {
+					indexs = append(indexs, fmt.Sprintf(item, v.Region, v.Project, v.Env, y, m))
+				}
+			}
+		}
+
+		if y == y2 && y1 < y2 {
+			for m = 1; m <= m2; m++ {
+				if m == m2 {
+					done = true
+					break
+				}
+
+				for _, v := range ids {
+					indexs = append(indexs, fmt.Sprintf(item, v.Region, v.Project, v.Env, y, m))
+				}
+			}
+			break
+		}
+
+		if y1 == y2 {
+			for m = m1; m <= m2; m++ {
+
+				for _, v := range ids {
+					indexs = append(indexs, fmt.Sprintf(item, v.Region, v.Project, v.Env, y, m))
+				}
+			}
+			break
+		}
+
+		for m = 0; m <= 12; m++ {
+			for _, v := range ids {
+				indexs = append(indexs, fmt.Sprintf(item, v.Region, v.Project, v.Env, y, m))
+			}
+		}
+
+	}
+
+	return indexs
 }

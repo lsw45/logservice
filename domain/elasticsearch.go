@@ -24,16 +24,13 @@ func (svc *ealsticsearchService) Aggregation(req entity.AggregationReq) (*elasti
 
 func (svc *ealsticsearchService) NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) {
 	return svc.elasticDep.NearbyDoc(indexName, times, num)
-	// if err != nil {
-
-	// }
-
-	// for _,hit := range hits {
-	// 	hit.Source
-	// }
 }
 
 func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
+	if len(query.Indexs) == 0 {
+		return nil, 0, nil
+	}
+
 	histogram, total, err := svc.elasticDep.Histogram(query)
 	if err != nil {
 		common.Logger.Errorf("histogram error: %v", err)
@@ -43,6 +40,10 @@ func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]en
 }
 
 func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
+	if len(filter.Indexs) == 0 {
+		return nil, 0, nil
+	}
+
 	query, err := transQuerydoc(filter)
 	if err != nil {
 		return nil, 0, err
@@ -75,13 +76,22 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	}
 
 	// 检验查询语句的json格式是否正确
-	var f interface{}
-	err := json.Unmarshal([]byte(filter.Keywords), &f)
-	if err != nil {
-		common.Logger.Errorf("unmarshal json error: %v", err)
-		return nil, err
+	var js []byte
+	if len(filter.Keywords) != 0 {
+		var f map[string]interface{}
+		err := json.Unmarshal([]byte(filter.Keywords), &f)
+		if err != nil {
+			common.Logger.Errorf("unmarshal json error: %v", err)
+			return nil, err
+		}
+
+		if _, ok := f["track_total_hits"]; !ok {
+			f["track_total_hits"] = true
+		}
+
+		js, _ = json.Marshal(f)
 	}
-	query.Query = filter.Keywords
+	query.Query = string(js)
 
 	if len(filter.Date) > 1 {
 		query.StartTime, _ = time.Parse("2006-01-02 15:04:05", filter.Date[0])
