@@ -102,7 +102,7 @@ func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.Query
 		search.Query = `{"query":{"match_all":{}},"track_total_hits":true}`
 	}
 
-	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).TrackTotalHits(true).
+	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).
 		From(search.From).Size(search.Size).SortBy(search.Sort...).
 		Do(context.Background())
 
@@ -139,7 +139,7 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 	// 第一个doc作为起始时间
 	sort := []elastic.Sorter{elastic.NewFieldSort("time").Asc()}
 
-	h := elastic.NewDateHistogramAggregation().Field("time").FixedInterval(search.Interval)
+	h := elastic.NewHistogramAggregation().Field("time").Interval(float64(search.Interval))
 
 	timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
 	builder := es.Client.Search().Index(search.Indexs...).Query(timeRange).TrackTotalHits(true).

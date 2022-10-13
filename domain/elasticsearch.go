@@ -5,7 +5,6 @@ import (
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
-	"time"
 
 	"github.com/olivere/elastic/v7"
 )
@@ -93,9 +92,5 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	}
 	query.Query = string(js)
 
-	if len(filter.Date) > 1 {
-		query.StartTime, _ = time.Parse("2006-01-02 15:04:05", filter.Date[0])
-		query.EndTime, _ = time.Parse("2006-01-02 15:04:05", filter.Date[1])
-	}
 	return query, nil
 }
