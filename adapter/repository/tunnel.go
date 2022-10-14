@@ -83,7 +83,7 @@ func (t *TunnelRepo) UploadFile(file_path string, ip, env string) error {
 	return nil
 }
 
-func (t *TunnelRepo) ShellTask(env, project int, corporationId, server string, async bool) (bool, error) {
+func (t *TunnelRepo) ShellTask(envId, project, corporationId int, server string, async bool) (bool, error) {
 	common.Logger.Info("开发启动采集器任务")
 	command := []string{
 		"cd $workspace;wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/loggie.yml",
@@ -100,7 +100,7 @@ func (t *TunnelRepo) ShellTask(env, project int, corporationId, server string, a
 		ShellEnvironment: map[string]interface{}{"workspace": common.RemoteFilepath},
 	}
 	reqData := &entity.ShellTaskReq{
-		Env:           env,
+		EnvId:         envId,
 		Params:        []entity.ShellParams{params},
 		Project:       project,
 		Asynchronous:  async,

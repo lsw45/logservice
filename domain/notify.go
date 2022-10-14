@@ -140,7 +140,7 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 func (dsvc *depolyService) TunnelDeployIngestTask(task *entity.DeployIngestModel) error {
 	var err error
 
-	sucess, err := dsvc.depTunnel.ShellTask(task.EnvId, task.Project, task.CorporationId, task.GameIp, true)
+	sucess, err := dsvc.depTunnel.ShellTask(task.EnvId, task.Project, task.CorporationID, task.GameIp, true)
 	if err != nil {
 		common.Logger.Errorf("domain error: shell task: %s", err)
 		return err

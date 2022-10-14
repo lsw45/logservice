@@ -24,7 +24,7 @@ type MysqlRepo interface {
 
 type TunnelRepo interface {
 	UploadFile(file_path, ip, env string) error
-	ShellTask(env, project int, corporationId, server string, async bool) (bool, error)
+	ShellTask(env, project, corporationId int, server string, async bool) (bool, error)
 }
 
 type RedisRepo interface {

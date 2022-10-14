@@ -15,11 +15,11 @@ type TunnelUploadFileRes struct {
 }
 
 type ShellTaskReq struct {
-	Env           int           `json:"env"`
+	EnvId         int        `json:"env"`
 	Params        []ShellParams `json:"params"`
 	Project       int           `json:"project"`
 	Asynchronous  bool          `json:"asynchronous"`
-	CorporationID string        `json:"corporation_id"`
+	CorporationID int           `json:"corporation_id"`
 }
 
 type ShellTaskDeployResp struct {
