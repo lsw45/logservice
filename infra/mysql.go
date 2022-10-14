@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"gorm.io/driver/mysql"
+	"gorm.io/gorm/clause"
 
 	"gorm.io/gorm"
 )
@@ -122,7 +123,7 @@ func (cli *mysqlDB) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (ma
 }
 
 func (cli *mysqlDB) UpdateDeployeIngestTask(id []int, status int) error {
-	return cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", status).Where("id in ?", id).Error
+	return cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", status).Where(clause.IN{Column: "id", Values: []interface{}{id}}).Error
 }
 
 func (cli *mysqlDB) ReleaseRegion(regionId int) error {
