@@ -113,7 +113,7 @@ func (cli *mysqlDB) UpdateDeployeIngestTask(id []int, status int) error {
 }
 
 func (cli *mysqlDB) ReleaseRegion(regionId int) error {
-	return cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", 0).Where("region_id", regionId).Error
+	return cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", 0).Where("region_id=?", regionId).Error
 }
 
 func (cli *mysqlDB) Close() {
