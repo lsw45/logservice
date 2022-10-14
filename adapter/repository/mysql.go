@@ -47,10 +47,13 @@ func (m *MysqlRepo) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
 }
 
 func (m *MysqlRepo) UpdateDeployeIngestTask(id []int, status int) error {
-	return nil
+	return m.MysqlInfra.UpdateDeployeIngestTask(id, status)
 }
 
 func (m *MysqlRepo) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
-	ids, err := m.MysqlInfra.SaveDeployeIngestTask(tasks)
-	return ids, err
+	return m.MysqlInfra.SaveDeployeIngestTask(tasks)
+}
+
+func (m *MysqlRepo) ReleaseRegion(regionId int) error {
+	return m.MysqlInfra.ReleaseRegion(regionId)
 }

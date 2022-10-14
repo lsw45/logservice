@@ -30,7 +30,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		return errors.New("message title error: " + message.Title)
 	}
 
-	// 消息幂等性*？*
+	// 消息有重试机制，所以要防止重复处理
 	exist, err := dsvc.depRepo.ExitsNotifyByUUId(message.UUID)
 	if err != nil {
 		common.Logger.Errorf("domain error: %s", err)
@@ -41,6 +41,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		return nil
 	}
 
+	// servers为空，是服务器释放阶段发来的
 	var tasks []*entity.DeployIngestModel
 	for _, content := range message.Content {
 		for _, server := range content.Servers {
@@ -59,21 +60,27 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 			})
 		}
 	}
-	
+
+	// 释放采集任务
+	if len(tasks) == 0 {
+		err = dsvc.depRepo.ReleaseRegion(message.Content[0].RegionID)
+		if err != nil {
+			common.Logger.Errorf("domain error: ReleaseRegion %s", err)
+			return err
+		}
+		return nil
+	}
+
 	mo := &entity.NotifyMsgModel{
 		UUID:  message.UUID,
 		Title: message.Title,
 	}
+
 	// 持久化保存回调消息和部署采集器任务
 	err = dsvc.depRepo.SaveNotifyMessage(mo)
 	if err != nil {
 		common.Logger.Errorf("domain error: SaveNotifyMessage %s", err)
 		return err
-	}
-
-	if len(tasks) == 0 {
-		common.Logger.Warn("empty tasks from region")
-		return nil
 	}
 
 	_, err = dsvc.depRepo.SaveDeployeIngestTask(tasks)

@@ -20,7 +20,8 @@ type MysqlInfra interface {
 	ExitsNotifyByUUId(uuid string) (bool, error)
 	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
 	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
-	UpdateDeployeIngestTask(id int, status int) error
+	UpdateDeployeIngestTask(id []int, status int) error
+	ReleaseRegion(regionId int) error
 }
 
 type mysqlDB struct {
@@ -79,11 +80,10 @@ func (cli *mysqlDB) GetUserConfigName(ingestID, version string) (string, error) 
 }
 
 func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (bool, error) {
-	tmp := &entity.NotifyMsgModel{}
-	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
-
+	tmp := &entity.DeployIngestModel{}
+	err := cli.DB.Table(entity.DeployIngestTableName).Where("notify_id = ?", uuid).First(&tmp).Error
 	if err != nil {
-		common.Logger.Warnf("infra mysql search error: %+v", err)
+		common.Logger.Warnf("infra search DeployIngestTableName error: %+v", err)
 		return false, err
 	}
 	return true, nil
@@ -108,10 +108,12 @@ func (cli *mysqlDB) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (ma
 	return ids, nil
 }
 
-func (cli *mysqlDB) UpdateDeployeIngestTask(id int, status int) error {
-	err := cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", status).
-		Where("id=?", id).Error
-	return err
+func (cli *mysqlDB) UpdateDeployeIngestTask(id []int, status int) error {
+	return cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", status).Where("id in ?", id).Error
+}
+
+func (cli *mysqlDB) ReleaseRegion(regionId int) error {
+	return cli.DB.Table(entity.DeployIngestTableName).UpdateColumn("status", 0).Where("region_id", regionId).Error
 }
 
 func (cli *mysqlDB) Close() {

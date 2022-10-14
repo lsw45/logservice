@@ -19,6 +19,7 @@ type MysqlRepo interface {
 	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
 	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
 	UpdateDeployeIngestTask(id []int, status int) error
+	ReleaseRegion(regionId int) error
 }
 
 type TunnelRepo interface {
