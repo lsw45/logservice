@@ -17,7 +17,7 @@ type MysqlInfra interface {
 	CommonInfra
 	GetUser(id int) (*entity.User, error)
 	GetUserConfigName(ingestID, version string) (string, error)
-	ExitsNotifyByUUId(uuid string) (bool, error)
+	ExitsNotifyByUUId(uuid string) (string, error)
 	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
 	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
 	UpdateDeployeIngestTask(id []int, status int) error
@@ -79,14 +79,26 @@ func (cli *mysqlDB) GetUserConfigName(ingestID, version string) (string, error) 
 	return configName, err
 }
 
-func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (bool, error) {
-	tmp := &entity.DeployIngestModel{}
-	err := cli.DB.Table(entity.DeployIngestTableName).Where("notify_id = ?", uuid).First(&tmp).Error
-	if err != nil {
-		common.Logger.Warnf("infra search DeployIngestTableName error: %+v", err)
-		return false, err
+func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (string, error) {
+	var tmp interface{}
+	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
+	if err == gorm.ErrRecordNotFound {
+		return entity.NotifyMsgTableName, nil
 	}
-	return true, nil
+	if err != nil {
+		common.Logger.Errorf("infra search NotifyMsgTableName error: %+v", err)
+		return entity.NotifyMsgTableName, err
+	}
+
+	err = cli.DB.Table(entity.DeployIngestTableName).Where("notify_id = ?", uuid).First(&tmp).Error
+	if err == gorm.ErrRecordNotFound {
+		return entity.DeployIngestTableName, nil
+	}
+	if err != nil {
+		common.Logger.Errorf("infra search DeployIngestTableName error: %+v", err)
+		return entity.DeployIngestTableName, err
+	}
+	return "exit", nil
 }
 
 func (cli *mysqlDB) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {

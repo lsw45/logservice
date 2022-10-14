@@ -37,8 +37,22 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		return err
 	}
 
-	if exist {
+	if exist == entity.DeployIngestTableName {
 		return nil
+	}
+
+	// 持久化保存回调消息
+	if exist != entity.NotifyMsgTableName {
+		mo := &entity.NotifyMsgModel{
+			UUID:  message.UUID,
+			Title: message.Title,
+		}
+
+		err = dsvc.depRepo.SaveNotifyMessage(mo)
+		if err != nil {
+			common.Logger.Errorf("domain error: SaveNotifyMessage %s", err)
+			return err
+		}
 	}
 
 	// servers为空，是服务器释放阶段发来的
@@ -71,18 +85,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		return nil
 	}
 
-	mo := &entity.NotifyMsgModel{
-		UUID:  message.UUID,
-		Title: message.Title,
-	}
-
-	// 持久化保存回调消息和部署采集器任务
-	err = dsvc.depRepo.SaveNotifyMessage(mo)
-	if err != nil {
-		common.Logger.Errorf("domain error: SaveNotifyMessage %s", err)
-		return err
-	}
-
+	// 保存部署采集器任务
 	_, err = dsvc.depRepo.SaveDeployeIngestTask(tasks)
 	if err != nil {
 		common.Logger.Errorf("domain error: SaveDeployeIngestTask %s", err)

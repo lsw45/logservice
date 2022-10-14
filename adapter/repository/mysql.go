@@ -5,8 +5,6 @@ import (
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
 	"log-ext/infra"
-
-	"gorm.io/gorm"
 )
 
 var _ dependency.MysqlRepo = (*MysqlRepo)(nil)
@@ -27,17 +25,12 @@ func (m *MysqlRepo) GetUserConfigName(ingestID, version string) (string, error) 
 	return "nil", nil
 }
 
-func (m *MysqlRepo) ExitsNotifyByUUId(uuid string) (bool, error) {
+func (m *MysqlRepo) ExitsNotifyByUUId(uuid string) (string, error) {
 	exit, err := m.MysqlInfra.ExitsNotifyByUUId(uuid)
-
-	if err == gorm.ErrRecordNotFound {
-		common.Logger.Infof("ExitsNotifyByUUId search error: %+v", err)
-		return false, nil
-	}
 
 	if err != nil {
 		common.Logger.Errorf("ExitsNotifyByUUId search error: %+v", err)
-		return false, err
+		return exit, err
 	}
 	return exit, nil
 }
