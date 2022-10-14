@@ -37,4 +37,5 @@ func TestRelease(t *testing.T) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+	fmt.Println(1)
 }
