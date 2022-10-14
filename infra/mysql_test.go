@@ -29,3 +29,12 @@ func TestUpdate(t *testing.T) {
 		fmt.Println(err.Error())
 	}
 }
+
+func TestRelease(t *testing.T) {
+	db, _ := NewMysql(conf)
+
+	err := db.ReleaseRegion(12)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}

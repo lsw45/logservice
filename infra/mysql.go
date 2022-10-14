@@ -100,7 +100,7 @@ func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (string, error) {
 		common.Logger.Errorf("infra search DeployIngestTableName error: %+v", err)
 		return entity.DeployIngestTableName, err
 	}
-	return "exit", nil
+	return "exist", nil
 }
 
 func (cli *mysqlDB) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {

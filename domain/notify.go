@@ -37,7 +37,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 		return err
 	}
 
-	if exist == entity.DeployIngestTableName {
+	if exist == "exist" || exist == entity.DeployIngestTableName {
 		return nil
 	}
 

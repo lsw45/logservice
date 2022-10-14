@@ -41,18 +41,18 @@ type NotifyDeployMessage struct {
 	Title   string `json:"title"`
 	Content []struct {
 		Servers    []Servers `json:"servers"`
-		RegionID   int       `json:"region_id"`
-		RegionName string    `json:"region_name"`
+		RegionID   int       `json:"RegionID"`
+		RegionName string    `json:"RegionName"`
 	} `json:"content"`
 }
 
 type Servers struct {
-	ID            int    `json:"id"`
-	IP            string `json:"ip"`
-	Env           string `json:"env"`
-	Name          string `json:"name"`
-	EnvID         int    `json:"env_id"`
-	Project       int    `json:"project"`
-	RemoteID      string `json:"remote_id"`
-	CorporationID string `json:"corporation_id"`
+	ID            int    `json:"Id"`
+	IP            string `json:"Ip"`
+	Env           string `json:"Env"`
+	Name          string `json:"Name"`
+	EnvID         int    `json:"EnvID"`
+	Project       int    `json:"Project"`
+	RemoteID      string `json:"RemoteID"`
+	CorporationID string `json:"CorporationId"`
 }
