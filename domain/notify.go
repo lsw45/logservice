@@ -68,7 +68,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 				Env:           server.Env,
 				EnvId:         server.EnvID,
 				Project:       server.Project,
-				CorporationId: server.CorporationID,
+				CorporationID: server.CorporationID,
 				RegionID:      content.RegionID,
 				KafkaBroker:   common.GetKafka().Broker,
 			})

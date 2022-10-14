@@ -30,7 +30,7 @@ type DeployIngestModel struct {
 	EnvId         int
 	Project       int
 	RegionID      int
-	CorporationId string
+	CorporationID int
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
