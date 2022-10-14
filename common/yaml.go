@@ -15,11 +15,47 @@ func LoggieOperatorPipeline(index, ip, filePath string, kafkaBroker []string) er
 pipelines:
 - name: demo
   sources:
-  - name: mylog
+  - name: operator
     type: file
     addonMeta: true
     paths:
     - %slog/GameOperate.log
+    fieldsUnderRoot: true
+    fields:
+      index: %s
+      ip: %s
+  - name: DbManager
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/DbManager.log
+    fieldsUnderRoot: true
+    fields:
+      index: %s
+      ip: %s
+  - name: GameManager
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GameManager.log
+    fieldsUnderRoot: true
+    fields:
+      index: %s
+      ip: %s
+  - name: GameServer
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GameServer.log
+    fieldsUnderRoot: true
+    fields:
+      index: %s
+      ip: %s
+  - name: GateServer
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GateServer.log
     fieldsUnderRoot: true
     fields:
       index: %s
@@ -33,13 +69,13 @@ pipelines:
     codec: {}
 `
 
-	if len(kafkaBroker) < 0 {
+	if len(kafkaBroker) == 0 {
 		Logger.Error("kafka broker is nil")
 		return errors.New("kafka broker is nil")
 	}
 
 	broker, _ := json.Marshal(kafkaBroker)
-	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath, index, ip, string(broker))
+	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath, index, ip, index, ip, index, ip, index, ip, index, ip, string(broker))
 
 	conf := &control.PipelineConfig{}
 	err := yaml.Unmarshal([]byte(piplineTemplate), conf)
