@@ -56,11 +56,11 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 	}
 
 	// servers为空，是服务器释放阶段发来的
-	var tasks []*entity.DeployIngestModel
+	var tasks []entity.DeployIngestModel
 	for _, content := range message.Content {
 		for _, server := range content.Servers {
 			// 新建任务——上传文件
-			tasks = append(tasks, &entity.DeployIngestModel{
+			tasks = append(tasks, entity.DeployIngestModel{
 				GameIp:        server.IP,
 				Index:         fmt.Sprintf("operator-%v-%v-%v", content.RegionID, server.Project, server.EnvID), // 拼接规则：区服ID-项目ID-环境ID
 				Status:        1,
@@ -101,7 +101,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 }
 
 // 上传pipeline并启动采集器
-func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
+func (dsvc *depolyService) TunnelUploadIngest(task entity.DeployIngestModel) {
 	err := common.LoggieOperatorPipeline(task.Index, task.GameIp, "../doc/pipelines.yml", task.KafkaBroker)
 	if err != nil {
 		return
@@ -131,15 +131,11 @@ func (dsvc *depolyService) TunnelUploadIngest(task *entity.DeployIngestModel) {
 	err = dsvc.TunnelDeployIngestTask(task)
 	if err != nil {
 		common.Logger.Errorf("domain error: deploy ingest: %s", err)
-		return
 	}
-	return
 }
 
 // 启动采集器
-func (dsvc *depolyService) TunnelDeployIngestTask(task *entity.DeployIngestModel) error {
-	var err error
-
+func (dsvc *depolyService) TunnelDeployIngestTask(task entity.DeployIngestModel) error {
 	sucess, err := dsvc.depTunnel.ShellTask(task.EnvId, task.Project, task.CorporationID, task.GameIp, true)
 	if err != nil {
 		common.Logger.Errorf("domain error: shell task: %s", err)

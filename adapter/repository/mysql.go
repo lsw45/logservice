@@ -43,7 +43,7 @@ func (m *MysqlRepo) UpdateDeployeIngestTask(id []int, status int) error {
 	return m.MysqlInfra.UpdateDeployeIngestTask(id, status)
 }
 
-func (m *MysqlRepo) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
+func (m *MysqlRepo) SaveDeployeIngestTask(tasks []entity.DeployIngestModel) (map[string]int, error) {
 	return m.MysqlInfra.SaveDeployeIngestTask(tasks)
 }
 

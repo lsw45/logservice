@@ -17,14 +17,14 @@ type MysqlRepo interface {
 	// 消息回调模块
 	ExitsNotifyByUUId(uuid string) (string, error)
 	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
-	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
+	SaveDeployeIngestTask(tasks []entity.DeployIngestModel) (map[string]int, error)
 	UpdateDeployeIngestTask(id []int, status int) error
 	ReleaseRegion(regionId int) error
 }
 
 type TunnelRepo interface {
 	UploadFile(file_path, ip, env string) error
-	ShellTask(env, project, corporationId int, server string, async bool) (bool, error)
+	ShellTask(envId, project, corporationId int, server string, async bool) (bool, error)
 }
 
 type RedisRepo interface {

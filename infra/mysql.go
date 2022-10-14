@@ -19,7 +19,7 @@ type MysqlInfra interface {
 	GetUserConfigName(ingestID, version string) (string, error)
 	ExitsNotifyByUUId(uuid string) (string, error)
 	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
-	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
+	SaveDeployeIngestTask(tasks []entity.DeployIngestModel) (map[string]int, error)
 	UpdateDeployeIngestTask(id []int, status int) error
 	ReleaseRegion(regionId int) error
 }
@@ -106,7 +106,7 @@ func (cli *mysqlDB) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
 	return cli.DB.Table(entity.NotifyMsgTableName).Create(msg).Error
 }
 
-func (cli *mysqlDB) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {
+func (cli *mysqlDB) SaveDeployeIngestTask(tasks []entity.DeployIngestModel) (map[string]int, error) {
 	err := cli.DB.Table(entity.DeployIngestTableName).Create(tasks).Error
 	if err != nil {
 		common.Logger.Errorf("infra error: DeployIngestTableName create:%s", err)
