@@ -80,8 +80,8 @@ func (cli *mysqlDB) GetUserConfigName(ingestID, version string) (string, error) 
 }
 
 func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (string, error) {
-	var tmp interface{}
-	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp).Error
+	tmp1 := &entity.NotifyMsgModel{}
+	err := cli.DB.Table(entity.NotifyMsgTableName).Where("uuid = ?", uuid).First(&tmp1).Error
 	if err == gorm.ErrRecordNotFound {
 		return entity.NotifyMsgTableName, nil
 	}
@@ -90,7 +90,8 @@ func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (string, error) {
 		return entity.NotifyMsgTableName, err
 	}
 
-	err = cli.DB.Table(entity.DeployIngestTableName).Where("notify_id = ?", uuid).First(&tmp).Error
+	tmp2 := &entity.DeployIngestModel{}
+	err = cli.DB.Table(entity.DeployIngestTableName).Where("notify_id = ?", uuid).First(&tmp2).Error
 	if err == gorm.ErrRecordNotFound {
 		return entity.DeployIngestTableName, nil
 	}
