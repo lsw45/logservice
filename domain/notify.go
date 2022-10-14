@@ -77,7 +77,6 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 
 	// 释放采集任务
 	if len(tasks) == 0 {
-		common.Logger.Infof("%+v\n", message)
 		err = dsvc.depRepo.ReleaseRegion(message.Content[0].RegionID)
 		if err != nil {
 			common.Logger.Errorf("domain error: ReleaseRegion %s", err)

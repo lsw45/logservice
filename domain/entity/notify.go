@@ -53,6 +53,6 @@ type Servers struct {
 	Name          string `json:"Name"`
 	EnvID         int    `json:"EnvID"`
 	Project       int    `json:"Project"`
-	RemoteID      string `json:"RemoteID"`
-	CorporationID string `json:"CorporationId"`
+	RemoteID      int    `json:"RemoteID"`
+	CorporationID int    `json:"CorporationId"`
 }
