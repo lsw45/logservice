@@ -42,7 +42,7 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 	}
 
 	// 持久化保存回调消息
-	if exist != entity.NotifyMsgTableName {
+	if exist == entity.NotifyMsgTableName {
 		mo := &entity.NotifyMsgModel{
 			UUID:  message.UUID,
 			Title: message.Title,

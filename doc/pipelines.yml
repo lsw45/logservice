@@ -1,15 +1,51 @@
 pipelines:
 - name: demo
   sources:
-  - name: mylog
+  - name: operator
     type: file
     addonMeta: true
     paths:
     - /home/logservice2/log/GameOperate.log
     fieldsUnderRoot: true
     fields:
-      index: operator-1000-1-3
-      ip: 10.0.70.231
+      index: operator-0-1-0
+      ip: 10.0.141.224
+  - name: DbManager
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/DbManager.log
+    fieldsUnderRoot: true
+    fields:
+      index: operator-0-1-0
+      ip: 10.0.141.224
+  - name: GameManager
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GameManager.log
+    fieldsUnderRoot: true
+    fields:
+      index: operator-0-1-0
+      ip: 10.0.141.224
+  - name: GameServer
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GameServer.log
+    fieldsUnderRoot: true
+    fields:
+      index: operator-0-1-0
+      ip: 10.0.141.224
+  - name: GateServer
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GateServer.log
+    fieldsUnderRoot: true
+    fields:
+      index: operator-0-1-0
+      ip: 10.0.141.224
   sink:
     type: kafka
     balance: roundRobin
