@@ -5,7 +5,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - /home/logservice2/log/GameOperate.log
+    - /home/logservice2//log/GameOperate.log
     fieldsUnderRoot: true
     fields:
       index: x

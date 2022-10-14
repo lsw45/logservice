@@ -16,7 +16,7 @@ type MysqlRepo interface {
 
 	// 消息回调模块
 	ExitsNotifyByUUId(uuid string) (bool, error)
-	SaveNotifyMessage(msg *entity.NotifyDeployMessage) error
+	SaveNotifyMessage(msg *entity.NotifyMsgModel) error
 	SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error)
 	UpdateDeployeIngestTask(id []int, status int) error
 }

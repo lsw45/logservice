@@ -5,7 +5,6 @@ import (
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
-	"time"
 
 	"github.com/olivere/elastic/v7"
 )
@@ -39,7 +38,7 @@ func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]en
 	return histogram, total, nil
 }
 
-func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
+func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (*elastic.SearchHits, int, error) {
 	if len(filter.Indexs) == 0 {
 		return nil, 0, nil
 	}
@@ -55,9 +54,7 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		return nil, 0, err
 	}
 
-	re, _ := json.Marshal(hits.Hits)
-
-	return re, int(hits.TotalHits.Value), nil
+	return hits, int(hits.TotalHits.Value), nil
 }
 
 func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
@@ -93,9 +90,5 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	}
 	query.Query = string(js)
 
-	if len(filter.Date) > 1 {
-		query.StartTime, _ = time.Parse("2006-01-02 15:04:05", filter.Date[0])
-		query.EndTime, _ = time.Parse("2006-01-02 15:04:05", filter.Date[1])
-	}
 	return query, nil
 }

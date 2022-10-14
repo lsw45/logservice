@@ -90,8 +90,7 @@ func (cli *mysqlDB) ExitsNotifyByUUId(uuid string) (bool, error) {
 }
 
 func (cli *mysqlDB) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
-	err := cli.DB.Table(entity.NotifyMsgTableName).Create(msg).Error
-	return err
+	return cli.DB.Table(entity.NotifyMsgTableName).Create(msg).Error
 }
 
 func (cli *mysqlDB) SaveDeployeIngestTask(tasks []*entity.DeployIngestModel) (map[string]int, error) {

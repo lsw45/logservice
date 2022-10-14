@@ -14,7 +14,7 @@ var (
 	configPath     = "./conf"
 	configName     = "logservice2"
 	configExt      = "toml"
-	RemoteFilepath = "/home/logservice2"
+	RemoteFilepath = "/home/logservice2/"
 
 	appConf     *AppConfig
 	settingOnce sync.Once

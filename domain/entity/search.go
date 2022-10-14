@@ -20,8 +20,6 @@ type QueryDocs struct {
 	EnableDSL bool
 	Query     string
 	Sort      []elastic.Sorter
-	StartTime time.Time
-	EndTime   time.Time
 }
 
 type CommonResp struct {
@@ -30,13 +28,14 @@ type CommonResp struct {
 }
 
 type LogsFilterReq struct {
-	Page     int             `json:"page"`
-	Limit    int             `json:"limit"`
-	PageSize int             `json:"page_size"`
-	Keywords string          `json:"keywords"`
-	Indexs   []string        `json:"indexs"`
-	Date     []string        `json:"date"`
-	Sort     map[string]bool `json:"sort"`
+	Page      int             `json:"page"`
+	Limit     int             `json:"limit"`
+	PageSize  int             `json:"page_size"`
+	Keywords  string          `json:"keywords"`
+	Indexs    []string        `json:"indexs"`
+	StartTime int64           `json:"start_time"`
+	EndTime   int64           `json:"end_time"`
+	Sort      map[string]bool `json:"sort"`
 }
 
 type AggregationReq struct {
@@ -46,7 +45,7 @@ type AggregationReq struct {
 
 type DateHistogramReq struct {
 	Indexs    []string `json:"indexs"`
-	Interval  string   `json:"interval"`
+	Interval  int64    `json:"interval"`
 	GroupName string   `json:"group_name"`
 	StartTime int64    `json:"start_time"`
 	EndTime   int64    `json:"end_time"` //second
@@ -98,8 +97,8 @@ type AggregationResp struct {
 type LogsFilterResp struct {
 	CommonResp
 	Data struct {
-		Results string `json:"results"`
-		Count   int64  `json:"count"`
+		Results *elastic.SearchHits `json:"results"`
+		Count   int64               `json:"count"`
 	} `json:"data"`
 }
 

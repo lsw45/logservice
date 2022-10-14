@@ -1,14 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"log-ext/adapter/repository"
 	"log-ext/common"
 	"log-ext/domain"
 	"log-ext/domain/entity"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -118,43 +116,22 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	s, err := time.Parse("2006-01-02 15:04:05", filter.Date[0])
-	if err != nil {
-		common.Logger.Errorf("time parse error: %s", err)
+	if len(filter.Indexs) == 0 || filter.StartTime > filter.EndTime || filter.StartTime == 0 {
+		common.Logger.Error("params error")
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "wrong start date format",
-			"error":   err.Error(),
-		})
-		return
-	}
-
-	e, err := time.Parse("2006-01-02 15:04:05", filter.Date[1])
-	if err != nil {
-		common.Logger.Errorf("time parse error: %s", err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "wrong end date format",
-			"error":   err.Error(),
+			"message": "validation failed!",
+			"error":   "params error",
 		})
 		return
 	}
 
 	histoReq := &entity.DateHistogramReq{
-		StartTime: s.Unix(),
-		EndTime:   e.Unix(),
+		StartTime: filter.StartTime,
+		EndTime:   filter.EndTime,
+		Indexs:    filter.Indexs,
 	}
-	histoReq.Indexs = filter.Indexs
 
-	interval := (histoReq.EndTime - histoReq.StartTime) / 60 // es存储的time字段是时间戳，计算时，按照
-
-	if interval <= 60 {
-		histoReq.Interval = fmt.Sprintf("%vs", interval)
-	} else if interval > 60 && interval < 3600 {
-		histoReq.Interval = fmt.Sprintf("%vm", interval/60)
-	} else if interval > 3600 && interval < 24*3600 {
-		histoReq.Interval = fmt.Sprintf("%vh", interval/3600)
-	} else if interval > 24*3600 {
-		histoReq.Interval = fmt.Sprintf("%vd", interval/(24*3600))
-	}
+	histoReq.Interval = (histoReq.EndTime - histoReq.StartTime) / 60 // 将时段60等分
 
 	list, total, err := sctl.searchSrv.Histogram(histoReq)
 	if err != nil {
@@ -197,20 +174,10 @@ func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {
 		return
 	}
 
-	// result, err := json.Marshal(list)
-	// if err != nil {
-	// 	common.Logger.Errorf("json marshal error: %s", err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"message": "system error",
-	// 		"error":   err.Error(),
-	// 	})
-	// 	return
-	// }
-
 	var resp entity.LogsFilterResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data.Results = string(list)
+	resp.Data.Results = list
 	resp.Data.Count = int64(total)
 
 	c.JSON(http.StatusOK, resp)

@@ -38,6 +38,8 @@ func (dctl *DeployController) Notify(c *gin.Context) {
 		return
 	}
 
+	common.Logger.Infof("notify message:%+v\n", message)
+
 	if c.Request.URL.Query().Get("x-token") != "f68192e66ddc4d2a9fd4300bdd4a8f7e" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "validation failed!",

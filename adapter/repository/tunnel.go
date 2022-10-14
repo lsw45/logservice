@@ -89,6 +89,8 @@ func (t *TunnelRepo) ShellTask(env, project int, corporationId, server string, a
 		"cd $workspace;wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/loggie.yml",
 		"cd $workspace;wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/loggie;chmod +x loggie",
 		"cd $workspace;wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/start.sh;chmod +x start.sh",
+		"cd $workspace;wget https://for-frontend-imagefile.obs.cn-east-3.myhuaweicloud.com/logservice2/openlog.sh;chmod +x openlog.sh",
+		"source $workspace/openlog.sh",
 		"source $workspace/start.sh",
 	}
 	params := entity.ShellParams{

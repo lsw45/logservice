@@ -7,12 +7,11 @@ import (
 	"os"
 
 	"github.com/goccy/go-yaml"
-
 	"github.com/loggie-io/loggie/pkg/control"
-	// "github.com/loggie-io/loggie/pkg/core/interceptor"
 )
 
-var piplineTemplate = `
+func LoggieOperatorPipeline(index, ip, filePath string, kafkaBroker []string) error {
+	var piplineTemplate = `
 pipelines:
 - name: demo
   sources:
@@ -20,28 +19,27 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - %s/log/GameOperate.log
+    - %slog/GameOperate.log
     fieldsUnderRoot: true
     fields:
-      index: x
-      ip: x
+      index: %s
+      ip: %s
   sink:
     type: kafka
     balance: roundRobin
     brokers: %s
     compression: gzip
-    topic: test
+    topic: logservice
     codec: {}
 `
 
-func LoggieOperatorPipeline(index, ip, filePath string, kafkaBroker []string) error {
 	if len(kafkaBroker) < 0 {
 		Logger.Error("kafka broker is nil")
 		return errors.New("kafka broker is nil")
 	}
 
 	broker, _ := json.Marshal(kafkaBroker)
-	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath, string(broker))
+	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath, index, ip, string(broker))
 
 	conf := &control.PipelineConfig{}
 	err := yaml.Unmarshal([]byte(piplineTemplate), conf)

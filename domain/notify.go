@@ -59,12 +59,21 @@ func (dsvc *depolyService) DeployNotify(message *entity.NotifyDeployMessage) err
 			})
 		}
 	}
-
+	
+	mo := &entity.NotifyMsgModel{
+		UUID:  message.UUID,
+		Title: message.Title,
+	}
 	// 持久化保存回调消息和部署采集器任务
-	err = dsvc.depRepo.SaveNotifyMessage(message)
+	err = dsvc.depRepo.SaveNotifyMessage(mo)
 	if err != nil {
 		common.Logger.Errorf("domain error: SaveNotifyMessage %s", err)
 		return err
+	}
+
+	if len(tasks) == 0 {
+		common.Logger.Warn("empty tasks from region")
+		return nil
 	}
 
 	_, err = dsvc.depRepo.SaveDeployeIngestTask(tasks)
