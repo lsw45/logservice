@@ -23,12 +23,12 @@ type TunnelInfra interface {
 }
 
 var (
-	token       = "14e58ac5e45f4fefa924a040c581698d"
-	urlQA       = "https://ops-qa.cocos.org/paas/tunnel/"
-	urlDev      = "http://ops-dev.cocos.org/paas/tunnel/"
-	shell_task  = []string{"POST", urlDev + "task/?x-token=" + token}
-	check_task  = []string{"GET", urlDev + "task/{}?x-token=" + token}
-	upload_file = []string{"POST", urlDev + "file/?x-token=" + token}
+	token = "14e58ac5e45f4fefa924a040c581698d"
+	// urlQA       = "https://ops-qa.cocos.org/paas/tunnel/"
+	url         = "http://ops-dev.cocos.org/paas/tunnel/"
+	shell_task  = []string{"POST", url + "task/?x-token=" + token}
+	check_task  = []string{"GET", url + "task/{}?x-token=" + token}
+	upload_file = []string{"POST", url + "file/?x-token=" + token}
 	MsgTitle    = "broadcast.region.update"
 )
 

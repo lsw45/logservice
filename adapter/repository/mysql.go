@@ -42,8 +42,8 @@ func (m *MysqlRepo) ExitsNotifyByUUId(uuid string) (bool, error) {
 	return exit, nil
 }
 
-func (m *MysqlRepo) SaveNotifyMessage(msg *entity.NotifyDeployMessage) error {
-	return nil
+func (m *MysqlRepo) SaveNotifyMessage(msg *entity.NotifyMsgModel) error {
+	return m.MysqlInfra.SaveNotifyMessage(msg)
 }
 
 func (m *MysqlRepo) UpdateDeployeIngestTask(id []int, status int) error {

@@ -8,12 +8,17 @@ if [ -e '/home/logservice2/log/GameOperate.log' ];then
 	exit 0
 fi
 
-groupadd -r -g 1001 -o $group \
-    && useradd -r -g $group $user
+groupadd -r -g 1001 -o $group
+if [ $? -ne 0 ];then
+	echo "新建用户组失败"
+	exit 1
+fi
+
+useradd -r -g $group $user
 
 if [ $? -ne 0 ];then
 	echo "新建用户失败"
-	exit
+	exit 1
 fi
 
 echo '$FileOwner '$user > /etc/rsyslog.d/logservice2.conf

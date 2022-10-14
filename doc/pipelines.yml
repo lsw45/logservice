@@ -8,13 +8,13 @@ pipelines:
     - /home/logservice2/log/GameOperate.log
     fieldsUnderRoot: true
     fields:
-      index: operator-55-1-3
-      ip: 10.0.140.23
+      index: operator-1000-1-3
+      ip: 10.0.70.231
   sink:
     type: kafka
     balance: roundRobin
     brokers:
     - 10.0.3.116:9093
     compression: gzip
-    topic: test
+    topic: logservice
     codec: {}

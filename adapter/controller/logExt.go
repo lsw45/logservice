@@ -44,7 +44,7 @@ func (ctl *logExtServer) RegisterRouter(e *gin.Engine) {
 	logsrv.POST("/aggregation", ctl.searchCtl.Aggregation)
 	logsrv.GET("/nearbyDoc/:index/:time/:num", ctl.searchCtl.NearbyDoc)
 
-	notify := logsrv.Use(timeoutMiddleware(2 * time.Second))
+	notify := e.Group("/paas/logservice2").Use(timeoutMiddleware(2 * time.Second))
 	notify.POST("/notify", ctl.deployCtl.Notify)
 }
 

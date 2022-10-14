@@ -174,20 +174,10 @@ func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {
 		return
 	}
 
-	// result, err := json.Marshal(list)
-	// if err != nil {
-	// 	common.Logger.Errorf("json marshal error: %s", err)
-	// 	c.JSON(http.StatusBadRequest, gin.H{
-	// 		"message": "system error",
-	// 		"error":   err.Error(),
-	// 	})
-	// 	return
-	// }
-
 	var resp entity.LogsFilterResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data.Results = string(list)
+	resp.Data.Results = list
 	resp.Data.Count = int64(total)
 
 	c.JSON(http.StatusOK, resp)

@@ -38,7 +38,7 @@ func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]en
 	return histogram, total, nil
 }
 
-func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) ([]byte, int, error) {
+func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (*elastic.SearchHits, int, error) {
 	if len(filter.Indexs) == 0 {
 		return nil, 0, nil
 	}
@@ -54,9 +54,7 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		return nil, 0, err
 	}
 
-	re, _ := json.Marshal(hits.Hits)
-
-	return re, int(hits.TotalHits.Value), nil
+	return hits, int(hits.TotalHits.Value), nil
 }
 
 func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
