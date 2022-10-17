@@ -136,12 +136,12 @@ func (dsvc *depolyService) TunnelUploadIngest(task entity.DeployIngestModel) {
 
 // 启动采集器
 func (dsvc *depolyService) TunnelDeployIngestTask(task entity.DeployIngestModel) error {
-	sucess, err := dsvc.depTunnel.ShellTask(task.EnvId, task.Project, task.CorporationID, task.GameIp, true)
+	success, err := dsvc.depTunnel.ShellTask(task.EnvId, task.Project, task.CorporationID, task.GameIp, true)
 	if err != nil {
 		common.Logger.Errorf("domain error: shell task: %s", err)
 		return err
 	}
-	if !sucess {
+	if !success {
 		common.Logger.Errorf("domain error: shell task failed: " + task.GameIp)
 		return err
 	}
@@ -156,7 +156,7 @@ func (dsvc *depolyService) TunnelDeployIngestTask(task entity.DeployIngestModel)
 	return nil
 }
 
-// 检查部署任务
+// TODO:检查部署任务
 func (dsvc *depolyService) TunnelCheckTask() {
 
 }
