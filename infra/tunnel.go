@@ -19,7 +19,7 @@ import (
 type TunnelInfra interface {
 	UploadFile(data *bytes.Buffer, boundary string) (*entity.TunnelUploadFileRes, error)
 	ShellTask(data *entity.ShellTaskReq) (*entity.ShellTaskDeployResp, error)
-	CheckTask(id string) (*entity.ShellTaskStateResp, error)
+	CheckTask(id int) (*entity.ShellTaskStateResp, error)
 }
 
 var (
@@ -147,7 +147,7 @@ func (tu *Tunnel) ShellTask(data *entity.ShellTaskReq) (*entity.ShellTaskDeployR
 }
 
 // 检查任务：采集器启动情况
-func (tu *Tunnel) CheckTask(id string) (*entity.ShellTaskStateResp, error) {
+func (tu *Tunnel) CheckTask(id int) (*entity.ShellTaskStateResp, error) {
 	resp, err := http.Get(check_task[1])
 	if err != nil {
 		common.Logger.Errorf("request error: %s", err)

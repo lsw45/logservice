@@ -153,10 +153,53 @@ func (dsvc *depolyService) TunnelDeployIngestTask(task entity.DeployIngestModel)
 		return err
 	}
 
+	dsvc.depTunnel.CheckTask(task.Id)
+
 	return nil
 }
 
 // TODO:检查部署任务
-func (dsvc *depolyService) TunnelCheckTask() {
+func (dsvc *depolyService) TunnelCheckTask(id int) error {
+	resp, err := dsvc.depTunnel.CheckTask(id)
+	if err != nil {
+		common.Logger.Errorf("domain error: TunnelCheckTask 6: %s", err)
+		return err
+	}
 
+	if resp.Data.Status == "ERROR" {
+		err = dsvc.depRepo.UpdateDeployeIngestTask([]int{id}, 8)
+		if err != nil {
+			common.Logger.Errorf("domain error: UpdateDeployeIngestTask 8: %s", err)
+			return err
+		}
+	}
+
+	for _, detail := range resp.Data.Result {
+		if detail.Status != "SUCCESS" {
+			err = dsvc.depRepo.UpdateDeployeIngestTask([]int{id}, 8)
+			if err != nil {
+				common.Logger.Errorf("domain error: UpdateDeployeIngestTask 8: %s", err)
+				return err
+			}
+			return nil
+		}
+		for _, shell := range detail.Detail {
+			if shell.Exited != 0 {
+				err = dsvc.depRepo.UpdateDeployeIngestTask([]int{id}, 8)
+				if err != nil {
+					common.Logger.Errorf("domain error: UpdateDeployeIngestTask 8: %s", err)
+					return err
+				}
+				return nil
+			}
+		}
+	}
+
+	err = dsvc.depRepo.UpdateDeployeIngestTask([]int{id}, 7)
+	if err != nil {
+		common.Logger.Errorf("domain error: UpdateDeployeIngestTask 7: %s", err)
+		return err
+	}
+
+	return nil
 }

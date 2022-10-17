@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"log-ext/common"
+	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
 	"log-ext/infra"
 	"mime/multipart"
@@ -18,6 +19,8 @@ type TunnelRepo struct {
 	infra.TunnelInfra
 	infra.MysqlInfra
 }
+
+var _ dependency.TunnelRepo = (*TunnelRepo)(nil)
 
 func NewTunnelRepo() *TunnelRepo {
 	return &TunnelRepo{defaultRepo.Tunnel, defaultRepo.Mysql}
@@ -127,7 +130,6 @@ func (t *TunnelRepo) ShellTask(envId, project, corporationId int, server string,
 	return true, nil
 }
 
-func (t *TunnelRepo) CheckTask(id string) (*entity.ShellTaskStateResp, error) {
-
-	return nil, nil
+func (t *TunnelRepo) CheckTask(id int) (*entity.ShellTaskStateResp, error) {
+	return t.TunnelInfra.CheckTask(id)
 }

@@ -15,7 +15,7 @@ type TunnelUploadFileRes struct {
 }
 
 type ShellTaskReq struct {
-	EnvId         int        `json:"env"`
+	EnvId         int           `json:"env"`
 	Params        []ShellParams `json:"params"`
 	Project       int           `json:"project"`
 	Asynchronous  bool          `json:"asynchronous"`
@@ -48,22 +48,22 @@ type ShellTaskStateResp struct {
 	Msg  string `json:"msg"`
 	Code int    `json:"code"`
 	Data struct {
-		ID            int           `json:"id"`
-		AddTime       string        `json:"add_time"`
-		UpdateTime    string        `json:"update_time"`
-		StartTime     interface{}   `json:"start_time"`
-		FinishTime    interface{}   `json:"finish_time"`
-		CorporationID string        `json:"corporation_id"`
-		Project       int           `json:"project"`
-		Env           string        `json:"env"`
-		Params        []ShellParams `json:"params"`
-		Asynchronous  bool          `json:"asynchronous"`
-		Status        string        `json:"status"`
-		Result        ShellResult   `json:"result"`
-		UUID          string        `json:"uuid"`
-		UsedTime      int           `json:"used_time"`
-		Comment       interface{}   `json:"comment"`
-		Creator       string        `json:"creator"`
+		ID            int                    `json:"id"`
+		AddTime       string                 `json:"add_time"`
+		UpdateTime    string                 `json:"update_time"`
+		StartTime     interface{}            `json:"start_time"`
+		FinishTime    interface{}            `json:"finish_time"`
+		CorporationID string                 `json:"corporation_id"`
+		Project       int                    `json:"project"`
+		Env           string                 `json:"env"`
+		Params        []ShellParams          `json:"params"`
+		Asynchronous  bool                   `json:"asynchronous"`
+		Status        string                 `json:"status"`
+		Result        map[string]ShellResult `json:"result"`
+		UUID          string                 `json:"uuid"`
+		UsedTime      int                    `json:"used_time"`
+		Comment       interface{}            `json:"comment"`
+		Creator       string                 `json:"creator"`
 	} `json:"data"`
 }
 
@@ -75,8 +75,8 @@ type ShellResult struct {
 type Data struct {
 	ID     int                    `json:"id"`
 	Status string                 `json:"status"`
-	Result map[string]ShellResult `json:"result"`
 	UUID   string                 `json:"uuid"`
+	Result map[string]ShellResult `json:"result"`
 }
 
 type Detail struct {
@@ -84,4 +84,7 @@ type Detail struct {
 	Stderr  string `json:"stderr"`
 	Stdout  string `json:"stdout"`
 	Command string `json:"command"`
+	Env     struct {
+		Workspace string `json:"workspace"`
+	} `json:"env"`
 }
