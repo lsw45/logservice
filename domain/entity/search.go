@@ -130,12 +130,14 @@ type HistogramResult struct {
 
 type HistogramResp struct {
 	CommonResp
-	Data  []BucketsList `json:"data"`
-	Count int64     `json:"count"`
+	Data struct {
+		Results []BucketsList `json:"results"`
+		Count   int64         `json:"count"`
+	} `json:"data"`
 }
 
 type BucketsList struct {
-	DocCount  int   `json:"doc_count"`
+	DocCount  int     `json:"doc_count"`
 	StartTime float64 `json:"start_time"`
 	EndTime   float64 `json:"end_time"`
 }

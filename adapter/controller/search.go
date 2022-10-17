@@ -152,8 +152,8 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 	var resp entity.HistogramResp
 	resp.CommonResp.Code = 0
 	resp.CommonResp.Msg = "success"
-	resp.Data = data
-	resp.Count = total
+	resp.Data.Results = data
+	resp.Data.Count = total
 
 	c.JSON(http.StatusOK, resp)
 }
