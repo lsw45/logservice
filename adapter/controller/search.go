@@ -99,7 +99,7 @@ func (sctl *SearchController) NearbyDoc(c *gin.Context) {
 	var resp entity.NearbyDocResp
 	resp.Code = 0
 	resp.Msg = "success"
-	resp.Data = list
+	resp.Data.Results = list
 
 	c.JSON(http.StatusOK, resp)
 }
