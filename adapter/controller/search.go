@@ -143,10 +143,16 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
+	data := []entity.BucketsList{}
+	for _, v := range list {
+		t := v.Key.(float64)
+		data = append(data, entity.BucketsList{DocCount: v.DocCount, StartTime: t, EndTime: t + float64(histoReq.Interval)})
+	}
+
 	var resp entity.HistogramResp
 	resp.CommonResp.Code = 0
 	resp.CommonResp.Msg = "success"
-	resp.Data = list
+	resp.Data = data
 	resp.Count = total
 
 	c.JSON(http.StatusOK, resp)

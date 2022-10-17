@@ -169,6 +169,7 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 		return nil, 0, err
 	}
 
+	
 	if len(histogra.Buckets) == 1 {
 		b := histogra.Buckets[0]
 
@@ -182,7 +183,7 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 
 			b.Key = int64(hit["time"].(float64))
 
-			tm := time.Unix(b.Key, 0)
+			tm := time.Unix(b.Key.(int64), 0)
 			b.KeyAsString = tm.Format("2006-01-02 15:04:05")
 		}
 		histogra.Buckets[0] = b

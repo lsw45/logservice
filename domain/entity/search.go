@@ -130,14 +130,20 @@ type HistogramResult struct {
 
 type HistogramResp struct {
 	CommonResp
-	Data  []Buckets `json:"data"`
+	Data  []BucketsList `json:"data"`
 	Count int64     `json:"count"`
 }
 
+type BucketsList struct {
+	DocCount  int   `json:"doc_count"`
+	StartTime float64 `json:"start_time"`
+	EndTime   float64 `json:"end_time"`
+}
+
 type Buckets struct {
-	Key         int64  `json:"key"` //ms
-	DocCount    int    `json:"doc_count"`
-	KeyAsString string `json:"key_as_string"`
+	DocCount    int         `json:"doc_count"`
+	KeyAsString string      `json:"key_as_string"`
+	Key         interface{} `json:"key"` //s
 }
 
 type DateHistAggre struct {

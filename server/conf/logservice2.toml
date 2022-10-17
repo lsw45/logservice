@@ -25,13 +25,13 @@
 
 [Mysql]
     database = "paas_logservicev2_dev"
-    host = "127.0.0.1"
+    host = "121.37.173.234"
     port = 3306
     username = "root"
     password = "Cocos@2021"
 
 [Elasticsearch]
-    address = ["http://127.0.0.1:9200"]
+    address = ["http://121.37.173.234:9200"]
     username = "elastic"
     password = "123456"
 
