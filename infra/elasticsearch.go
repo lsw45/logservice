@@ -102,12 +102,14 @@ func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.Query
 		search.Query = `{"query":{"match_all":{}},"track_total_hits":true}`
 	}
 
-	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).
+	timeRange := elastic.NewRangeQuery("time").Gt(search.StartTime).Lt(search.EndTime)
+
+	res, err := es.Client.Search().Index(indexNames...).Source(search.Query).Query(timeRange).
 		From(search.From).Size(search.Size).SortBy(search.Sort...).
 		Do(context.Background())
 
+	common.Logger.Error(eslog.String())
 	if err != nil {
-		common.Logger.Error(eslog.String())
 		return nil, err
 	}
 	if res == nil {
@@ -169,7 +171,6 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 		return nil, 0, err
 	}
 
-	
 	if len(histogra.Buckets) == 1 {
 		b := histogra.Buckets[0]
 

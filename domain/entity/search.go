@@ -18,6 +18,8 @@ type QueryDocs struct {
 	From      int
 	Size      int
 	EnableDSL bool
+	StartTime int64
+	EndTime   int64
 	Query     string
 	Sort      []elastic.Sorter
 }

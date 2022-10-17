@@ -72,6 +72,9 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 		}
 	}
 
+	query.StartTime = filter.StartTime
+	query.EndTime = filter.EndTime
+
 	// 检验查询语句的json格式是否正确
 	var js []byte
 	if len(filter.Keywords) != 0 {
@@ -85,6 +88,10 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 		if _, ok := f["track_total_hits"]; !ok {
 			f["track_total_hits"] = true
 		}
+
+		// if _, ok := f["query"]; !ok {
+		// 	f["query"] = map[string]map[string]map[string]int64{"range": {"time": {"get": filter.StartTime, "lte": filter.EndTime}}}
+		// }
 
 		js, _ = json.Marshal(f)
 	}
