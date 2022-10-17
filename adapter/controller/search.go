@@ -116,7 +116,14 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	if len(filter.Indexs) == 0 || filter.StartTime > filter.EndTime || filter.StartTime == 0 {
+	if len(filter.Indexs) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "success",
+		})
+		return
+	}
+
+	if filter.StartTime > filter.EndTime || filter.StartTime == 0 {
 		common.Logger.Error("params error")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "validation failed!",

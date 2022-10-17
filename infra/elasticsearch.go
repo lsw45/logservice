@@ -104,7 +104,9 @@ func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.Query
 
 	timeRange := elastic.NewRangeQuery("time").Gt(search.StartTime).Lt(search.EndTime)
 
-	res, err := es.Client.Search().Index(indexNames...).Query(timeRange).Source(search.Query).
+	source := elastic.NewSearchSource().Query(timeRange)
+
+	res, err := es.Client.Search().Index(indexNames...).SearchSource(source).Source(search.Query).
 		From(search.From).Size(search.Size).SortBy(search.Sort...).
 		Do(context.Background())
 
