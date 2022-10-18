@@ -24,7 +24,7 @@ type MysqlRepo interface {
 
 type TunnelRepo interface {
 	UploadFile(file_path, ip, env string) error
-	ShellTask(envId, project, corporationId int, server string, async bool) (bool, error)
+	ShellTask(envId, project int, corporationId, server string, async bool) (bool, error)
 	CheckTask(id int) (*entity.ShellTaskStateResp, error)
 }
 

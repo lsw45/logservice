@@ -30,29 +30,30 @@ type DeployIngestModel struct {
 	EnvId         int
 	Project       int
 	RegionID      int
-	CorporationID int
+	CorporationID string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type NotifyDeployMessage struct {
-	UUID    string `json:"uuid"`
-	Title   string `json:"title"`
+	UUID    string   `json:"uuid"`
+	Title   string   `json:"title"`
+	Channel []string `json:"channel"`
 	Content []struct {
 		Servers    []Servers `json:"servers"`
-		RegionID   int       `json:"RegionID"`
-		RegionName string    `json:"RegionName"`
+		RegionName string    `json:"region_name"`
+		RegionID   int       `json:"region_id"`
 	} `json:"content"`
 }
 
 type Servers struct {
-	ID            int    `json:"Id"`
-	IP            string `json:"Ip"`
-	Env           string `json:"Env"`
-	Name          string `json:"Name"`
-	EnvID         int    `json:"EnvID"`
-	Project       int    `json:"Project"`
-	RemoteID      int    `json:"RemoteID"`
-	CorporationID int    `json:"CorporationId"`
+	ID            int    `json:"id"`
+	IP            string `json:"ip"`
+	Env           string `json:"env"`
+	Name          string `json:"name"`
+	EnvID         int    `json:"env_id"`
+	Project       int    `json:"project"`
+	RemoteID      string `json:"remote_id"`
+	CorporationID string `json:"corporation_id"`
 }

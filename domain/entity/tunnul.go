@@ -19,7 +19,7 @@ type ShellTaskReq struct {
 	Params        []ShellParams `json:"params"`
 	Project       int           `json:"project"`
 	Asynchronous  bool          `json:"asynchronous"`
-	CorporationID int           `json:"corporation_id"`
+	CorporationID string        `json:"corporation_id"`
 }
 
 type ShellTaskDeployResp struct {
