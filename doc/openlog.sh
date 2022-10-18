@@ -40,6 +40,9 @@ if [ -d '/etc/logrotate.d' ];then
 	copytruncate
 	dateext
 	sharedscripts
+	postrotate
+		cd /home/logservice2;./loggie >> ./loggie.log 2>&1 &
+	endscript
 }
 EOF
 else

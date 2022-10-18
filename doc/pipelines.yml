@@ -9,7 +9,7 @@ pipelines:
     fieldsUnderRoot: true
     fields:
       index: operator-0-1-0
-      ip: 10.0.141.224
+      ip: 10.0.133.53
   - name: DbManager
     type: file
     addonMeta: true
@@ -18,7 +18,7 @@ pipelines:
     fieldsUnderRoot: true
     fields:
       index: operator-0-1-0
-      ip: 10.0.141.224
+      ip: 10.0.133.53
   - name: GameManager
     type: file
     addonMeta: true
@@ -27,7 +27,7 @@ pipelines:
     fieldsUnderRoot: true
     fields:
       index: operator-0-1-0
-      ip: 10.0.141.224
+      ip: 10.0.133.53
   - name: GameServer
     type: file
     addonMeta: true
@@ -36,7 +36,7 @@ pipelines:
     fieldsUnderRoot: true
     fields:
       index: operator-0-1-0
-      ip: 10.0.141.224
+      ip: 10.0.133.53
   - name: GateServer
     type: file
     addonMeta: true
@@ -45,7 +45,7 @@ pipelines:
     fieldsUnderRoot: true
     fields:
       index: operator-0-1-0
-      ip: 10.0.141.224
+      ip: 10.0.133.53
   sink:
     type: kafka
     balance: roundRobin

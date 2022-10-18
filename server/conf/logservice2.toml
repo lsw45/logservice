@@ -1,6 +1,6 @@
 [Web]
     run_mode = "release"
-    http_port = 38080
+    http_port = 14000
     service_name = "logservicev2"
     language = "zh_CN"
     read_timeOut = 120
