@@ -58,7 +58,7 @@ pipelines:
     - /var/log/engine/GateServer.log
     fieldsUnderRoot: true
     fields:
-      index: %s
+      index: server-%s
       ip: %s
   sink:
     type: kafka
