@@ -85,12 +85,12 @@ pipelines:
 	}
 
 	// 设置index和ip等自定义字段
-	if len(conf.Pipelines) == 0 || len(conf.Pipelines[0].Sources) == 0 {
-		Logger.Error("empty pipeline")
-		return errors.New("empty pipeline")
-	}
-	conf.Pipelines[0].Sources[0].FieldsUnderRoot = true
-	conf.Pipelines[0].Sources[0].Fields = map[string]interface{}{"index": index, "ip": ip}
+	// if len(conf.Pipelines) == 0 || len(conf.Pipelines[0].Sources) == 0 {
+	// 	Logger.Error("empty pipeline")
+	// 	return errors.New("empty pipeline")
+	// }
+	// conf.Pipelines[0].Sources[0].FieldsUnderRoot = true
+	// conf.Pipelines[0].Sources[0].Fields = map[string]interface{}{"index": index, "ip": ip}
 	// conf.Pipelines[0].Sink
 
 	// conf.Pipelines[0].Interceptors

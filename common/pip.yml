@@ -1,14 +1,50 @@
 pipelines:
 - name: demo
   sources:
-  - name: mylog
+  - name: operator
     type: file
     addonMeta: true
     paths:
-    - /home/logservice2//log/GameOperate.log
+    - /home/logservice2/log/GameOperate.log
     fieldsUnderRoot: true
     fields:
-      index: x
+      index: operatorxxxx-x-xxx
+      ip: x
+  - name: DbManager
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/DbManager.log
+    fieldsUnderRoot: true
+    fields:
+      index: server2222-x-xxx
+      ip: x
+  - name: GameManager
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GameManager.log
+    fieldsUnderRoot: true
+    fields:
+      index: server-x
+      ip: x
+  - name: GameServer
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GameServer.log
+    fieldsUnderRoot: true
+    fields:
+      index: server-x
+      ip: x
+  - name: GateServer
+    type: file
+    addonMeta: true
+    paths:
+    - /var/log/engine/GateServer.log
+    fieldsUnderRoot: true
+    fields:
+      index: server-x
       ip: x
   sink:
     type: kafka
@@ -17,5 +53,5 @@ pipelines:
     - 10.0.3.116:9092
     - ssss
     compression: gzip
-    topic: test
+    topic: logservice
     codec: {}
