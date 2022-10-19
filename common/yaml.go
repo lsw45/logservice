@@ -19,7 +19,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - %slog/GameOperate.log
+    - /var/log/GameOperate/client.log
     fieldsUnderRoot: true
     fields:
       index: operator-%s
@@ -75,7 +75,7 @@ pipelines:
 	}
 
 	broker, _ := json.Marshal(kafkaBroker)
-	piplineTemplate = fmt.Sprintf(piplineTemplate, RemoteFilepath, index, ip, index, ip, index, ip, index, ip, index, ip, string(broker))
+	piplineTemplate = fmt.Sprintf(piplineTemplate, index, ip, index, ip, index, ip, index, ip, index, ip, string(broker))
 
 	conf := &control.PipelineConfig{}
 	err := yaml.Unmarshal([]byte(piplineTemplate), conf)

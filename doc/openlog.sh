@@ -3,7 +3,7 @@
 user=logservice2
 group=logservice2
 
-if [ -e '/home/logservice2/log/GameOperate.log' ];then
+if [ -e '/var/log/GameOperate/client.log' ];then
 	echo "运维日志重定向已启动，可直接采集"
 	exit 0
 fi
@@ -24,7 +24,7 @@ fi
 echo '$FileOwner '$user > /etc/rsyslog.d/logservice2.conf
 echo '$FileGroup '$user >> /etc/rsyslog.d/logservice2.conf
 echo '$FileCreateMode 0644' >> /etc/rsyslog.d/logservice2.conf
-echo '$template gamelog,"/home/logservice2/log/GameOperate.log"' >> /etc/rsyslog.d/logservice2.conf
+echo '$template gamelog,"/var/log/GameOperate/client.log"' >> /etc/rsyslog.d/logservice2.conf
 echo 'if ($syslogfacility-text == "local0" or $syslogfacility-text == "LOG_LOCAL0") and $syslogtag contains "cocos" then -?gamelog' >> /etc/rsyslog.d/logservice2.conf
 echo '& ~' >> /etc/rsyslog.d/logservice2.conf
 
@@ -33,7 +33,7 @@ service rsyslog restart
 
 if [ -d '/etc/logrotate.d' ];then
 	cat>/etc/logrotate.d/logservice2<<EOF
-/home/logservice2/log/GameOperate.log{
+/var/log/GameOperate/client.log{
 	daily
 	rotate 15
 	nocompress
@@ -41,7 +41,7 @@ if [ -d '/etc/logrotate.d' ];then
 	dateext
 	sharedscripts
 	postrotate
-		cd /home/logservice2;./loggie >> ./loggie.log 2>&1 &
+		cd /opt/logservice2;./loggie >> ./loggie.log 2>&1 &
 	endscript
 }
 EOF

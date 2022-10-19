@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	configPath     = "./conf"
-	configName     = "logservice2"
-	configExt      = "toml"
-	RemoteFilepath = "/home/logservice2/"
+	configPath  = "./conf"
+	configName  = "logservice2"
+	configExt   = "toml"
+	OptFilepath = "/opt/logservice2/"
 
 	appConf     *AppConfig
 	settingOnce sync.Once

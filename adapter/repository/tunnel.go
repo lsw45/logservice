@@ -33,7 +33,7 @@ func (t *TunnelRepo) UploadFile(file_path string, ip, env string) error {
 	writer := multipart.NewWriter(buf)
 
 	field := &entity.UpdateFileReq{
-		Remote:   common.RemoteFilepath,
+		Remote:   common.OptFilepath,
 		Server:   ip,
 		Preserve: true,
 	}
@@ -100,7 +100,7 @@ func (t *TunnelRepo) ShellTask(envId, project int, corporationId, server string,
 		Shell:            "/bin/bash",
 		Server:           server,
 		Command:          command,
-		ShellEnvironment: map[string]interface{}{"workspace": common.RemoteFilepath},
+		ShellEnvironment: map[string]interface{}{"workspace": common.OptFilepath},
 	}
 	reqData := &entity.ShellTaskReq{
 		EnvId:         envId,
