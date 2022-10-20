@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"log-ext/common"
 	"log-ext/domain/entity"
@@ -97,36 +96,36 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 	return &elasticsearch{client}, nil
 }
 
-func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
-	// timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
-	if len(search.Query) == 0 {
-		search.Query = `{"query":{"match_all":{}},"track_total_hits":true}`
-	}
+// func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
+// 	// timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
+// 	if len(search.Query) == 0 {
+// 		search.Query = `{"query":{"match_all":{}},"track_total_hits":true}`
+// 	}
 
-	timeRange := elastic.NewRangeQuery("time").Gt(search.StartTime).Lt(search.EndTime)
+// 	timeRange := elastic.NewRangeQuery("time").Gt(search.StartTime).Lt(search.EndTime)
 
-	source := elastic.NewSearchSource().Query(timeRange)
+// 	source := elastic.NewSearchSource().Query(timeRange)
 
-	res, err := es.Client.Search().Index(indexNames...).SearchSource(source).Source(search.Query).
-		From(search.From).Size(search.Size).SortBy(search.Sort...).
-		Do(context.Background())
+// 	res, err := es.Client.Search().Index(indexNames...).SearchSource(source).Source(search.Query).
+// 		From(search.From).Size(search.Size).SortBy(search.Sort...).
+// 		Do(context.Background())
 
-	common.Logger.Error(eslog.String())
-	if err != nil {
-		return nil, err
-	}
-	if res == nil {
-		err = errors.New("got results is nil")
-		return nil, err
-	}
-	if res.Hits == nil {
-		common.Logger.Info(eslog.String())
-		err = errors.New("got SearchResult.Hits is nil")
-		return nil, err
-	}
+// 	common.Logger.Error(eslog.String())
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	if res == nil {
+// 		err = errors.New("got results is nil")
+// 		return nil, err
+// 	}
+// 	if res.Hits == nil {
+// 		common.Logger.Info(eslog.String())
+// 		err = errors.New("got SearchResult.Hits is nil")
+// 		return nil, err
+// 	}
 
-	return res, nil
-}
+// 	return res, nil
+// }
 
 func (es *elasticsearch) IndicesDeleteRequest(indexNames []string) (*elastic.Response, error) {
 	return nil, nil
@@ -254,22 +253,14 @@ func (es *elasticsearch) Aggregation(req entity.AggregationReq) (*elastic.Search
 	return res, nil
 }
 
-func (es *elasticsearch) Search(index string, must string, body string) (*elastic.SearchResult, error) {
-	query := `{
-"query": {
-    "bool": {
-		"%s": [
-			{
-				"match_phrase": {
-					"body": "%s"
-				}
-			}
-		]
+func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
+	qb := elastic.NewBoolQuery()
+	if len(search.Query) != 0 {
+		qb = qb.Must(elastic.NewQueryStringQuery(search.Query).TimeZone("Asia/Shanghai").AnalyzeWildcard(true))
 	}
-  }
-}`
-	query = fmt.Sprintf(query, must, body)
-	res, err := es.Client.Search().Index(index).Source(query).Size(0).Do(context.Background())
+	qb = qb.Filter(elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime).Format("strict_date_optional_time"))
+
+	res, err := es.Client.Search().Index(index...).Query(qb).From(search.From).Size(search.Size).SortBy(search.Sort...).Do(context.Background())
 
 	if err != nil {
 		return nil, err

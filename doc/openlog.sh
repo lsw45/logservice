@@ -31,8 +31,8 @@ echo '& ~' >> /etc/rsyslog.d/logservice2.conf
 echo '$FileOwner '$user > /etc/rsyslog.d/gameServer.conf
 echo '$FileGroup '$user >> /etc/rsyslog.d/gameServer.conf
 echo '$FileCreateMode 0644' >> /etc/rsyslog.d/gameServer.conf
-echo '$template gamelog,"/var/log/GameServer/server.log"' >> /etc/rsyslog.d/gameServer.conf
-echo 'if ($syslogfacility-text == "local1" or $syslogfacility-text == "LOG_LOCAL1") then -?gamelog' >> /etc/rsyslog.d/gameServer.conf
+echo '$template gamelog,"/var/log/engine/server.log"' >> /etc/rsyslog.d/gameServer.conf
+echo 'if ($syslogfacility-text == "local1" or $syslogfacility-text == "LOG_LOCAL1") and $syslogtag contains "supervisord" then -?gamelog' >> /etc/rsyslog.d/gameServer.conf
 echo '& ~' >> /etc/rsyslog.d/gameServer.conf
 
 service rsyslog restart
@@ -47,7 +47,7 @@ if [ -d '/etc/logrotate.d' ];then
 	dateext
 	sharedscripts
 	postrotate
-		cd /opt/logservice2;./loggie >> ./loggie.log 2>&1 &
+		systemctl restart loggie
 	endscript
 }
 EOF

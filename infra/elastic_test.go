@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log-ext/domain/entity"
 	"testing"
 
 	"github.com/olivere/elastic/v7"
@@ -45,7 +46,17 @@ func TestLuceneQuery(t *testing.T) {
 		return
 	}
 	es := elasticsearch{Client: client}
-	list, err := es.Search("server-y", "should", "(type:2)")
+
+	e := &entity.QueryDocs{
+		Query:     "time: [1666260000 TO 1666261000]",
+		Size:      1,
+		From:      1,
+		EndTime:   1666274687,
+		StartTime: 1666260000,
+		Sort:      []elastic.Sorter{elastic.NewFieldSort("time").Desc()},
+	}
+
+	list, err := es.SearchRequest([]string{"operator-55-1-4-2022.10"}, e)
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -55,4 +66,6 @@ func TestLuceneQuery(t *testing.T) {
 	for _, v := range list.Hits.Hits {
 		fmt.Printf("%+v", v)
 	}
+	fmt.Println(eslog.String())
+
 }

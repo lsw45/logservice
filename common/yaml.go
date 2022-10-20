@@ -28,7 +28,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - /var/log/GameServer/server.log
+    - /var/log/engine/server.log
     fieldsUnderRoot: true
     fields:
       index: server-%s
