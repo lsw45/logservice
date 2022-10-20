@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"log-ext/common"
 	"log-ext/domain/entity"
@@ -237,6 +238,38 @@ func (es *elasticsearch) NearbyDoc(indexName string, times int64, num int) ([]*e
 
 func (es *elasticsearch) Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error) {
 	res, err := es.Client.Search().Index(req.Indexs...).Source(req.Aggs).Size(0).Do(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		err = errors.New("aggregation results is nil")
+		return nil, err
+	}
+	if res.Hits == nil {
+		err = errors.New("got aggregation.Hits is nil")
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (es *elasticsearch) Search(index string, must string, body string) (*elastic.SearchResult, error) {
+	query := `{
+"query": {
+    "bool": {
+		"%s": [
+			{
+				"match_phrase": {
+					"body": "%s"
+				}
+			}
+		]
+	}
+  }
+}`
+	query = fmt.Sprintf(query, must, body)
+	res, err := es.Client.Search().Index(index).Source(query).Size(0).Do(context.Background())
 
 	if err != nil {
 		return nil, err

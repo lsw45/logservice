@@ -28,6 +28,12 @@ echo '$template gamelog,"/var/log/GameOperate/client.log"' >> /etc/rsyslog.d/log
 echo 'if ($syslogfacility-text == "local0" or $syslogfacility-text == "LOG_LOCAL0") and $syslogtag contains "cocos" then -?gamelog' >> /etc/rsyslog.d/logservice2.conf
 echo '& ~' >> /etc/rsyslog.d/logservice2.conf
 
+echo '$FileOwner '$user > /etc/rsyslog.d/gameServer.conf
+echo '$FileGroup '$user >> /etc/rsyslog.d/gameServer.conf
+echo '$FileCreateMode 0644' >> /etc/rsyslog.d/gameServer.conf
+echo '$template gamelog,"/var/log/GameServer/server.log"' >> /etc/rsyslog.d/gameServer.conf
+echo 'if ($syslogfacility-text == "local1" or $syslogfacility-text == "LOG_LOCAL1") then -?gamelog' >> /etc/rsyslog.d/gameServer.conf
+echo '& ~' >> /etc/rsyslog.d/gameServer.conf
 
 service rsyslog restart
 

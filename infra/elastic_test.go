@@ -32,3 +32,27 @@ func TestNearby(t *testing.T) {
 	fmt.Println(err)
 	fmt.Println(res)
 }
+
+func TestLuceneQuery(t *testing.T) {
+	tout := log.New(&eslog, "TRACER ", log.LstdFlags)
+	client, err := elastic.NewClient(
+		elastic.SetSniff(false),
+		elastic.SetURL("http://121.37.173.234:9200"),
+		elastic.SetTraceLog(tout),
+	)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	es := elasticsearch{Client: client}
+	list, err := es.Search("server-y", "should", "(type:2)")
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	for _, v := range list.Hits.Hits {
+		fmt.Printf("%+v", v)
+	}
+}

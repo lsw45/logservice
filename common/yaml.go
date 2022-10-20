@@ -24,38 +24,11 @@ pipelines:
     fields:
       index: operator-%s
       ip: %s
-  - name: DbManager
-    type: file
-    addonMeta: true
-    paths:
-    - /var/log/engine/DbManager.log
-    fieldsUnderRoot: true
-    fields:
-      index: server-%s
-      ip: %s
-  - name: GameManager
-    type: file
-    addonMeta: true
-    paths:
-    - /var/log/engine/GameManager.log
-    fieldsUnderRoot: true
-    fields:
-      index: server-%s
-      ip: %s
   - name: GameServer
     type: file
     addonMeta: true
     paths:
-    - /var/log/engine/GameServer.log
-    fieldsUnderRoot: true
-    fields:
-      index: server-%s
-      ip: %s
-  - name: GateServer
-    type: file
-    addonMeta: true
-    paths:
-    - /var/log/engine/GateServer.log
+    - /var/log/GameServer/server.log
     fieldsUnderRoot: true
     fields:
       index: server-%s
@@ -75,7 +48,7 @@ pipelines:
 	}
 
 	broker, _ := json.Marshal(kafkaBroker)
-	piplineTemplate = fmt.Sprintf(piplineTemplate, index, ip, index, ip, index, ip, index, ip, index, ip, string(broker))
+	piplineTemplate = fmt.Sprintf(piplineTemplate, index, ip, index, ip, string(broker))
 
 	conf := &control.PipelineConfig{}
 	err := yaml.Unmarshal([]byte(piplineTemplate), conf)
