@@ -145,8 +145,14 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 
 	h := elastic.NewHistogramAggregation().Field("time").Interval(float64(search.Interval))
 
-	timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
-	builder := es.Client.Search().Index(search.Indexs...).Query(timeRange).TrackTotalHits(true).
+	qb := elastic.NewBoolQuery()
+	if len(search.Query) != 0 {
+		qb = qb.Must(elastic.NewQueryStringQuery(search.Query).TimeZone("Asia/Shanghai").AnalyzeWildcard(true))
+	}
+	qb = qb.Filter(elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime).Format("strict_date_optional_time"))
+
+
+	builder := es.Client.Search().Index(search.Indexs...).Query(qb).TrackTotalHits(true).
 		Size(1).SortBy(sort...). // 拿到第一个doc
 		Pretty(true)
 
@@ -260,7 +266,7 @@ func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs)
 	}
 	qb = qb.Filter(elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime).Format("strict_date_optional_time"))
 
-	res, err := es.Client.Search().Index(index...).Query(qb).From(search.From).Size(search.Size).SortBy(search.Sort...).Do(context.Background())
+	res, err := es.Client.Search().Index(index...).Query(qb).From(search.From).Size(search.Size).SortBy(search.Sort...).TrackTotalHits(true).Do(context.Background())
 
 	if err != nil {
 		return nil, err

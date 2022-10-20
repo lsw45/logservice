@@ -133,6 +133,7 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 	}
 
 	histoReq := &entity.DateHistogramReq{
+		Query:     filter.Keywords,
 		StartTime: filter.StartTime,
 		EndTime:   filter.EndTime,
 		Indexs:    filter.Indexs,

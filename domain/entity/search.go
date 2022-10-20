@@ -48,6 +48,7 @@ type AggregationReq struct {
 type DateHistogramReq struct {
 	Indexs    []string `json:"indexs"`
 	Interval  int64    `json:"interval"`
+	Query     string   `json:"query"`
 	GroupName string   `json:"group_name"`
 	StartTime int64    `json:"start_time"`
 	EndTime   int64    `json:"end_time"` //second

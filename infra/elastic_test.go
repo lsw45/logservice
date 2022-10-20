@@ -68,4 +68,15 @@ func TestLuceneQuery(t *testing.T) {
 	}
 	fmt.Println(eslog.String())
 
+	h := &entity.DateHistogramReq{
+		Interval:  60,
+		Query:     e.Query,
+		EndTime:   e.EndTime,
+		StartTime: e.StartTime,
+		Indexs:    []string{"operator-55-1-4-2022.10"},
+	}
+	_, _, err = es.Histogram(h)
+
+	fmt.Println(eslog.String())
+
 }
