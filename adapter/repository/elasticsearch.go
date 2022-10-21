@@ -25,6 +25,9 @@ func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *enti
 		common.Logger.Errorf("%v", err)
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 
 	if res.TotalHits() == 0 {
 		common.Logger.Warn("got SearchResult.Hits = 0")

@@ -182,7 +182,7 @@ func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs)
 
 	if err != nil {
 		// 不存在的索引，返回空
-		if strings.Index(err.Error(), "elastic: Error 404 (Not Found): no such index") > 0 {
+		if strings.Index(err.Error(), "index_not_found_exception") > 0 {
 			return nil, nil
 		}
 		common.Logger.Infof(eslog.String())

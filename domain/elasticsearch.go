@@ -78,6 +78,9 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		return nil, 0, err
 	}
 
+	if hits == nil {
+		return nil, 0, nil
+	}
 	return hits, int(hits.TotalHits.Value), nil
 }
 

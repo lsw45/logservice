@@ -56,7 +56,7 @@ func TestLuceneQuery(t *testing.T) {
 		Sort:      []elastic.Sorter{elastic.NewFieldSort("time").Desc()},
 	}
 
-	list, err := es.SearchRequest([]string{"operator-55-1-4-2022.10"}, e)
+	list, err := es.SearchRequest([]string{"operator-55-1-5-2022.10"}, e)
 
 	if err != nil {
 		fmt.Println(err.Error())
