@@ -23,6 +23,7 @@ type QueryDocs struct {
 	StartTime int64
 	EndTime   int64
 	Query     string
+	Indexs    []string
 	Sort      []elastic.Sorter
 }
 

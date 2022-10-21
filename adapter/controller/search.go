@@ -125,7 +125,7 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	data, total, err := sctl.searchSrv.Histogram(filter)
+	data, total, err := sctl.searchSrv.Histogram(&entity.LogsFilter{LogsFilterReq: *filter})
 	if err != nil {
 		common.Logger.Errorf("params error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{

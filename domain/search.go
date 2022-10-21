@@ -9,6 +9,6 @@ import (
 type SearchService interface {
 	Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error)
 	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error)
-	Histogram(query *entity.LogsFilterReq) ([]entity.BucketsList, int64, error)
+	Histogram(query *entity.LogsFilter) ([]entity.BucketsList, int64, error)
 	SearchLogsByFilter(filter *entity.LogsFilter) (*elastic.SearchHits, int, error)
 }

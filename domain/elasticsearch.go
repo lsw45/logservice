@@ -26,14 +26,14 @@ func (svc *ealsticsearchService) NearbyDoc(indexName string, times int64, num in
 	return svc.elasticDep.NearbyDoc(indexName, times, num)
 }
 
-func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilterReq) ([]entity.BucketsList, int64, error) {
+func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.BucketsList, int64, error) {
 	query := &entity.DateHistogramReq{
 		Query:     filter.Keywords,
 		StartTime: filter.StartTime,
 		EndTime:   filter.EndTime,
 	}
 
-	if filter.EnvID == 0 && filter.ProjectId == 0 && filter.RegionID == 0 {
+	if filter.EnvID > 0 && filter.ProjectId > 0 && filter.RegionID > 0 {
 		query.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
 	}
 	if len(filter.Indexs) == 0 {
@@ -68,15 +68,11 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		return nil, 0, err
 	}
 
-	if filter.EnvID == 0 && filter.ProjectId == 0 && filter.RegionID == 0 {
-		filter.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
-	}
-
-	if len(filter.Indexs) == 0 {
+	if len(query.Indexs) == 0 {
 		return nil, 0, nil
 	}
 
-	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
+	hits, err := svc.elasticDep.SearchRequest(query.Indexs, query)
 	if err != nil {
 		common.Logger.Errorf("search log error: %v", err)
 		return nil, 0, err
@@ -87,11 +83,18 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 
 func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	query := &entity.QueryDocs{
-		From:      (filter.Page - 1) * filter.PageSize,
-		Size:      filter.PageSize,
 		StartTime: filter.StartTime,
 		EndTime:   filter.EndTime,
 		Query:     filter.Keywords,
+	}
+
+	if filter.Page > 0 {
+		query.From = (filter.Page - 1) * filter.PageSize
+		query.Size = filter.PageSize
+	}
+
+	if filter.EnvID > 0 && filter.ProjectId > 0 && filter.RegionID > 0 {
+		query.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
 	}
 
 	// elastic:true为升序，false为降序
@@ -103,6 +106,7 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 		}
 	}
 
+	// 默认排序字段
 	if len(query.Sort) == 0 {
 		query.Sort = []elastic.Sorter{elastic.NewFieldSort(entity.LogSortField).Desc()}
 	}
