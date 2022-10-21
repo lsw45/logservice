@@ -116,7 +116,7 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	if filter.StartTime > filter.EndTime || filter.StartTime == 0 || filter.EnvID == 0 || filter.ProjectId == 0 || filter.RegionID == 0 {
+	if filter.StartTime > filter.EndTime || filter.StartTime == 0 {
 		common.Logger.Error("params error")
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "validation failed!",
@@ -125,16 +125,7 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 		return
 	}
 
-	histoReq := &entity.DateHistogramReq{
-		Query:     filter.Keywords,
-		StartTime: filter.StartTime,
-		EndTime:   filter.EndTime,
-		Indexs:    filter.Indexs,
-	}
-
-	histoReq.Interval = (histoReq.EndTime - histoReq.StartTime) / 60 // 将时段60等分
-
-	list, total, err := sctl.searchSrv.Histogram(histoReq)
+	data, total, err := sctl.searchSrv.Histogram(filter)
 	if err != nil {
 		common.Logger.Errorf("params error: %s", err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -142,12 +133,6 @@ func (sctl *SearchController) Histogram(c *gin.Context) {
 			"error":   err.Error(),
 		})
 		return
-	}
-
-	data := []entity.BucketsList{}
-	for _, v := range list {
-		t := v.Key.(float64)
-		data = append(data, entity.BucketsList{DocCount: v.DocCount, StartTime: t, EndTime: t + float64(histoReq.Interval)})
 	}
 
 	var resp entity.HistogramResp

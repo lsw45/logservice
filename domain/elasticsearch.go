@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
@@ -25,23 +26,35 @@ func (svc *ealsticsearchService) NearbyDoc(indexName string, times int64, num in
 	return svc.elasticDep.NearbyDoc(indexName, times, num)
 }
 
-func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
-	if query.StartTime > query.EndTime || query.StartTime == 0 {
-		common.Logger.Error("time error")
-		return nil, 0, errors.New("param error")
+func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilterReq) ([]entity.BucketsList, int64, error) {
+	query := &entity.DateHistogramReq{
+		Query:     filter.Keywords,
+		StartTime: filter.StartTime,
+		EndTime:   filter.EndTime,
 	}
 
-	if query.EnvID == 0 || query.ProjectId == 0 || query.RegionID == 0 {
-		common.Logger.Error("index error")
-		return nil, 0, errors.New("param error")
+	if filter.EnvID == 0 && filter.ProjectId == 0 && filter.RegionID == 0 {
+		query.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
+	}
+	if len(filter.Indexs) == 0 {
+		return nil, 0, nil
 	}
 
-	histogram, total, err := svc.elasticDep.Histogram(query)
+	query.Interval = (query.EndTime - query.StartTime) / 60 // 将时段60等分
+
+	list, total, err := svc.elasticDep.Histogram(query)
 	if err != nil {
 		common.Logger.Errorf("histogram error: %v", err)
 		return nil, 0, err
 	}
-	return histogram, total, nil
+
+	data := []entity.BucketsList{}
+	for _, v := range list {
+		t := v.Key.(float64)
+		data = append(data, entity.BucketsList{DocCount: v.DocCount, StartTime: t, EndTime: t + float64(query.Interval)})
+	}
+
+	return data, total, nil
 }
 
 func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (*elastic.SearchHits, int, error) {
@@ -50,14 +63,17 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 		return nil, 0, errors.New("param error")
 	}
 
-	if filter.EnvID == 0 || filter.ProjectId == 0 || filter.RegionID == 0 {
-		common.Logger.Error("index error")
-		return nil, 0, errors.New("param error")
-	}
-
 	query, err := transQuerydoc(filter)
 	if err != nil {
 		return nil, 0, err
+	}
+
+	if filter.EnvID == 0 && filter.ProjectId == 0 && filter.RegionID == 0 {
+		filter.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
+	}
+
+	if len(filter.Indexs) == 0 {
+		return nil, 0, nil
 	}
 
 	hits, err := svc.elasticDep.SearchRequest(filter.Indexs, query)
