@@ -8,6 +8,7 @@ import (
 	"log"
 	"log-ext/common"
 	"log-ext/domain/entity"
+	"strings"
 	"time"
 
 	"github.com/olivere/elastic/v7"
@@ -180,9 +181,14 @@ func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs)
 	res, err := es.Client.Search().Index(index...).Query(qb).From(search.From).Size(search.Size).SortBy(search.Sort...).TrackTotalHits(true).Do(context.Background())
 
 	if err != nil {
+		// 不存在的索引，返回空
+		if strings.Index(err.Error(), "elastic: Error 404 (Not Found): no such index") > 0 {
+			return nil, nil
+		}
 		common.Logger.Infof(eslog.String())
 		return nil, err
 	}
+
 	if res == nil {
 		err = errors.New("aggregation results is nil")
 		return nil, err
