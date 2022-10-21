@@ -180,6 +180,7 @@ func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs)
 	res, err := es.Client.Search().Index(index...).Query(qb).From(search.From).Size(search.Size).SortBy(search.Sort...).TrackTotalHits(true).Do(context.Background())
 
 	if err != nil {
+		common.Logger.Infof(eslog.String())
 		return nil, err
 	}
 	if res == nil {

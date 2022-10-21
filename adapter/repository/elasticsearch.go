@@ -22,6 +22,7 @@ func NewElasticsearchRepo() *ElasticsearchRepo {
 func (elastic *ElasticsearchRepo) SearchRequest(indexNames []string, query *entity.QueryDocs) (*elastic.SearchHits, error) {
 	res, err := elastic.ElasticsearchInfra.SearchRequest(indexNames, query)
 	if err != nil {
+		common.Logger.Errorf("%v", err)
 		return nil, err
 	}
 
