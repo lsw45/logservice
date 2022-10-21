@@ -87,5 +87,9 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 		}
 	}
 
+	if len(query.Sort) == 0 {
+		query.Sort = []elastic.Sorter{elastic.NewFieldSort(entity.LogSortField).Desc()}
+	}
+
 	return query, nil
 }

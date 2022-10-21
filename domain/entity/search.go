@@ -6,6 +6,8 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
+var LogSortField = "rsys_time"
+
 type DateHistogram struct {
 	Field     string
 	Interval  string
@@ -55,7 +57,6 @@ type DateHistogramReq struct {
 	Indexs    []string `json:"indexs"`
 	Interval  int64    `json:"interval"`
 	Query     string   `json:"query"`
-	GroupName string   `json:"group_name"`
 	StartTime int64    `json:"start_time"`
 	EndTime   int64    `json:"end_time"` //second
 }

@@ -3,7 +3,7 @@
 user=logservice2
 group=logservice2
 
-if [ -e '/var/log/GameOperate/client.log' ];then
+if [ -e '/var/log/gameOperate/client.log' ];then
 	echo "运维日志重定向已启动，可直接采集"
 	exit 0
 fi
@@ -21,25 +21,27 @@ if [ $? -ne 0 ];then
 	exit 1
 fi
 
-echo '$FileOwner '$user > /etc/rsyslog.d/logservice2.conf
-echo '$FileGroup '$user >> /etc/rsyslog.d/logservice2.conf
-echo '$FileCreateMode 0644' >> /etc/rsyslog.d/logservice2.conf
-echo '$template gamelog,"/var/log/GameOperate/client.log"' >> /etc/rsyslog.d/logservice2.conf
-echo 'if ($syslogfacility-text == "local0" or $syslogfacility-text == "LOG_LOCAL0") and $syslogtag contains "cocos" then -?gamelog' >> /etc/rsyslog.d/logservice2.conf
-echo '& ~' >> /etc/rsyslog.d/logservice2.conf
+echo '$FileOwner '$user > /etc/rsyslog.d/gameOperator.conf
+echo '$FileGroup '$user >> /etc/rsyslog.d/gameOperator.conf
+echo '$FileCreateMode 0644' >> /etc/rsyslog.d/gameOperator.conf
+echo 'template(name="tpl" type="string" string="%TIMESTAMP:::date-unixtimestamp% %programname% %msg%\n")' >> /etc/rsyslog.d/gameOperator.conf
+echo '$template gamelog,"/var/log/gameOperate/client.log"' >> /etc/rsyslog.d/gameOperator.conf
+echo 'if ($syslogfacility-text == "local0" or $syslogfacility-text == "LOG_LOCAL0") and $syslogtag contains "cocos" then -?gamelog;tpl' >> /etc/rsyslog.d/gameOperator.conf
+echo '& ~' >> /etc/rsyslog.d/gameOperator.conf
 
 echo '$FileOwner '$user > /etc/rsyslog.d/gameServer.conf
 echo '$FileGroup '$user >> /etc/rsyslog.d/gameServer.conf
 echo '$FileCreateMode 0644' >> /etc/rsyslog.d/gameServer.conf
+echo 'template(name="tpl" type="string" string="%TIMESTAMP:::date-unixtimestamp% %programname% %msg%\n")' >> /etc/rsyslog.d/gameServer.conf
 echo '$template gamelog,"/var/log/engine/server.log"' >> /etc/rsyslog.d/gameServer.conf
-echo 'if ($syslogfacility-text == "local1" or $syslogfacility-text == "LOG_LOCAL1") and $syslogtag contains "supervisord" then -?gamelog' >> /etc/rsyslog.d/gameServer.conf
+echo 'if $syslogtag contains "supervisord" then -?gamelog;tpl' >> /etc/rsyslog.d/gameServer.conf
 echo '& ~' >> /etc/rsyslog.d/gameServer.conf
 
 service rsyslog restart
 
 if [ -d '/etc/logrotate.d' ];then
-	cat>/etc/logrotate.d/logservice2<<EOF
-/var/log/GameOperate/client.log{
+	cat>/etc/logrotate.d/gameOperator<<EOF
+/var/log/gameOperate/client.log{
 	daily
 	rotate 15
 	nocompress

@@ -13,52 +13,6 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-/*
-{
-    "_index" : "game_static-2022.09.29",
-    "_id" : "-f5FiIMBP53dBzVBjHbr",
-    "_score" : null,
-    "_ignored" : [
-      "event.original.keyword"
-    ],
-	"_source" : {
-      "@version" : "1",
-      "uuid" : "YzE+3wPadjA7QohW",
-      "role_id" : 12334,
-      "IMEI" : "xxxx",
-      "role_name" : "cocos",
-      "time" : 1664269483,
-      "mac_address" : "00-15-5D-0C-55-55",
-      "@timestamp" : "2022-09-29T08:03:22.822548117Z",
-      "os_name" : "ios 16",
-      "ip" : "127.0.0.1",
-      "game_id" : "cc88",
-      "os_ver" : "1.1.1",
-      "type" : "game_static",
-      "operation" : "LogoutRole",
-      "server_id" : "10001",
-      "app_channel" : "AppStore",
-      "logout_time" : 1664269483,
-      "account_id" : "cocos",
-      "network" : "WIFI",
-      "service" : "/usr/local/go",
-      "index" : "55-1-3",
-      "country_code" : "",
-      "state" : {
-        "filename" : "/opt/carey/modify_es_index/source_loggie/test.log",
-        "hostname" : "paas-dev",
-        "bytes" : 431,
-        "source" : "kdump",
-        "timestamp" : "2022-09-29T16:03:19.790Z",
-        "offset" : 0,
-        "pipeline" : "demo"
-      }
-    },
-    "sort" : [
-      1664438602822
-    ]
-}
-*/
 type ElasticsearchInfra interface {
 	Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error)
 	SearchRequest(indexNames []string, quer *entity.QueryDocs) (*elastic.SearchResult, error)
@@ -96,43 +50,12 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 	return &elasticsearch{client}, nil
 }
 
-// func (es *elasticsearch) SearchRequest(indexNames []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
-// 	// timeRange := elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime)
-// 	if len(search.Query) == 0 {
-// 		search.Query = `{"query":{"match_all":{}},"track_total_hits":true}`
-// 	}
-
-// 	timeRange := elastic.NewRangeQuery("time").Gt(search.StartTime).Lt(search.EndTime)
-
-// 	source := elastic.NewSearchSource().Query(timeRange)
-
-// 	res, err := es.Client.Search().Index(indexNames...).SearchSource(source).Source(search.Query).
-// 		From(search.From).Size(search.Size).SortBy(search.Sort...).
-// 		Do(context.Background())
-
-// 	common.Logger.Error(eslog.String())
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	if res == nil {
-// 		err = errors.New("got results is nil")
-// 		return nil, err
-// 	}
-// 	if res.Hits == nil {
-// 		common.Logger.Info(eslog.String())
-// 		err = errors.New("got SearchResult.Hits is nil")
-// 		return nil, err
-// 	}
-
-// 	return res, nil
-// }
-
 func (es *elasticsearch) IndicesDeleteRequest(indexNames []string) (*elastic.Response, error) {
 	return nil, nil
 }
 
 func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
-	search.GroupName = "dateGroup"
+	group_name := "dateGroup"
 
 	// 如果interval大于所有日志的时间，则查询到
 	// "buckets" : [
@@ -141,25 +64,19 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 	//   "doc_count" : 10832
 	// }
 	// 第一个doc作为起始时间
-	sort := []elastic.Sorter{elastic.NewFieldSort("time").Asc()}
+	sort := []elastic.Sorter{elastic.NewFieldSort(entity.LogSortField).Asc()}
 
-	h := elastic.NewHistogramAggregation().Field("time").Interval(float64(search.Interval))
-
-	qb := elastic.NewBoolQuery()
-	if len(search.Query) != 0 {
-		qb = qb.Must(elastic.NewQueryStringQuery(search.Query).TimeZone("Asia/Shanghai").AnalyzeWildcard(true))
-	}
-	qb = qb.Filter(elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime).Format("strict_date_optional_time"))
-
+	h := elastic.NewHistogramAggregation().Field(entity.LogSortField).Interval(float64(search.Interval))
+	qb := newBoolQuery(search.Query, search.StartTime, search.EndTime)
 
 	builder := es.Client.Search().Index(search.Indexs...).Query(qb).TrackTotalHits(true).
 		Size(1).SortBy(sort...). // 拿到第一个doc
 		Pretty(true)
 
-	res, err := builder.Aggregation(search.GroupName, h).Do(context.TODO())
+	res, err := builder.Aggregation(group_name, h).Do(context.TODO())
 
-	common.Logger.Infof(eslog.String())
 	if err != nil {
+		common.Logger.Infof(eslog.String())
 		return nil, 0, err
 	}
 
@@ -168,12 +85,12 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 		err = errors.New("got Aggregations is nil")
 		return nil, 0, err
 	}
-	if len(aggs[search.GroupName]) == 0 {
+	if len(aggs[group_name]) == 0 {
 		return nil, 0, nil
 	}
 
 	histogra := &entity.DateHistAggre{}
-	err = json.Unmarshal(aggs[search.GroupName], histogra)
+	err = json.Unmarshal(aggs[group_name], histogra)
 	if err != nil {
 		common.Logger.Error(err.Error())
 		return nil, 0, err
@@ -190,7 +107,7 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 				_ = json.Unmarshal(xx, &hit)
 			}
 
-			b.Key = int64(hit["time"].(float64))
+			b.Key = int64(hit[entity.LogSortField].(float64))
 
 			tm := time.Unix(b.Key.(int64), 0)
 			b.KeyAsString = tm.Format("2006-01-02 15:04:05")
@@ -202,10 +119,9 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 }
 
 func (es *elasticsearch) NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error) {
-	sortField := "time"
 
-	timeRange := elastic.NewRangeQuery(sortField).Gte(times)
-	afterRes, err := es.Client.Search().Index(indexName).Query(timeRange).Sort(sortField, true).Size(num).Do(context.Background())
+	timeRange := elastic.NewRangeQuery(entity.LogSortField).Gte(times)
+	afterRes, err := es.Client.Search().Index(indexName).Query(timeRange).Sort(entity.LogSortField, true).Size(num).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -218,8 +134,8 @@ func (es *elasticsearch) NearbyDoc(indexName string, times int64, num int) ([]*e
 		return nil, err
 	}
 
-	timeRange = elastic.NewRangeQuery(sortField).Lt(times)
-	preRes, err := es.Client.Search().Index(indexName).Query(timeRange).Sort(sortField, true).Size(num).Do(context.Background())
+	timeRange = elastic.NewRangeQuery(entity.LogSortField).Lt(times)
+	preRes, err := es.Client.Search().Index(indexName).Query(timeRange).Sort(entity.LogSortField, true).Size(num).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -260,12 +176,7 @@ func (es *elasticsearch) Aggregation(req entity.AggregationReq) (*elastic.Search
 }
 
 func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs) (*elastic.SearchResult, error) {
-	qb := elastic.NewBoolQuery()
-	if len(search.Query) != 0 {
-		qb = qb.Must(elastic.NewQueryStringQuery(search.Query).TimeZone("Asia/Shanghai").AnalyzeWildcard(true))
-	}
-	qb = qb.Filter(elastic.NewRangeQuery("time").Gte(search.StartTime).Lte(search.EndTime).Format("strict_date_optional_time"))
-
+	qb := newBoolQuery(search.Query, search.StartTime, search.EndTime)
 	res, err := es.Client.Search().Index(index...).Query(qb).From(search.From).Size(search.Size).SortBy(search.Sort...).TrackTotalHits(true).Do(context.Background())
 
 	if err != nil {
@@ -281,4 +192,13 @@ func (es *elasticsearch) SearchRequest(index []string, search *entity.QueryDocs)
 	}
 
 	return res, nil
+}
+
+func newBoolQuery(queryString string, start, end int64) *elastic.BoolQuery {
+	qb := elastic.NewBoolQuery()
+	if len(queryString) != 0 {
+		qb = qb.Must(elastic.NewQueryStringQuery(queryString).TimeZone("Asia/Shanghai").AnalyzeWildcard(true))
+	}
+	qb = qb.Filter(elastic.NewRangeQuery(entity.LogSortField).Gte(start).Lte(end))
+	return qb
 }
