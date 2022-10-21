@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"encoding/json"
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
@@ -59,8 +58,11 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 
 func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 	query := &entity.QueryDocs{
-		From: (filter.Page - 1) * filter.PageSize,
-		Size: filter.PageSize,
+		From:      (filter.Page - 1) * filter.PageSize,
+		Size:      filter.PageSize,
+		StartTime: filter.StartTime,
+		EndTime:   filter.EndTime,
+		Query:     filter.Keywords,
 	}
 
 	// elastic:true为升序，false为降序
@@ -71,31 +73,6 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 			query.Sort = append(query.Sort, elastic.NewFieldSort(key).Desc())
 		}
 	}
-
-	query.StartTime = filter.StartTime
-	query.EndTime = filter.EndTime
-
-	// 检验查询语句的json格式是否正确
-	var js []byte
-	if len(filter.Keywords) != 0 {
-		var f map[string]interface{}
-		err := json.Unmarshal([]byte(filter.Keywords), &f)
-		if err != nil {
-			common.Logger.Errorf("unmarshal json error: %v", err)
-			return nil, err
-		}
-
-		if _, ok := f["track_total_hits"]; !ok {
-			f["track_total_hits"] = true
-		}
-
-		// if _, ok := f["query"]; !ok {
-		// 	f["query"] = map[string]map[string]map[string]int64{"range": {"time": {"get": filter.StartTime, "lte": filter.EndTime}}}
-		// }
-
-		js, _ = json.Marshal(f)
-	}
-	query.Query = string(js)
 
 	return query, nil
 }
