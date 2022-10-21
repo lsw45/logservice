@@ -30,6 +30,9 @@ type CommonResp struct {
 }
 
 type LogsFilterReq struct {
+	EnvID     int             `json:"env_id"`
+	RegionID  int             `json:"region_id"`
+	ProjectId int             `json:"project_id"`
 	Page      int             `json:"page"`
 	Limit     int             `json:"limit"`
 	PageSize  int             `json:"page_size"`
@@ -46,6 +49,9 @@ type AggregationReq struct {
 }
 
 type DateHistogramReq struct {
+	EnvID     int      `json:"env_id"`
+	RegionID  int      `json:"region_id"`
+	ProjectId int      `json:"project_id"`
 	Indexs    []string `json:"indexs"`
 	Interval  int64    `json:"interval"`
 	Query     string   `json:"query"`

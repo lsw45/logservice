@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"log-ext/common"
 	"log-ext/domain/dependency"
 	"log-ext/domain/entity"
@@ -25,8 +26,14 @@ func (svc *ealsticsearchService) NearbyDoc(indexName string, times int64, num in
 }
 
 func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error) {
-	if len(query.Indexs) == 0 {
-		return nil, 0, nil
+	if query.StartTime > query.EndTime || query.StartTime == 0 {
+		common.Logger.Error("time error")
+		return nil, 0, errors.New("param error")
+	}
+
+	if query.EnvID == 0 || query.ProjectId == 0 || query.RegionID == 0 {
+		common.Logger.Error("index error")
+		return nil, 0, errors.New("param error")
 	}
 
 	histogram, total, err := svc.elasticDep.Histogram(query)
@@ -38,8 +45,14 @@ func (svc *ealsticsearchService) Histogram(query *entity.DateHistogramReq) ([]en
 }
 
 func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (*elastic.SearchHits, int, error) {
-	if len(filter.Indexs) == 0 {
-		return nil, 0, nil
+	if filter.StartTime > filter.EndTime || filter.StartTime == 0 {
+		common.Logger.Error("time error")
+		return nil, 0, errors.New("param error")
+	}
+
+	if filter.EnvID == 0 || filter.ProjectId == 0 || filter.RegionID == 0 {
+		common.Logger.Error("index error")
+		return nil, 0, errors.New("param error")
 	}
 
 	query, err := transQuerydoc(filter)
