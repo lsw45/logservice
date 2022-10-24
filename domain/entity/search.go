@@ -151,8 +151,8 @@ type HistogramResp struct {
 
 type BucketsList struct {
 	DocCount  int     `json:"doc_count"`
-	StartTime float64 `json:"start_time"`
-	EndTime   float64 `json:"end_time"`
+	StartTime int64 `json:"start_time"`
+	EndTime   int64 `json:"end_time"`
 }
 
 type Buckets struct {

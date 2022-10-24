@@ -60,8 +60,9 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 
 	data := []entity.BucketsList{}
 	for _, v := range list {
-		t := v.Key.(float64)
-		data = append(data, entity.BucketsList{DocCount: v.DocCount, StartTime: t, EndTime: t + float64(query.Interval)})
+		t := v.Key.(int64)
+
+		data = append(data, entity.BucketsList{DocCount: v.DocCount, StartTime: t, EndTime: t + query.Interval})
 	}
 
 	return data, total, nil
