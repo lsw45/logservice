@@ -38,4 +38,5 @@ type ElasticsearchDependency interface {
 	IndicesDeleteRequest(indexNames []string) ([]byte, error)
 	Histogram(query *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error)
+	IndexExists(indexs []string) ([]string, error)
 }

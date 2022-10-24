@@ -156,6 +156,8 @@ func (sctl *SearchController) SearchLogsByFilter(c *gin.Context) {
 		return
 	}
 
+	common.Logger.Infof("%+v", filter)
+
 	list, total, err := sctl.searchSrv.SearchLogsByFilter(&entity.LogsFilter{LogsFilterReq: *filter})
 	if err != nil {
 		common.Logger.Errorf("controller search error: %s", err)

@@ -61,3 +61,16 @@ func (elastic *ElasticsearchRepo) NearbyDoc(indexName string, times int64, num i
 func (elastic *ElasticsearchRepo) Aggregation(req entity.AggregationReq) (*elastic.SearchResult, error) {
 	return elastic.ElasticsearchInfra.Aggregation(req)
 }
+
+func (elastic *ElasticsearchRepo) IndexExists(indexs []string) ([]string, error) {
+	for k, v := range indexs {
+		exits, err := elastic.ElasticsearchInfra.IndexExists(v)
+		if err != nil {
+			return nil, err
+		}
+		if !exits {
+			indexs = append(indexs[:k], indexs[k+1:]...)
+		}
+	}
+	return indexs, nil
+}

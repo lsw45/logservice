@@ -20,6 +20,7 @@ type ElasticsearchInfra interface {
 	Histogram(search *entity.DateHistogramReq) ([]entity.Buckets, int64, error)
 	IndicesDeleteRequest(indexNames []string) (*elastic.Response, error)
 	NearbyDoc(indexName string, times int64, num int) ([]*elastic.SearchHit, error)
+	IndexExists(index string) (bool, error)
 }
 
 var _ ElasticsearchInfra = new(elasticsearch)
@@ -49,6 +50,14 @@ func NewElasticsearch(conf common.Elasticsearch) (*elasticsearch, error) {
 		return nil, err
 	}
 	return &elasticsearch{client}, nil
+}
+
+func (es *elasticsearch) IndexExists(index string) (bool, error) {
+	exist, err := es.Client.IndexExists(index).Do(context.TODO())
+	if err != nil {
+		common.Logger.Errorf("index exists: %v", err)
+	}
+	return exist, err
 }
 
 func (es *elasticsearch) IndicesDeleteRequest(indexNames []string) (*elastic.Response, error) {

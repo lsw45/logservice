@@ -38,6 +38,14 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 			query.Indexs = append(query.Indexs, fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, id))
 		}
 	}
+
+	var err error
+	query.Indexs, err = svc.elasticDep.IndexExists(query.Indexs)
+	if err != nil {
+		common.Logger.Errorf("search index error: %v", err)
+		return nil, 0, err
+	}
+
 	if len(filter.Indexs) == 0 {
 		return nil, 0, nil
 	}
@@ -67,6 +75,12 @@ func (svc *ealsticsearchService) SearchLogsByFilter(filter *entity.LogsFilter) (
 
 	query, err := transQuerydoc(filter)
 	if err != nil {
+		return nil, 0, err
+	}
+
+	query.Indexs, err = svc.elasticDep.IndexExists(query.Indexs)
+	if err != nil {
+		common.Logger.Errorf("search index error: %v", err)
 		return nil, 0, err
 	}
 
