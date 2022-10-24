@@ -63,14 +63,15 @@ func (elastic *ElasticsearchRepo) Aggregation(req entity.AggregationReq) (*elast
 }
 
 func (elastic *ElasticsearchRepo) IndexExists(indexs []string) ([]string, error) {
-	for k, v := range indexs {
+	var new []string
+	for _, v := range indexs {
 		exits, err := elastic.ElasticsearchInfra.IndexExists(v)
 		if err != nil {
 			return nil, err
 		}
-		if !exits {
-			indexs = append(indexs[:k], indexs[k+1:]...)
+		if exits {
+			new = append(new, v)
 		}
 	}
-	return indexs, nil
+	return new, nil
 }
