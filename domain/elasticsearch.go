@@ -59,10 +59,26 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 	}
 
 	data := []entity.BucketsList{}
-	for _, v := range list {
-		t := v.Key.(int64)
+	start := query.StartTime
+	n := 0
+	l := len(list)
+	small := list[0].Key.(int64)
+	max := list[l-1].Key.(int64)
+	for i := 0; i < 60; i++ {
+		end := start + query.Interval
 
-		data = append(data, entity.BucketsList{DocCount: v.DocCount, StartTime: t, EndTime: t + query.Interval})
+		// 没有区间的以空数据补齐
+		if end < small || max < start {
+			data = append(data, entity.BucketsList{DocCount: 0, StartTime: start, EndTime: end})
+		} else {
+			if n == l {
+				break
+			}
+			data = append(data, entity.BucketsList{DocCount: list[n].DocCount, StartTime: start, EndTime: end})
+			n++
+		}
+
+		start = end
 	}
 
 	return data, total, nil
