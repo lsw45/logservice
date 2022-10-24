@@ -76,8 +76,8 @@ func (es *elasticsearch) Histogram(search *entity.DateHistogramReq) ([]entity.Bu
 
 	res, err := builder.Aggregation(group_name, h).Do(context.TODO())
 
+	common.Logger.Infof(eslog.String())
 	if err != nil {
-		common.Logger.Infof(eslog.String())
 		return nil, 0, err
 	}
 

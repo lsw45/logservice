@@ -45,6 +45,22 @@ if [ -d '/etc/logrotate.d' ];then
 	daily
 	rotate 15
 	nocompress
+	inotifyemptyw
+	copytruncate
+	dateext
+	sharedscripts
+	postrotate
+		systemctl restart loggie
+	endscript
+}
+EOF
+
+	cat>/etc/logrotate.d/gameServer<<EOF
+/var/log/engine/server.log{
+	weekly
+	rotate 5
+	nocompress
+	inotifyemptyw
 	copytruncate
 	dateext
 	sharedscripts

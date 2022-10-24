@@ -19,7 +19,7 @@ pipelines:
     type: file
     addonMeta: true
     paths:
-    - /var/log/GameOperate/client.log
+    - /var/log/gameOperate/client.log
     fieldsUnderRoot: true
     fields:
       index: operator-%s
