@@ -34,8 +34,8 @@ type CommonResp struct {
 
 type LogsFilterReq struct {
 	EnvID     int             `json:"env_id"`
-	RegionID  int             `json:"region_id"`
 	ProjectId int             `json:"project_id"`
+	RegionID  []int           `json:"region_id"`
 	Page      int             `json:"page"`
 	Limit     int             `json:"limit"`
 	PageSize  int             `json:"page_size"`

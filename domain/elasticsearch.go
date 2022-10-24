@@ -33,8 +33,10 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 		EndTime:   filter.EndTime,
 	}
 
-	if filter.EnvID > 0 && filter.ProjectId > 0 && filter.RegionID > 0 {
-		query.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
+	if filter.EnvID > 0 && filter.ProjectId > 0 && len(filter.RegionID) > 0 {
+		for _, id := range filter.RegionID {
+			query.Indexs = append(query.Indexs, fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, id))
+		}
 	}
 	if len(filter.Indexs) == 0 {
 		return nil, 0, nil
@@ -96,8 +98,10 @@ func transQuerydoc(filter *entity.LogsFilter) (*entity.QueryDocs, error) {
 		query.Size = filter.PageSize
 	}
 
-	if filter.EnvID > 0 && filter.ProjectId > 0 && filter.RegionID > 0 {
-		query.Indexs = []string{fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, filter.RegionID)}
+	if filter.EnvID > 0 && filter.ProjectId > 0 && len(filter.RegionID) > 0 {
+		for _, id := range filter.RegionID {
+			query.Indexs = append(query.Indexs, fmt.Sprintf("server-%v-%v-%v", filter.ProjectId, filter.EnvID, id))
+		}
 	}
 
 	// elastic:true为升序，false为降序

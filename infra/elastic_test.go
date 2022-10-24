@@ -63,8 +63,10 @@ func TestLuceneQuery(t *testing.T) {
 		return
 	}
 
-	for _, v := range list.Hits.Hits {
-		fmt.Printf("%+v", v)
+	if list != nil {
+		for _, v := range list.Hits.Hits {
+			fmt.Printf("%+v", v)
+		}
 	}
 	fmt.Println(eslog.String())
 
