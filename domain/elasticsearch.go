@@ -60,10 +60,13 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 
 	data := []entity.BucketsList{}
 	start := query.StartTime
-	n := 0
 	l := len(list)
-	small := list[0].Key.(int64)
-	max := list[l-1].Key.(int64)
+	n := 0
+	small, max := int64(0), int64(0)
+	if l > 0 {
+		small = list[0].Key.(int64)
+		max = list[l-1].Key.(int64)
+	}
 	for i := 0; i < 60; i++ {
 		end := start + query.Interval
 
