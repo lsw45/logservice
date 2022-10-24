@@ -46,7 +46,7 @@ func (svc *ealsticsearchService) Histogram(filter *entity.LogsFilter) ([]entity.
 		return nil, 0, err
 	}
 
-	if len(filter.Indexs) == 0 {
+	if len(query.Indexs) == 0 {
 		return nil, 0, nil
 	}
 
